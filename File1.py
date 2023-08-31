@@ -78,14 +78,14 @@ def remove_low_variance(input_data, threshold=0.1):
     selection.fit(input_data)
     return input_data[input_data.columns[selection.get_support(indices=True)]]
 
+'''
 # %%
 
 descriptors_new = remove_correlated_features(df_with_200_descriptors)
 X_data = remove_low_variance(descriptors_new, threshold=0.1)
 
-# %%
-X_train, X_test, y_train, y_test = train_test_split(X_data, Y_data,test_size=0.3,random_state=42)
 
+'''
 # %%
 '''
 import lazypredict
@@ -97,6 +97,8 @@ from lazypredict.Supervised import LazyRegressor
 lregs = LazyRegressor(verbose=0,ignore_warnings=True, custom_metric=None)
 models, prediction_tests = lregs.fit(X_train, X_test, y_train, y_test)
 '''
+# %%
+X_train, X_test, y_train, y_test = train_test_split(X_data, Y_data,test_size=0.3,random_state=42)
 
 # %%
 ########   Model  ########
