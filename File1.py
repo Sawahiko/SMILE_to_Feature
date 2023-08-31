@@ -163,3 +163,11 @@ m = Chem.MolFromSmiles('CCCCC')
 from rdkit.Chem import Draw
 img = Draw.MolToFile(m,'pic2.png')
 
+# %%
+from rdkit.Chem import PandasTools
+df4 = df2
+PandasTools.AddMoleculeColumnToFrame(df4,'SMILES', 'Structure')
+
+# %%
+df_with_200_descriptors["SMILE"] = df["SMILES"]
+df_with_200_descriptors.to_csv('output.csv', index=False)
