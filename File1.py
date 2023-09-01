@@ -104,19 +104,38 @@ X_train, X_test, y_train, y_test = train_test_split(X_data, Y_data,test_size=0.3
 ########   Model  ########
 Linear = LinearRegression()
 Linear.fit(X_train, y_train)
-Train_score = Linear.score(X_train, y_train)
-Test_score = Linear.score(X_test, y_test)
+
+# Train set
+y_predict_train = Linear.predict(X_train)
+#from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error, r2_score
+mape_train = mean_absolute_percentage_error(y_train, y_predict_train)
+rmse_train = np.sqrt(mean_squared_error(y_train, y_predict_train))
+R2_train = r2_score(y_train, y_predict_train)
+
+# Test set
 y_predict_test = Linear.predict(X_test)
+mape_test = mean_absolute_percentage_error(y_test, y_predict_test)
+rmse_test = np.sqrt(mean_squared_error(y_test, y_predict_test))
+R2_test = r2_score(y_test, y_predict_test)
 
-print("Train score = ", Train_score)
-print("Test score = ", Test_score)
+# Total set
+y_predict_total = Linear.predict(X_data)
+mape_total = mean_absolute_percentage_error(Y_data, y_predict_total)
+rmse_total = np.sqrt(mean_squared_error(Y_data, y_predict_total))
+R2_total = r2_score(Y_data, y_predict_total)
 
-########################################
-
-df3 = pd.DataFrame({'y_test':y_test, 'y_predict':y_predict_test})
+# Table Score
+MLR_table = pd.DataFrame()
+data = {
+        "MAPE":[mape_train, mape_test, mape_total],
+        "RMSE":[rmse_train, rmse_test, rmse_total],
+        "R2"  :[R2_train, R2_test, R2_total]
+    }
+MLR_table = pd.DataFrame(data)
+MLR_table.to_csv('MLR_208_feature.csv', index=False)
 
 # %%
-sn.regplot(x=y_predict_test, y=y_test,line_kws={"lw":2,'ls':'--','color':'black',"alpha":0.7})
+p1=sn.regplot(x=y_predict_test, y=y_test,line_kws={"lw":2,'ls':'--','color':'black',"alpha":0.7})
 plt.xlabel('Predicted Tb', color='blue')
 plt.ylabel('Observed Tb', color ='blue')
 plt.title("Test set", color='red')
@@ -127,7 +146,7 @@ plt.grid(alpha=0.2)
 
 # %%
 y_predict_train = Linear.predict(X_train)
-sn.regplot(x=y_predict_train, y=y_train,line_kws={"lw":2,'ls':'--','color':'black',"alpha":0.7})
+p2=sn.regplot(x=y_predict_train, y=y_train,line_kws={"lw":2,'ls':'--','color':'black',"alpha":0.7})
 plt.xlabel('Predicted Tb', color='blue')
 plt.ylabel('Observed Tb', color ='blue')
 plt.title("Train set", color='red')
@@ -141,8 +160,8 @@ plt.grid(alpha=0.2)
 #SMILE_TEST = "c1cccc1"
 
 data = {
-  "SMILE": ["CC1CC1","C1CCC1"],
-  "TB" : [273.85, 285.75]
+  "SMILE": ["CCCC(C)O", "CCC(CC)O"],
+  "TB" : [273.15+119.3, 273.15+116]
 }
 TEST_X = pd.DataFrame(data)
 
@@ -155,8 +174,8 @@ TEST_X_with_200_descriptors = pd.DataFrame(Mol_descriptors,columns=desc_names)
 TEST_y_predict = Linear.predict(TEST_X_with_200_descriptors)
 
 y_predict_table = pd.DataFrame()
-y_predict_table["Tb_predict"] = TEST_X["TB"]
-y_predict_table["Tb_actual"] = TEST_y_predict
+y_predict_table["Tb_actual"] = TEST_X["TB"]
+y_predict_table["Tb_predict"] = TEST_y_predict
 
 # %%
 m = Chem.MolFromSmiles('CCCCC')
@@ -168,6 +187,40 @@ from rdkit.Chem import PandasTools
 df4 = df2
 PandasTools.AddMoleculeColumnToFrame(df4,'SMILES', 'Structure')
 
+
 # %%
-df_with_200_descriptors["SMILE"] = df["SMILES"]
-df_with_200_descriptors.to_csv('output.csv', index=False)
+test = TEST_X_with_200_descriptors.diff()[1:]
+#zero_mask = test.eq(0)
+zero_mask2=test.drop(columns=zero_mask.columns[(zero_mask == True).any()])
+
+# %%
+#df_with_200_descriptors["SMILE"] = df["SMILES"]
+#TEST_X_with_200_descriptors.to_csv('output.csv', index=False)
+zero_mask2.to_csv('output.csv', index=False)
+
+# %%
+m = Chem.MolFromSmiles("CCCC(C)O")
+calc = MoleculeDescriptors.MolecularDescriptorCalculator([x[0] for x in Descriptors._descList])
+desc_names = calc.GetDescriptorNames()
+
+# %%
+
+#SMILE_TEST = "c1cccc1"
+
+data = {
+  "SMILE": ["CCCC(C=O)O", "CCC(CC)O"],
+  "TB" : [273.15+119.3, 273.15+116]
+}
+TEST_X = pd.DataFrame(data)
+
+#test = TEST_X["SMILE"]
+#test = df2['SMILES']
+
+Mol_descriptors,desc_names = RDkit_descriptors(TEST_X["SMILE"])
+TEST_X_with_200_descriptors = pd.DataFrame(Mol_descriptors,columns=desc_names)
+
+TEST_y_predict = Linear.predict(TEST_X_with_200_descriptors)
+
+y_predict_table = pd.DataFrame()
+y_predict_table["Tb_actual"] = TEST_X["TB"]
+y_predict_table["Tb_predict"] = TEST_y_predict
