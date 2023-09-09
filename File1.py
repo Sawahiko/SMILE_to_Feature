@@ -190,7 +190,7 @@ PandasTools.AddMoleculeColumnToFrame(df4,'SMILES', 'Structure')
 
 # %%
 test = TEST_X_with_200_descriptors.diff()[1:]
-#zero_mask = test.eq(0)
+zero_mask = test.eq(0)
 zero_mask2=test.drop(columns=zero_mask.columns[(zero_mask == True).any()])
 
 # %%
