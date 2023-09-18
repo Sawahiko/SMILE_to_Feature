@@ -18,9 +18,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error, r2_score
 
 # RDKit
-import rdkit
 from rdkit.Chem import Descriptors
-from rdkit.Chem import MACCSkeys
 from rdkit.ML.Descriptors import MoleculeDescriptors
 from rdkit.Chem import rdMolDescriptors
 from rdkit.Chem import AllChem
@@ -45,14 +43,14 @@ Y_data= df["Tb"]
 #Generate Fingerprint from SMILE
 X_data_use = X_data_excel.copy()
 X_data_use["molecule"] = X_data_use["SMILES"].apply(lambda x: Chem.MolFromSmiles(x))
-X_data_use["MACCS"] = X_data_use["molecule"].apply(lambda x: rdkit.Chem.MACCSkeys.GenMACCSKeys(x))
+X_data_use["morgan_fp"] = X_data_use["molecule"].apply(lambda x: rdMolDescriptors.GetMorganFingerprintAsBitVect(x, radius=4, nBits=MF_bit, useFeatures=True, useChirality=True))
 
 #>>> SHOW X_data_use 
 
 #Transfrom Fingerprint to Column in DataFrame
 X_data_fp = []
 for i in range(X_data_use.shape[0]):
-    array = np.array(X_data_use["MACCS"][i])
+    array = np.array(X_data_use["morgan_fp"][i])
     datafram_i = pd.DataFrame(array)
     datafram_i = datafram_i.T
     X_data_fp.append(datafram_i)
@@ -67,9 +65,9 @@ Y_data_ML = Y_data.copy()
 
 X_train_ML, X_test_ML, y_train_ML, y_test_ML = train_test_split(X_data_ML, Y_data_ML,test_size=0.25,random_state=42)
 
-X_train = X_train_ML.copy().drop(columns = {"SMILES", "molecule", "MACCS"})
-X_test = X_test_ML.copy().drop(columns = {"SMILES", "molecule", "MACCS"})
-x_total = X_data_ML.copy().drop(columns = {"SMILES", "molecule", "MACCS"})
+X_train = X_train_ML.copy().drop(columns = {"SMILES", "molecule", "morgan_fp"})
+X_test = X_test_ML.copy().drop(columns = {"SMILES", "molecule", "morgan_fp"})
+x_total = X_data_ML.copy().drop(columns = {"SMILES", "molecule", "morgan_fp"})
 
 y_train = y_train_ML.copy()
 y_test = y_test_ML.copy()
@@ -155,12 +153,10 @@ data = {
     }
 Total_Table = pd.DataFrame(data)
 
-# =============================================================================
-# # %%  Export To Excel
-# with pd.ExcelWriter("ML2_560point_x_bit.xlsx",mode='a') as writer:  
-#     Train_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Train_Prediction')
-#     Test_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Test_Prediction')
-#     Total_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Total_Prediction')
-#     
-#     Score_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Score')
-# =============================================================================
+# %%  Export To Excel
+with pd.ExcelWriter("ML2_560point_x_bit.xlsx",mode='a') as writer:  
+    Train_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Train_Prediction')
+    Test_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Test_Prediction')
+    Total_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Total_Prediction')
+    
+    Score_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Score')

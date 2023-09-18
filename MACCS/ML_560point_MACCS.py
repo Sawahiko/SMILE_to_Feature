@@ -13,7 +13,7 @@ import matplotlib.patches as mpatches
 import seaborn as sn
 
 # Machine Learning
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error, r2_score
 
@@ -80,8 +80,8 @@ y_total = Y_data_ML.copy()
 # %%
 # Modeling
 
-RF_model = RandomForestRegressor(random_state = 0, n_jobs=100)
-RF_model.fit(X_train, y_train)
+Linear = LinearRegression()
+Linear.fit(X_train, y_train)
 
 # %%   Validation with Error Metrics
 mape_train_table = []
@@ -89,7 +89,7 @@ rmse_train_table = []
 r2_train_table   = []
 
 # Train set
-y_predict_train = RF_model.predict(X_train)
+y_predict_train = Linear.predict(X_train)
 mape_train = mean_absolute_percentage_error(y_train, y_predict_train)
 rmse_train = np.sqrt(mean_squared_error(y_train, y_predict_train))
 R2_train = r2_score(y_train, y_predict_train)
@@ -99,7 +99,7 @@ rmse_train_table.append(rmse_train)
 r2_train_table.append(R2_train)
 
 # Test set
-y_predict_test = RF_model.predict(X_test)
+y_predict_test = Linear.predict(X_test)
 mape_test = mean_absolute_percentage_error(y_test, y_predict_test)
 rmse_test = np.sqrt(mean_squared_error(y_test, y_predict_test))
 R2_test = r2_score(y_test, y_predict_test)
@@ -109,7 +109,7 @@ rmse_train_table.append(rmse_test)
 r2_train_table.append(R2_test)
 
 # Total set
-y_predict_total = RF_model.predict(x_total)
+y_predict_total = Linear.predict(x_total)
 mape_total = mean_absolute_percentage_error(y_total, y_predict_total)
 rmse_total = np.sqrt(mean_squared_error(y_total, y_predict_total))
 R2_total = r2_score(y_total, y_predict_total)
@@ -157,7 +157,7 @@ Total_Table = pd.DataFrame(data)
 
 # =============================================================================
 # # %%  Export To Excel
-# with pd.ExcelWriter("ML2_560point_x_bit.xlsx",mode='a') as writer:  
+# with pd.ExcelWriter("MLR_560point_x_bit.xlsx",mode='a') as writer:  
 #     Train_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Train_Prediction')
 #     Test_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Test_Prediction')
 #     Total_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Total_Prediction')
