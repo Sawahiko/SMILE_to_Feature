@@ -144,83 +144,87 @@ plt.grid(alpha=0.2)
 #MAE = mpatches.Patch(label="MAE={:04.2f}".format(MAE))
 #plt.legend(handles=[R2, MAE])
 
-# %%
-y_predict_train = Linear.predict(X_train)
-p2=sn.regplot(x=y_predict_train, y=y_train,line_kws={"lw":2,'ls':'--','color':'black',"alpha":0.7})
-plt.xlabel('Predicted Tb', color='blue')
-plt.ylabel('Observed Tb', color ='blue')
-plt.title("Train set", color='red')
-plt.grid(alpha=0.2)
-#R2 = mpatches.Patch(label="R2={:04.2f}".format(R2))
-#MAE = mpatches.Patch(label="MAE={:04.2f}".format(MAE))
-#plt.legend(handles=[R2, MAE])
-
-# %%
-
-#SMILE_TEST = "c1cccc1"
-
-data = {
-  "SMILE": ["CCCC(C)O", "CCC(CC)O"],
-  "TB" : [273.15+119.3, 273.15+116]
-}
-TEST_X = pd.DataFrame(data)
-
-#test = TEST_X["SMILE"]
-#test = df2['SMILES']
-
-Mol_descriptors,desc_names = RDkit_descriptors(TEST_X["SMILE"])
-TEST_X_with_200_descriptors = pd.DataFrame(Mol_descriptors,columns=desc_names)
-
-TEST_y_predict = Linear.predict(TEST_X_with_200_descriptors)
-
-y_predict_table = pd.DataFrame()
-y_predict_table["Tb_actual"] = TEST_X["TB"]
-y_predict_table["Tb_predict"] = TEST_y_predict
-
-# %%
-m = Chem.MolFromSmiles('CCCCC')
-from rdkit.Chem import Draw
-img = Draw.MolToFile(m,'pic2.png')
-
-# %%
-from rdkit.Chem import PandasTools
-df4 = df2
-PandasTools.AddMoleculeColumnToFrame(df4,'SMILES', 'Structure')
-
-
-# %%
-test = TEST_X_with_200_descriptors.diff()[1:]
-zero_mask = test.eq(0)
-zero_mask2=test.drop(columns=zero_mask.columns[(zero_mask == True).any()])
-
-# %%
-#df_with_200_descriptors["SMILE"] = df["SMILES"]
-#TEST_X_with_200_descriptors.to_csv('output.csv', index=False)
-zero_mask2.to_csv('output.csv', index=False)
-
-# %%
-m = Chem.MolFromSmiles("CCCC(C)O")
-calc = MoleculeDescriptors.MolecularDescriptorCalculator([x[0] for x in Descriptors._descList])
-desc_names = calc.GetDescriptorNames()
-
-# %%
-
-#SMILE_TEST = "c1cccc1"
-
-data = {
-  "SMILE": ["CCCC(C=O)O", "CCC(CC)O"],
-  "TB" : [273.15+119.3, 273.15+116]
-}
-TEST_X = pd.DataFrame(data)
-
-#test = TEST_X["SMILE"]
-#test = df2['SMILES']
-
-Mol_descriptors,desc_names = RDkit_descriptors(TEST_X["SMILE"])
-TEST_X_with_200_descriptors = pd.DataFrame(Mol_descriptors,columns=desc_names)
-
-TEST_y_predict = Linear.predict(TEST_X_with_200_descriptors)
-
-y_predict_table = pd.DataFrame()
-y_predict_table["Tb_actual"] = TEST_X["TB"]
-y_predict_table["Tb_predict"] = TEST_y_predict
+# =============================================================================
+# 
+# # %%
+# y_predict_train = Linear.predict(X_train)
+# p2=sn.regplot(x=y_predict_train, y=y_train,line_kws={"lw":2,'ls':'--','color':'black',"alpha":0.7})
+# plt.xlabel('Predicted Tb', color='blue')
+# plt.ylabel('Observed Tb', color ='blue')
+# plt.title("Train set", color='red')
+# plt.grid(alpha=0.2)
+# #R2 = mpatches.Patch(label="R2={:04.2f}".format(R2))
+# #MAE = mpatches.Patch(label="MAE={:04.2f}".format(MAE))
+# #plt.legend(handles=[R2, MAE])
+# 
+# # %%
+# 
+# #SMILE_TEST = "c1cccc1"
+# 
+# data = {
+#   "SMILE": ["CCCC(C)O", "CCC(CC)O"],
+#   "TB" : [273.15+119.3, 273.15+116]
+# }
+# TEST_X = pd.DataFrame(data)
+# 
+# #test = TEST_X["SMILE"]
+# #test = df2['SMILES']
+# 
+# Mol_descriptors,desc_names = RDkit_descriptors(TEST_X["SMILE"])
+# TEST_X_with_200_descriptors = pd.DataFrame(Mol_descriptors,columns=desc_names)
+# 
+# TEST_y_predict = Linear.predict(TEST_X_with_200_descriptors)
+# 
+# y_predict_table = pd.DataFrame()
+# y_predict_table["Tb_actual"] = TEST_X["TB"]
+# y_predict_table["Tb_predict"] = TEST_y_predict
+# 
+# # %%
+# m = Chem.MolFromSmiles('CCCCC')
+# from rdkit.Chem import Draw
+# img = Draw.MolToFile(m,'pic2.png')
+# 
+# # %%
+# from rdkit.Chem import PandasTools
+# df4 = df2
+# PandasTools.AddMoleculeColumnToFrame(df4,'SMILES', 'Structure')
+# 
+# 
+# # %%
+# test = TEST_X_with_200_descriptors.diff()[1:]
+# zero_mask = test.eq(0)
+# zero_mask2=test.drop(columns=zero_mask.columns[(zero_mask == True).any()])
+# 
+# # %%
+# #df_with_200_descriptors["SMILE"] = df["SMILES"]
+# #TEST_X_with_200_descriptors.to_csv('output.csv', index=False)
+# zero_mask2.to_csv('output.csv', index=False)
+# 
+# # %%
+# m = Chem.MolFromSmiles("CCCC(C)O")
+# calc = MoleculeDescriptors.MolecularDescriptorCalculator([x[0] for x in Descriptors._descList])
+# desc_names = calc.GetDescriptorNames()
+# 
+# # %%
+# 
+# #SMILE_TEST = "c1cccc1"
+# 
+# data = {
+#   "SMILE": ["CCCC(C=O)O", "CCC(CC)O"],
+#   "TB" : [273.15+119.3, 273.15+116]
+# }
+# TEST_X = pd.DataFrame(data)
+# 
+# #test = TEST_X["SMILE"]
+# #test = df2['SMILES']
+# 
+# Mol_descriptors,desc_names = RDkit_descriptors(TEST_X["SMILE"])
+# TEST_X_with_200_descriptors = pd.DataFrame(Mol_descriptors,columns=desc_names)
+# 
+# TEST_y_predict = Linear.predict(TEST_X_with_200_descriptors)
+# 
+# y_predict_table = pd.DataFrame()
+# y_predict_table["Tb_actual"] = TEST_X["TB"]
+# y_predict_table["Tb_predict"] = TEST_y_predict
+# 
+# =============================================================================
