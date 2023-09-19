@@ -154,9 +154,20 @@ data = {
 Total_Table = pd.DataFrame(data)
 
 # %%  Export To Excel
-with pd.ExcelWriter("MLR_560point_x_bit.xlsx",mode='a') as writer:  
-    Train_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Train_Prediction')
-    Test_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Test_Prediction')
-    Total_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Total_Prediction')
-    
-    Score_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Score')
+# =============================================================================
+# with pd.ExcelWriter("MLR_560point_x_bit.xlsx",mode='a') as writer:  
+#     Train_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Train_Prediction')
+#     Test_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Test_Prediction')
+#     Total_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Total_Prediction')
+#     
+#     Score_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Score')
+#     
+# =============================================================================
+# %%
+# Visualization
+
+p1=sn.regplot(x=y_predict_train, y=y_train,line_kws={"lw":1,'ls':'--','color':'black',"alpha":0.9})
+plt.xlabel('Predicted Tb', color='blue')
+plt.ylabel('Observed Tb', color ='blue')
+plt.title("Test set", color='red')
+plt.grid(alpha=0.6)

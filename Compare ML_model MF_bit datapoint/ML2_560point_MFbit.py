@@ -164,3 +164,12 @@ Total_Table = pd.DataFrame(data)
 #     
 #     Score_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Score')
 # =============================================================================
+
+# %%
+# Visualization
+
+p1=sn.regplot(x=y_predict_train, y=y_train,line_kws={"lw":1,'ls':'--','color':'black',"alpha":0.9})
+plt.xlabel('Predicted Tb', color='blue')
+plt.ylabel('Observed Tb', color ='blue')
+plt.title("Test set", color='red')
+plt.grid(alpha=0.6)

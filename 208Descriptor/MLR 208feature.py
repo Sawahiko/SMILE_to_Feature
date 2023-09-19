@@ -132,7 +132,7 @@ data = {
         "R2"  :[R2_train, R2_test, R2_total]
     }
 MLR_table = pd.DataFrame(data)
-MLR_table.to_csv('MLR_208_feature.csv', index=False)
+#MLR_table.to_csv('MLR_208_feature.csv', index=False)
 
 # %%
 p1=sn.regplot(x=y_predict_test, y=y_test,line_kws={"lw":2,'ls':'--','color':'black',"alpha":0.7})
