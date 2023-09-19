@@ -13,7 +13,7 @@ import matplotlib.patches as mpatches
 import seaborn as sn
 
 # Machine Learning
-from sklearn import linear_model
+from sklearn.linear_model import Ridge
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error, r2_score
 
@@ -78,8 +78,8 @@ y_total = Y_data_ML.copy()
 # %%
 # Modeling
 
-lasso_model = linear_model.Lasso(alpha=0.1)
-lasso_model.fit(X_train, y_train)
+ridge_model = Ridge(alpha=1.0)
+ridge_model.fit(X_train, y_train)
 
 # %%   Validation with Error Metrics
 mape_train_table = []
@@ -87,7 +87,7 @@ rmse_train_table = []
 r2_train_table   = []
 
 # Train set
-y_predict_train = lasso_model.predict(X_train)
+y_predict_train = ridge_model.predict(X_train)
 mape_train = mean_absolute_percentage_error(y_train, y_predict_train)
 rmse_train = np.sqrt(mean_squared_error(y_train, y_predict_train))
 R2_train = r2_score(y_train, y_predict_train)
@@ -97,7 +97,7 @@ rmse_train_table.append(rmse_train)
 r2_train_table.append(R2_train)
 
 # Test set
-y_predict_test = lasso_model.predict(X_test)
+y_predict_test = ridge_model.predict(X_test)
 mape_test = mean_absolute_percentage_error(y_test, y_predict_test)
 rmse_test = np.sqrt(mean_squared_error(y_test, y_predict_test))
 R2_test = r2_score(y_test, y_predict_test)
@@ -107,7 +107,7 @@ rmse_train_table.append(rmse_test)
 r2_train_table.append(R2_test)
 
 # Total set
-y_predict_total = lasso_model.predict(x_total)
+y_predict_total = ridge_model.predict(x_total)
 mape_total = mean_absolute_percentage_error(y_total, y_predict_total)
 rmse_total = np.sqrt(mean_squared_error(y_total, y_predict_total))
 R2_total = r2_score(y_total, y_predict_total)
