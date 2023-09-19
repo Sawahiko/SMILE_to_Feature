@@ -13,14 +13,14 @@ import matplotlib.patches as mpatches
 import seaborn as sn
 
 # Machine Learning
-from sklearn.linear_model import LinearRegression
+from sklearn.svm import SVR
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error, r2_score
 
 # RDKit
 import rdkit
-from rdkit.Chem import Descriptors
 from rdkit.Chem import MACCSkeys
+from rdkit.Chem import Descriptors
 from rdkit.ML.Descriptors import MoleculeDescriptors
 from rdkit.Chem import rdMolDescriptors
 from rdkit.Chem import AllChem
@@ -80,8 +80,8 @@ y_total = Y_data_ML.copy()
 # %%
 # Modeling
 
-Linear = LinearRegression()
-Linear.fit(X_train, y_train)
+SVR_model = SVR(kernel='rbf')
+SVR_model.fit(X_train, y_train)
 
 # %%   Validation with Error Metrics
 mape_train_table = []
@@ -89,7 +89,7 @@ rmse_train_table = []
 r2_train_table   = []
 
 # Train set
-y_predict_train = Linear.predict(X_train)
+y_predict_train = SVR_model.predict(X_train)
 mape_train = mean_absolute_percentage_error(y_train, y_predict_train)
 rmse_train = np.sqrt(mean_squared_error(y_train, y_predict_train))
 R2_train = r2_score(y_train, y_predict_train)
@@ -99,7 +99,7 @@ rmse_train_table.append(rmse_train)
 r2_train_table.append(R2_train)
 
 # Test set
-y_predict_test = Linear.predict(X_test)
+y_predict_test = SVR_model.predict(X_test)
 mape_test = mean_absolute_percentage_error(y_test, y_predict_test)
 rmse_test = np.sqrt(mean_squared_error(y_test, y_predict_test))
 R2_test = r2_score(y_test, y_predict_test)
@@ -109,7 +109,7 @@ rmse_train_table.append(rmse_test)
 r2_train_table.append(R2_test)
 
 # Total set
-y_predict_total = Linear.predict(x_total)
+y_predict_total = SVR_model.predict(x_total)
 mape_total = mean_absolute_percentage_error(y_total, y_predict_total)
 rmse_total = np.sqrt(mean_squared_error(y_total, y_predict_total))
 R2_total = r2_score(y_total, y_predict_total)
@@ -117,6 +117,7 @@ R2_total = r2_score(y_total, y_predict_total)
 mape_train_table.append(mape_total)
 rmse_train_table.append(rmse_total)
 r2_train_table.append(R2_total)
+
 
 # %% Store score y_predict
 # Table Score
@@ -155,12 +156,10 @@ data = {
     }
 Total_Table = pd.DataFrame(data)
 
-# =============================================================================
-# # %%  Export To Excel
-# with pd.ExcelWriter("MLR_560point_x_bit.xlsx",mode='a') as writer:  
-#     Train_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Train_Prediction')
-#     Test_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Test_Prediction')
-#     Total_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Total_Prediction')
-#     
-#     Score_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Score')
-# =============================================================================
+# %%  Export To Excel
+with pd.ExcelWriter("ML4_560point.xlsx",mode='a') as writer:  
+    Train_Table.to_excel(writer, sheet_name=f'Train_Prediction')
+    Test_Table.to_excel(writer, sheet_name=f'Test_Prediction')
+    Total_Table.to_excel(writer, sheet_name=f'Total_Prediction')
+    
+    Score_Table.to_excel(writer, sheet_name=f'Score')
