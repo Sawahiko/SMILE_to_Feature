@@ -17,6 +17,8 @@ import time
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error, r2_score
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 # RDKit
 import rdkit
@@ -82,7 +84,8 @@ y_total = Y_data_ML.copy()
 # %%
 # Modeling
 
-RF_model = RandomForestRegressor(random_state = 0, n_jobs=100)
+RF_model = make_pipeline(StandardScaler(),
+                               RandomForestRegressor(random_state = 0, n_jobs=100))
 RF_model.fit(X_train, y_train)
 
 # %%   Validation with Error Metrics

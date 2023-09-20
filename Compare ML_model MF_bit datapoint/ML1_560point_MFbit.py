@@ -18,6 +18,8 @@ import time
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error, r2_score
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 # RDKit
 from rdkit.Chem import Descriptors
@@ -82,8 +84,10 @@ y_total = Y_data_ML.copy()
 # Modeling
 
 
-Linear = LinearRegression()
+Linear = make_pipeline(StandardScaler(),
+                               LinearRegression())
 Linear.fit(X_train, y_train)
+
 
 
 # %%   Validation with Error Metrics
