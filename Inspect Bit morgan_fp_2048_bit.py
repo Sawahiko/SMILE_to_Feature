@@ -34,7 +34,7 @@ def get_index_of_array_that_contain_1_in_any_position(list1):
             result.append(i)
     return result
 
-# %%  # Interactive
+# %%  # interactive
 
 mol1 = Chem.MolFromSmiles('CO')
 mol2 = Chem.MolFromSmiles('CCO')

@@ -11,6 +11,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import seaborn as sn
+import time
 
 # Machine Learning
 from sklearn.linear_model import LogisticRegression
@@ -26,6 +27,7 @@ from rdkit import Chem
 from rdkit.Chem import Descriptors
 from rdkit.ML.Descriptors import MoleculeDescriptors
 
+start_time = time.time()
 # %% Setup
 MF_bit = 2**10
 
@@ -153,6 +155,9 @@ data = {
     }
 Total_Table = pd.DataFrame(data)
 
+end_time = time.time()
+elapsed_time = end_time - start_time
+print("Elapsed time:", elapsed_time)
 # %%  Export To Excel
 '''
 with pd.ExcelWriter("MLR_560point_x_bit.xlsx",mode='a') as writer:  
