@@ -35,7 +35,7 @@ def get_index_of_array_that_contain_1_in_any_position(list1):
     return result
 
 # %%  # Interactive
-name1 = "CCCC(C)O"
+name1 = "CCC#C"
 m1 = Chem.MolFromSmiles(name1)
 
 mol = m1
