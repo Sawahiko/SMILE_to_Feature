@@ -9,7 +9,7 @@ from rdkit.Chem.Draw import rdMolDraw2D
 from rdkit.Chem import rdMolDescriptors
 from rdkit.Chem.rdMolDescriptors import GetHashedMorganFingerprint
 
-from rdkit.Chem.Draw import IPythonConsole
+from rdkit.Chem.Draw import IPythonConsoleb
 from rdkit import DataStructs
 from rdkit.ML.Cluster import Butina
 
