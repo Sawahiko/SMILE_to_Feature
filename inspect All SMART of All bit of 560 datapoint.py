@@ -68,7 +68,6 @@ def get_All_SMART_1_mol(mol):
     bit_info = {}
     fp = GetHashedMorganFingerprint(mol, 3, bitInfo=bit_info, useFeatures=True)
 
-<<<<<<< HEAD
     #print(get_index_of_array_that_contain_1_in_any_position(list(fp)))
     #print(bit_info.keys())
     string_SMARTS = []
@@ -84,11 +83,9 @@ def get_All_SMART_1_mol(mol):
 # %% Import Data : 560 datapoint
 #Import Data
 df = pd.read_excel("DataTb.xlsx",sheet_name="AllDataSet")
-=======
 # %%  # Interactive
 name1 = "CCC#C"
 m1 = Chem.MolFromSmiles(name1)
->>>>>>> 6947da528a103814da41055fc28004198361686c
 
 #Select feature for data: X=SMILE, Y=Tb
 X_data_excel= df[["SMILES"]]
@@ -144,3 +141,52 @@ for v in test:
             if i == bit[0]:
               print("PASS")
               check_bit[str(i)].add(bit[1])
+
+# %%
+
+from collections import OrderedDict
+a=list(check_bit['105'])
+print(len(a))
+
+
+sort_check_bit1 = OrderedDict(sorted(check_bit.items(), key = lambda x : len(x[1]), reverse=True)).keys()
+sort_check_bit2 = {i:check_bit[i] for i in sort_check_bit1}
+
+# %%
+for idx in sort_check_bit2.keys():
+    subms = [x for x in list(check_bit[idx])]
+    print(idx)
+    
+    mol_subms = []
+    for smart in subms:
+        mol=Chem.MolFromSmarts(smart)
+        mol_subms.append(mol)
+        
+    #a=Chem.MolFromSmarts(list(check_bit['20'])[5])
+    #a2=Chem.MolToSmarts(a)
+    #img = Draw.MolToImage(a)
+    img=Draw.MolsToGridImage(mol_subms,molsPerRow=10,subImgSize=(50,50)) 
+    picname = "Picture/"+idx+".png"
+    #img.save(picname,format="PNG")
+    img.save(picname)
+# %%
+m= Chem.MolFromSmiles("CCO")
+img2=Draw.MolToImage(m)
+#img2.save('Picture/1.png')
+
+#img=Draw.MolsToGridImage(mol_subms,molsPerRow=10,subImgSize=(50,50)) 
+# =============================================================================
+# picname = "Picture/"+idx+".png"
+# img.save('Picture/1.png')
+# img
+# 
+# 
+# =============================================================================
+
+import matplotlib as plt
+plt.pyplot.imshow(img)
+
+img3=img.data
+# %%
+
+from PIL import Image
