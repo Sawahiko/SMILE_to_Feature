@@ -64,9 +64,9 @@ def getSMART(mol, radius, atomidx):
     MorganBitSmarts = Chem.MolToSmarts(submol).replace('[#0]', '*')
     #print(MorganBitSmarts)
     return MorganBitSmarts 
-def get_All_SMART_1_mol(mol):
+def get_All_SMART_1_mol(mol, radius,nBits):
     bit_info = {}
-    fp = GetHashedMorganFingerprint(mol, 3, bitInfo=bit_info, useFeatures=True)
+    fp = GetHashedMorganFingerprint(mol, 3, nBits=nBits, bitInfo=bit_info, useFeatures=True)
 
     #print(get_index_of_array_that_contain_1_in_any_position(list(fp)))
     #print(bit_info.keys())
@@ -82,24 +82,24 @@ def get_All_SMART_1_mol(mol):
     
 # %% Import Data : 560 datapoint
 #Import Data
-df = pd.read_excel("DataTb.xlsx",sheet_name="AllDataSet")
+df = pd.read_excel("DataSMILE.xlsx",sheet_name="All_SMILE")
 # %%  # Interactive
 name1 = "CCC#C"
 m1 = Chem.MolFromSmiles(name1)
 
 #Select feature for data: X=SMILE, Y=Tb
 X_data_excel= df[["SMILES"]]
-Y_data= df["Tb"]
+#Y_data= df["Tb"]
 
 #>>> SHOW X_Data, Y_data
 # %%
 
 #def Get_SMART(Dataframe, nBits=1024):
 
-nBits=1024
+nBits=64
 Dataframe = X_data_excel.copy()
 Dataframe["molecule"] = Dataframe["SMILES"].apply(lambda x: Chem.MolFromSmiles(x))
-Dataframe["morgan_fp"] = Dataframe["molecule"].apply(lambda x: rdMolDescriptors.GetMorganFingerprintAsBitVect(x, radius=4, nBits=nBits, useFeatures=True, useChirality=True))
+Dataframe["morgan_fp"] = Dataframe["molecule"].apply(lambda x: rdMolDescriptors.GetMorganFingerprintAsBitVect(x, radius=3, nBits=nBits, useFeatures=True))
 
 #>>> SHOW X_data_use 
 
@@ -115,7 +115,7 @@ X_data_ML = pd.concat([Dataframe, Dataframe_fp], axis=1, join='inner')
 
 
 # %%
-test = X_data_ML["molecule"].apply(lambda x: get_All_SMART_1_mol(x))
+test = X_data_ML["molecule"].apply(lambda x: get_All_SMART_1_mol(x, nBits))
 
 # %%
 count = set()
@@ -135,17 +135,32 @@ for i in count:
 for v in test:    
     for i in count:
         #check_bit[str(i)]=set()
-        print(i,"COUNT")
+        #print(i,"COUNT")
         for bit in v:
-            print(bit[0])
+            #print(bit[0])
             if i == bit[0]:
-              print("PASS")
+              #print("PASS")
               check_bit[str(i)].add(bit[1])
 
 # %%
+data =[]
+idx_all=[]
+count_str=[]
+for idx in check_bit:
+    print(idx, len(check_bit[str(idx)]))
+    
+    idx_all.append(idx)
+    count_str.append(len(check_bit[str(idx)]))
+    
+data = {
+        "no. Bit":idx_all,
+        "Number Structure":count_str
+    }    
+pd.DataFrame(data).to_csv("Bit collision/Check_SMART_in_bit_3mol.csv")
 
+# %%
 from collections import OrderedDict
-a=list(check_bit['105'])
+a=list(check_bit['0'])
 print(len(a))
 
 
@@ -153,8 +168,11 @@ sort_check_bit1 = OrderedDict(sorted(check_bit.items(), key = lambda x : len(x[1
 sort_check_bit2 = {i:check_bit[i] for i in sort_check_bit1}
 
 # %%
-for idx in sort_check_bit2.keys():
-    subms = [x for x in list(check_bit[idx])]
+#for idx in sort_check_bit2.keys():
+temp=[0]
+for idx in temp:
+    #subms = [x for x in list(check_bit[idx])]
+    subms = [x for x in list(check_bit[str(idx)])]
     print(idx)
     
     mol_subms = []
@@ -165,28 +183,7 @@ for idx in sort_check_bit2.keys():
     #a=Chem.MolFromSmarts(list(check_bit['20'])[5])
     #a2=Chem.MolToSmarts(a)
     #img = Draw.MolToImage(a)
-    img=Draw.MolsToGridImage(mol_subms,molsPerRow=10,subImgSize=(50,50)) 
-    picname = "Picture/"+idx+".png"
+    img=Draw.MolsToGridImage(mol_subms,molsPerRow=5,subImgSize=(200,200)) 
+    #picname = "Picture/"+idx+".png"
     #img.save(picname,format="PNG")
-    img.save(picname)
-# %%
-m= Chem.MolFromSmiles("CCO")
-img2=Draw.MolToImage(m)
-#img2.save('Picture/1.png')
-
-#img=Draw.MolsToGridImage(mol_subms,molsPerRow=10,subImgSize=(50,50)) 
-# =============================================================================
-# picname = "Picture/"+idx+".png"
-# img.save('Picture/1.png')
-# img
-# 
-# 
-# =============================================================================
-
-import matplotlib as plt
-plt.pyplot.imshow(img)
-
-img3=img.data
-# %%
-
-from PIL import Image
+   #img.save(picname)
