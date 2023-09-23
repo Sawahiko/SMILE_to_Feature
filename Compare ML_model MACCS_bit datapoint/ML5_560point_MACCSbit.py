@@ -11,9 +11,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import seaborn as sn
+import time
 
 # Machine Learning
-from sklearn.svm import SVR
+from sklearn import linear_model
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error, r2_score
 
@@ -28,6 +29,7 @@ from rdkit import Chem
 from rdkit.Chem import Descriptors
 from rdkit.ML.Descriptors import MoleculeDescriptors
 
+start_time = time.time()
 # %% Setup
 MF_bit = 2**10
 
@@ -80,8 +82,8 @@ y_total = Y_data_ML.copy()
 # %%
 # Modeling
 
-SVR_model = SVR(kernel='rbf')
-SVR_model.fit(X_train, y_train)
+lasso_model = linear_model.Lasso(alpha=0.1)
+lasso_model.fit(X_train, y_train)
 
 # %%   Validation with Error Metrics
 mape_train_table = []
@@ -89,7 +91,7 @@ rmse_train_table = []
 r2_train_table   = []
 
 # Train set
-y_predict_train = SVR_model.predict(X_train)
+y_predict_train = lasso_model.predict(X_train)
 mape_train = mean_absolute_percentage_error(y_train, y_predict_train)
 rmse_train = np.sqrt(mean_squared_error(y_train, y_predict_train))
 R2_train = r2_score(y_train, y_predict_train)
@@ -99,7 +101,7 @@ rmse_train_table.append(rmse_train)
 r2_train_table.append(R2_train)
 
 # Test set
-y_predict_test = SVR_model.predict(X_test)
+y_predict_test = lasso_model.predict(X_test)
 mape_test = mean_absolute_percentage_error(y_test, y_predict_test)
 rmse_test = np.sqrt(mean_squared_error(y_test, y_predict_test))
 R2_test = r2_score(y_test, y_predict_test)
@@ -109,7 +111,7 @@ rmse_train_table.append(rmse_test)
 r2_train_table.append(R2_test)
 
 # Total set
-y_predict_total = SVR_model.predict(x_total)
+y_predict_total = lasso_model.predict(x_total)
 mape_total = mean_absolute_percentage_error(y_total, y_predict_total)
 rmse_total = np.sqrt(mean_squared_error(y_total, y_predict_total))
 R2_total = r2_score(y_total, y_predict_total)
@@ -157,7 +159,7 @@ data = {
 Total_Table = pd.DataFrame(data)
 
 # %%  Export To Excel
-with pd.ExcelWriter("ML4_560point.xlsx",mode='a') as writer:  
+with pd.ExcelWriter("ML5_560point.xlsx",mode='a') as writer:  
     Train_Table.to_excel(writer, sheet_name=f'Train_Prediction')
     Test_Table.to_excel(writer, sheet_name=f'Test_Prediction')
     Total_Table.to_excel(writer, sheet_name=f'Total_Prediction')

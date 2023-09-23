@@ -159,14 +159,12 @@ end_time = time.time()
 elapsed_time = end_time - start_time
 print("Elapsed time:", elapsed_time)
 # %%  Export To Excel
-'''
-with pd.ExcelWriter("MLR_560point_x_bit.xlsx",mode='a') as writer:  
+with pd.ExcelWriter("ML5_560point_x_bit.xlsx",mode='a') as writer:  
     Train_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Train_Prediction')
     Test_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Test_Prediction')
     Total_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Total_Prediction')
     
     Score_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Score')
-'''
 # %%
 # Visualization
 
