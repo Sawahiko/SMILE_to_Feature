@@ -83,13 +83,13 @@ y_total = Y_data_ML.copy()
 # Modeling
 
 model = Sequential()
-model.add(Dense(128, input_dim=X_train.shape[1], activation='relu'))
-model.add(Dense(64, activation='relu'))
+model.add(Dense(1024, input_dim=X_train.shape[1], activation='relu'))
+model.add(Dense(256, activation='relu'))
 model.add(Dense(1))  # Output layer for boiling point prediction
 
 # Step 4: Compile and train the model
 model.compile(optimizer='adam', loss='mean_squared_error')
-model.fit(X_train, y_train, epochs=100, batch_size=1)
+model.fit(X_train, y_train, epochs=100, batch_size=16)
 
 # %%   Validation with Error Metrics
 mape_train_table = []
@@ -126,58 +126,68 @@ mape_train_table.append(mape_total)
 rmse_train_table.append(rmse_total)
 r2_train_table.append(R2_total)
 
+test = []
+for i in y_predict_test:
+    test.append(i)
+test = pd.Series(test)
+
+train = []
+for i in y_predict_train:
+    train.append(i)
+train = pd.Series(train)
+
+total = []
+for i in y_predict_total:
+    total.append(i)
+total = pd.Series(total)
 # %% Store score y_predict
 # Table Score
-# =============================================================================
-# Score_Table = pd.DataFrame()
-# data = {
-#         "MAPE":mape_train_table,
-#         "RMSE":rmse_train_table,
-#         "R2"  :r2_train_table
-#     }
-# Score_Table = pd.DataFrame(data)
-# 
-# # Train predict Table
-# Train_Table = pd.DataFrame()
-# data = {
-#         "X" :X_train_ML["SMILES"],
-#         "Y"  :y_train,
-#         "Y_predict" :y_predict_train
-#     }
-# Train_Table = pd.DataFrame(data)
-# 
-# # Test predict Table
-# Test_Table = pd.DataFrame()
-# data = {
-#         "X" :X_test_ML["SMILES"],
-#         "Y"  :y_test,
-#         "Y_predict" :y_predict_test
-#     }
-# Test_Table = pd.DataFrame(data)
-# 
-# # Total predict Table
-# Total_Table = pd.DataFrame()
-# data = {
-#         "X" :X_data_ML["SMILES"],
-#         "Y"  :y_total,
-#         "Y_predict" :y_predict_total
-#     }
-# Total_Table = pd.DataFrame(data)
-# 
-# end_time = time.time()
-# elapsed_time = end_time - start_time
-# print("Elapsed time:", elapsed_time)
-# =============================================================================
+Score_Table = pd.DataFrame()
+data = {
+        "MAPE":mape_train_table,
+        "RMSE":rmse_train_table,
+        "R2"  :r2_train_table
+    }
+Score_Table = pd.DataFrame(data)
+
+# Train predict Table
+Train_Table = pd.DataFrame()
+data = {
+        "X" :X_train_ML["SMILES"],
+        "Y"  :y_train,
+        "Y_predict" :train
+    }
+Train_Table = pd.DataFrame(data)
+
+# Test predict Table
+Test_Table = pd.DataFrame()
+data = {
+        "X" :X_test_ML["SMILES"],
+        "Y"  :y_test,
+        "Y_predict" :test
+    }
+Test_Table = pd.DataFrame(data)
+
+# Total predict Table
+Total_Table = pd.DataFrame()
+data = {
+        "X" :X_data_ML["SMILES"],
+        "Y"  :y_total,
+        "Y_predict" :total
+    }
+Total_Table = pd.DataFrame(data)
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+print("Elapsed time:", elapsed_time)
 # %%  Export To Excel
 
-# =============================================================================
-# with pd.ExcelWriter("ML7_560point_x_bit.xlsx",mode='a') as writer:  
-#     Train_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Train_Prediction')
-#     Test_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Test_Prediction')
-#     Total_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Total_Prediction')
-#     
-#     Score_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Score')
-# =============================================================================
+with pd.ExcelWriter("DL_560point_x_bit.xlsx",mode='a') as writer:  
+    Train_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Train_Prediction')
+    Test_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Test_Prediction')
+    Total_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Total_Prediction')
+    
+    Score_Table.to_excel(writer, sheet_name=f'{MF_bit}_bit_Score')
 
 # %%
 # =============================================================================
