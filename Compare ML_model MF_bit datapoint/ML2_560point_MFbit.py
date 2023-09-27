@@ -15,6 +15,7 @@ import time
 
 # Machine Learning
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error, r2_score
 from sklearn.pipeline import make_pipeline
@@ -49,14 +50,14 @@ Y_data= df["Tb"]
 #Generate Fingerprint from SMILE
 X_data_use = X_data_excel.copy()
 X_data_use["molecule"] = X_data_use["SMILES"].apply(lambda x: Chem.MolFromSmiles(x))
-X_data_use["MACCS"] = X_data_use["molecule"].apply(lambda x: rdkit.Chem.MACCSkeys.GenMACCSKeys(x))
+X_data_use["morgan_fp"] = X_data_use["molecule"].apply(lambda x: rdMolDescriptors.GetMorganFingerprintAsBitVect(x, radius=4, nBits=MF_bit, useFeatures=True, useChirality=True))
 
 #>>> SHOW X_data_use 
 
 #Transfrom Fingerprint to Column in DataFrame
 X_data_fp = []
 for i in range(X_data_use.shape[0]):
-    array = np.array(X_data_use["MACCS"][i])
+    array = np.array(X_data_use["morgan_fp"][i])
     datafram_i = pd.DataFrame(array)
     datafram_i = datafram_i.T
     X_data_fp.append(datafram_i)
@@ -71,9 +72,9 @@ Y_data_ML = Y_data.copy()
 
 X_train_ML, X_test_ML, y_train_ML, y_test_ML = train_test_split(X_data_ML, Y_data_ML,test_size=0.25,random_state=42)
 
-X_train = X_train_ML.copy().drop(columns = {"SMILES", "molecule", "MACCS"})
-X_test = X_test_ML.copy().drop(columns = {"SMILES", "molecule", "MACCS"})
-x_total = X_data_ML.copy().drop(columns = {"SMILES", "molecule", "MACCS"})
+X_train = X_train_ML.copy().drop(columns = {"SMILES", "molecule", "morgan_fp"})
+X_test = X_test_ML.copy().drop(columns = {"SMILES", "molecule", "morgan_fp"})
+x_total = X_data_ML.copy().drop(columns = {"SMILES", "molecule", "morgan_fp"})
 
 y_train = y_train_ML.copy()
 y_test = y_test_ML.copy()
@@ -84,9 +85,23 @@ y_total = Y_data_ML.copy()
 # %%
 # Modeling
 
-RF_model = make_pipeline(StandardScaler(),
-                               RandomForestRegressor(random_state = 0, n_jobs=100))
-RF_model.fit(X_train, y_train)
+param_grid = {
+    'n_estimators': [None, 100, 200, 500],
+    'max_depth': [5, 10, 15],
+    'min_samples_leaf': [1, 5, 10],
+}
+
+# Instantiate the random forest regressor
+RF_model = RandomForestRegressor(random_state=42)
+
+# Instantiate the grid search object
+grid_search = GridSearchCV(estimator=RF_model, param_grid=param_grid, cv=5, n_jobs=-1)
+
+# Fit the grid search model on the training data
+grid_search.fit(X_train, y_train)
+
+# Get the best model
+best_model = grid_search.best_estimator_
 
 # %%   Validation with Error Metrics
 mape_train_table = []
@@ -94,7 +109,7 @@ rmse_train_table = []
 r2_train_table   = []
 
 # Train set
-y_predict_train = RF_model.predict(X_train)
+y_predict_train = best_model.predict(X_train)
 mape_train = mean_absolute_percentage_error(y_train, y_predict_train)
 rmse_train = np.sqrt(mean_squared_error(y_train, y_predict_train))
 R2_train = r2_score(y_train, y_predict_train)
@@ -104,7 +119,7 @@ rmse_train_table.append(rmse_train)
 r2_train_table.append(R2_train)
 
 # Test set
-y_predict_test = RF_model.predict(X_test)
+y_predict_test = best_model.predict(X_test)
 mape_test = mean_absolute_percentage_error(y_test, y_predict_test)
 rmse_test = np.sqrt(mean_squared_error(y_test, y_predict_test))
 R2_test = r2_score(y_test, y_predict_test)
@@ -114,7 +129,7 @@ rmse_train_table.append(rmse_test)
 r2_train_table.append(R2_test)
 
 # Total set
-y_predict_total = RF_model.predict(x_total)
+y_predict_total = best_model.predict(x_total)
 mape_total = mean_absolute_percentage_error(y_total, y_predict_total)
 rmse_total = np.sqrt(mean_squared_error(y_total, y_predict_total))
 R2_total = r2_score(y_total, y_predict_total)

@@ -82,28 +82,26 @@ y_total = Y_data_ML.copy()
 # Modeling
 
 param_grid = {
-    'max_depth': [3, 4, 5],
-    'min_samples_split': [2, 5, 10]
+    'max_depth': [None, 5, 10, 15],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4]
 }
 
-# Initialize the Decision Tree Regressor
-dt_reg = DecisionTreeRegressor()
-
-# Initialize GridSearchCV
-grid_search = GridSearchCV(estimator=dt_reg, param_grid=param_grid, cv=3, scoring='neg_mean_squared_error')
-
-# Fit the model
-grid_search.fit(X_train, y_train)
-
-# Get the best parameters and model
-best_params = grid_search.best_params_
-best_model = grid_search.best_estimator_
-
-md = best_params["max_depth"]
-mss = best_params["min_samples_split"]
-
-DT_model = DecisionTreeRegressor(max_depth=md,min_samples_split=mss)
-DT_model.fit(X_train,y_train)
+# Create a Decision Tree Regressor
+DT_model = DecisionTreeRegressor(random_state=42)
+DT_model.fit(X_train, y_train)
+# =============================================================================
+# # Create a GridSearchCV object
+# grid_search = GridSearchCV(DT_model, param_grid, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
+# 
+# # Fit the grid search to your data
+# grid_search.fit(X_train, y_train)
+# 
+# # Get the best estimator and hyperparameters
+# best_DT = grid_search.best_estimator_
+# best_params = grid_search.best_params_
+# 
+# =============================================================================
 # %%   Validation with Error Metrics
 mape_train_table = []
 rmse_train_table = []
