@@ -17,25 +17,25 @@ from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error,
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-def RF_model(x_train,y_train):
+def RF(x_train,y_train):
     model = RandomForestRegressor()
     model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
     model.fit(x_train,y_train)
     return model
 
-def Ridge_model(x_train,y_train):
+def Ridge(x_train,y_train):
     model = Ridge()
     model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
     model.fit(x_train,y_train)
     return model
 
-def SVR_model(x_train,y_train):
+def SVR(x_train,y_train):
     model = SVR()
     model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
     model.fit(x_train,y_train)
     return model
 
-def XGB_model(x_train,y_train):
+def XGB(x_train,y_train):
     model = GradientBoostingRegressor()
     model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
     model.fit(x_train,y_train)
