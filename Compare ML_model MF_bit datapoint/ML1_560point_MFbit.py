@@ -30,7 +30,7 @@ from rdkit import Chem
 from rdkit.Chem import Descriptors
 from rdkit.ML.Descriptors import MoleculeDescriptors
 
-start_time = time.time()
+
 # %% Setup
 MF_bit = 2**10
 
@@ -87,8 +87,6 @@ y_total = Y_data_ML.copy()
 Linear = make_pipeline(StandardScaler(),
                                LinearRegression())
 Linear.fit(X_train, y_train)
-
-
 
 # %%   Validation with Error Metrics
 mape_train_table = []
@@ -162,9 +160,7 @@ data = {
     }
 Total_Table = pd.DataFrame(data)
 
-end_time = time.time()
-elapsed_time = end_time - start_time
-print("Elapsed time:", elapsed_time)
+
 # %%  Export To Excel
 # =============================================================================
 # with pd.ExcelWriter("MLR_560point_x_bit.xlsx",mode='a') as writer:  
@@ -178,8 +174,22 @@ print("Elapsed time:", elapsed_time)
 # %%
 # Visualization
 
-p1=sn.regplot(x=y_predict_train, y=y_train,line_kws={"lw":1,'ls':'--','color':'black',"alpha":0.9})
-plt.xlabel('Predicted Tb', color='blue')
-plt.ylabel('Observed Tb', color ='blue')
-plt.title("Test set", color='red')
-plt.grid(alpha=0.6)
+# =============================================================================
+# p1=sn.regplot(x=y_predict_train, y=y_train,line_kws={"lw":1,'ls':'--','color':'black',"alpha":0.9})
+# plt.xlabel('Predicted Tb', color='blue')
+# plt.ylabel('Observed Tb', color ='blue')
+# plt.title("Test set", color='red')
+# plt.grid(alpha=0.6)
+# =============================================================================
+
+
+
+# %%
+start_time = time.time()
+
+x_time = X_test.iloc[0:1]
+y_time = Linear.predict(x_time)
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+print("Elapsed time:", elapsed_time)
