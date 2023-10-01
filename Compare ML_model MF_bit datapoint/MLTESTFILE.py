@@ -32,7 +32,7 @@ from rdkit.ML.Descriptors import MoleculeDescriptors
 
 # My module
 from Python_Scoring_Export import Scoring, Export
-
+from MLModel import RF
 # %% Setup
 MF_bit = 2**10
 
@@ -85,10 +85,7 @@ y_total = Y_data_ML.copy()
 # %%
 # Modeling
 
+RF_model = RF(X_train, y_train)
 
-Linear = LinearRegression()
-Linear.fit(X_train, y_train)
-
-
-Score_table = Scoring(Linear, X_train, X_test, x_total, y_train, y_test, y_total)
+Score_table = Scoring(RF_model, X_train, X_test, x_total, y_train, y_test, y_total)
 Export(Score_table, "TESTFILE.csv")
