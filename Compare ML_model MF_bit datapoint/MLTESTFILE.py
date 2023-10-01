@@ -9,6 +9,7 @@ import time
 
 # Machine Learning
 from sklearn.linear_model import LinearRegression
+from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error, r2_score
 from sklearn.pipeline import make_pipeline
@@ -63,9 +64,13 @@ X_data_fp = pd.concat(X_data_fp, ignore_index=True)
 
 Y_data_fp = Y_data.copy()
 
+#Decrase feature with PCA
+pca = PCA(n_components=256)
+X_pca = pca.fit_transform(X_data_fp)
+
 # %%
 # Train-test_Modeling & Cross Validation Modeling
-X_train_fp, X_test_fp, y_train_fp, y_test_fp = train_test_split(X_data_fp, Y_data_fp,
+X_train_fp, X_test_fp, y_train_fp, y_test_fp = train_test_split(X_pca, Y_data_fp,
                                                                 test_size=0.25,
                                                                 random_state=42)
 #RF_model = RF(X_train_fp, y_train_fp)
