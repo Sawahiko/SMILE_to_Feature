@@ -17,7 +17,7 @@ from rdkit.ML.Descriptors import MoleculeDescriptors
 
 # Our module
 from Python_Scoring_Export import Scoring, Export
-from Python_MLModel import RF, Ridge, XGB
+from Python_MLModel import RF, Ridge_M, XGB, SVC_R
 
 # %% Option
 MF_bit = 2**10
@@ -61,10 +61,10 @@ y_data_fp = Y_data.copy()
 x_train_fp, x_test_fp, y_train_fp, y_test_fp = train_test_split(x_data_fp, y_data_fp,
                                                                 test_size=0.25,
                                                                 random_state=42)
-RF_model = RF(x_train_fp, y_train_fp)
+XGB_model = XGB(x_train_fp, y_train_fp)
 
 
 # %%
 # Scoring & Export
-Score_table = Scoring(RF_model , x_train_fp, x_test_fp, x_data_fp, y_train_fp, y_test_fp, y_data_fp)
-Export(Score_table, "MF1024_RF.csv")
+Score_table = Scoring(XGB_model , x_train_fp, x_test_fp, x_data_fp, y_train_fp, y_test_fp, y_data_fp)
+Export(Score_table, "MF1024_XGB.csv")

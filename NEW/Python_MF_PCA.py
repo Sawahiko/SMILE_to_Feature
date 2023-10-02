@@ -17,7 +17,7 @@ from rdkit.ML.Descriptors import MoleculeDescriptors
 
 # Our module
 from Python_Scoring_Export import Scoring, Export
-from Python_MLModel import RF, Ridge, XGB
+from Python_MLModel import RF, Ridge_M, XGB, SVC_R, NN
 
 # %% Option
 MF_bit = 2**10
@@ -59,7 +59,13 @@ y_data_fp = Y_data.copy()
 #Decrase feature with PCA
 pca = PCA(n_components=512)
 x_pca = pca.fit_transform(x_data_fp)
-
+# =============================================================================
+# exp_var = pca.explained_variance_ratio_
+# print("Total variation explained : {0} = {1:.2f} %".format(exp_var, sum(pca.explained_variance_ratio_*100)))
+# print("Original shape (#instances, #features):   ",x_data_fp.shape)
+# print("Transformed shape (#instances, #features):", x_pca.shape)
+# =============================================================================
+# %%
 
 x_train_fp, x_test_fp, y_train_fp, y_test_fp = train_test_split(x_pca, y_data_fp,
                                                                 test_size=0.25,
@@ -70,4 +76,4 @@ RF_model = RF(x_train_fp, y_train_fp)
 # %%
 # Scoring & Export
 Score_table = Scoring(RF_model , x_train_fp, x_test_fp, x_pca, y_train_fp, y_test_fp, y_data_fp)
-Export(Score_table, "MF1024_PCA256_RF.csv")
+Export(Score_table, "MF1024_PCA512_RF.csv")
