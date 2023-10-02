@@ -29,48 +29,40 @@ def RF(x_train,y_train):
     grid_search = GridSearchCV(model, param_grid, cv=5)
     grid_search.fit(x_train, y_train)
     best_model = grid_search.best_estimator_
-    best_model_cv = cross_validate(best_model, x_train, y_train, cv=5, return_train_score=True)
-    best_model.fit(x_train,y_train)
     return best_model
 
 def Ridge_M(x_train,y_train):
     model = Ridge()
     param_grid = {
-    'alpha': [0.001, 0.01, 0.1, 1, 10, 100]
-    }
+        'alpha': [0.001, 0.01, 0.1, 1, 10, 100]
+        }
     grid_search = GridSearchCV(model, param_grid, cv=5)
     grid_search.fit(x_train, y_train)
     best_model = grid_search.best_estimator_
-    best_model_cv = cross_validate(best_model, x_train, y_train, cv=5, return_train_score=True)
-    best_model.fit(x_train,y_train)
     return best_model
 
 def SVC_R(x_train,y_train):
     model = SVR()
     param_grid = {
-    'C': [0.1, 1, 10, 100],
-    'gamma': [0.01, 0.1, 1, 10]
-    }
+        'C': [0.1, 1, 10, 100],
+        'gamma': [0.01, 0.1, 1, 10]
+        }
     grid_search = GridSearchCV(model, param_grid, cv=5)
     grid_search.fit(x_train, y_train)
     best_model = grid_search.best_estimator_
-    best_model_cv = cross_validate(best_model, x_train, y_train, cv=5, return_train_score=True)
-    best_model.fit(x_train,y_train)
     return best_model
 
 def XGB(x_train,y_train):
     model = GradientBoostingRegressor()
     param_grid = {
-    'n_estimators': [100, 200, 300],
-    'max_depth': [3, 6, 9],
-    'learning_rate': [0.05, 0.1, 0.2],
-    'min_child_weight': [1, 10, 100]
-    }
+        'n_estimators': [100, 200, 300],
+        'max_depth': [3, 6, 9],
+        'learning_rate': [0.05, 0.1, 0.2],
+        'min_child_weight': [1, 10, 100]
+        }
     grid_search = GridSearchCV(model, param_grid, cv=5)
     grid_search.fit(x_train, y_train)
-    best_model = grid_search.best_estimator_
-    best_model_cv = cross_validate(best_model, x_train, y_train, cv=5, return_train_score=True)
-    best_model.fit(x_train,y_train)  
+    best_model = grid_search.best_estimator_  
     return best_model
 
 def NN(x_train,y_train):
