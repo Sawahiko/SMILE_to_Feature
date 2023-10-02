@@ -59,8 +59,8 @@ y_data_fp = Y_data.copy()
 #Decrase feature with PCA
 pca = PCA(n_components=512)
 x_pca = pca.fit_transform(x_data_fp)
+exp_var = pca.explained_variance_ratio_
 # =============================================================================
-# exp_var = pca.explained_variance_ratio_
 # print("Total variation explained : {0} = {1:.2f} %".format(exp_var, sum(pca.explained_variance_ratio_*100)))
 # print("Original shape (#instances, #features):   ",x_data_fp.shape)
 # print("Transformed shape (#instances, #features):", x_pca.shape)
