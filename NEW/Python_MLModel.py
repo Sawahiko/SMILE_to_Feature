@@ -14,35 +14,64 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split, cross_validate
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, r2_score
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 
 def RF(x_train,y_train):
     model = RandomForestRegressor()
-    model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
-    model.fit(x_train,y_train)
-    return model
+    param_grid = {
+        'n_estimators': [100, 200, 300],
+        'max_depth': [5, 10, 15],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 5]
+        }
+    grid_search = GridSearchCV(model, param_grid, cv=5)
+    grid_search.fit(x_train, y_train)
+    best_model = grid_search.best_estimator_
+    best_model_cv = cross_validate(best_model, x_train, y_train, cv=5, return_train_score=True)
+    best_model.fit(x_train,y_train)
+    return best_model
 
 def Ridge_M(x_train,y_train):
     model = Ridge()
-    model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
-    model.fit(x_train,y_train)
-    return model
+    param_grid = {
+    'alpha': [0.001, 0.01, 0.1, 1, 10, 100]
+    }
+    grid_search = GridSearchCV(model, param_grid, cv=5)
+    grid_search.fit(x_train, y_train)
+    best_model = grid_search.best_estimator_
+    best_model_cv = cross_validate(best_model, x_train, y_train, cv=5, return_train_score=True)
+    best_model.fit(x_train,y_train)
+    return best_model
 
 def SVC_R(x_train,y_train):
     model = SVR()
-    model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
-    model.fit(x_train,y_train)
-    return model
+    param_grid = {
+    'C': [0.1, 1, 10, 100],
+    'gamma': [0.01, 0.1, 1, 10]
+    }
+    grid_search = GridSearchCV(model, param_grid, cv=5)
+    grid_search.fit(x_train, y_train)
+    best_model = grid_search.best_estimator_
+    best_model_cv = cross_validate(best_model, x_train, y_train, cv=5, return_train_score=True)
+    best_model.fit(x_train,y_train)
+    return best_model
 
 def XGB(x_train,y_train):
     model = GradientBoostingRegressor()
-    model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
-    model.fit(x_train,y_train)
-    return model
+    param_grid = {
+    'n_estimators': [100, 200, 300],
+    'max_depth': [3, 6, 9],
+    'learning_rate': [0.05, 0.1, 0.2],
+    'min_child_weight': [1, 10, 100]
+    }
+    grid_search = GridSearchCV(model, param_grid, cv=5)
+    grid_search.fit(x_train, y_train)
+    best_model = grid_search.best_estimator_
+    best_model_cv = cross_validate(best_model, x_train, y_train, cv=5, return_train_score=True)
+    best_model.fit(x_train,y_train)  
+    return best_model
 
 def NN(x_train,y_train):
     model = Sequential()
