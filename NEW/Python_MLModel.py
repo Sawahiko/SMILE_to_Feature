@@ -14,9 +14,10 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split, cross_validate
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, r2_score
-#import tensorflow as tf
-#from tensorflow.keras.models import Sequential
-#from tensorflow.keras.layers import Dense
+from catboost import CatBoostRegressor, Pool
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
 
 def RF(x_train,y_train):
     model = RandomForestRegressor()
@@ -31,6 +32,7 @@ def RF(x_train,y_train):
 #     grid_search.fit(x_train, y_train)
 #     best_model = grid_search.best_estimator_
 # =============================================================================
+    model_cv = cross_validate(model, x_train, y_train, return_train_score=True)
     model.fit(x_train, y_train)
     return model
 
@@ -44,6 +46,7 @@ def Ridge_M(x_train,y_train):
 #     grid_search.fit(x_train, y_train)
 #     best_model = grid_search.best_estimator_
 # =============================================================================
+    model_cv = cross_validate(model, x_train, y_train, return_train_score=True)
     model.fit(x_train, y_train)
     return model
 
@@ -58,6 +61,7 @@ def SVC_R(x_train,y_train):
 #     grid_search.fit(x_train, y_train)
 #     best_model = grid_search.best_estimator_
 # =============================================================================
+    model_cv = cross_validate(model, x_train, y_train, return_train_score=True)
     model.fit(x_train, y_train)
     return model
 
@@ -74,16 +78,23 @@ def XGB(x_train,y_train):
 #     grid_search.fit(x_train, y_train)
 #     best_model = grid_search.best_estimator_  
 # =============================================================================
+    model_cv = cross_validate(model, x_train, y_train, return_train_score=True)
     model.fit(x_train, y_train)
     return model
 
-# =============================================================================
-# def NN(x_train,y_train):
-#     model = Sequential()
-#     model.add(Dense(1024, input_dim=x_train.shape[1], activation='relu'))
-#     model.add(Dense(512, activation='relu'))
-#     model.add(Dense(1))
-#     model.compile(optimizer='adam', loss='mean_squared_error')
-#     model.fit(x_train, y_train, epochs=100, batch_size=16)
-#     return model
-# =============================================================================
+def NN(x_train,y_train):
+    model = Sequential()
+    model.add(Dense(4096, input_dim=x_train.shape[1] , activation='relu'))
+    model.add(Dense(512, activation='relu'))
+#    model.add(Dense(256, activation='relu'))
+    model.add(Dense(1))
+    model.compile(optimizer='adam', loss='mean_squared_error')
+    model.fit(x_train, y_train, epochs=100, batch_size=32, validation_split=0.2)
+    return model
+
+def CB(x_train,y_train):
+    pool = Pool(x_train, y_train)
+    model = CatBoostRegressor(iterations=999, bagging_temperature=116.85, depth=6, l2_leaf_reg=0.166, random_strength=43.40)
+    model_cv = cross_validate(model, x_train, y_train, return_train_score=True)
+    model.fit(pool)
+    return model

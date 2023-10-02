@@ -1,6 +1,7 @@
 # Python
 import numpy as np
 import pandas as pd
+import time
 
 # Machine Learning
 from sklearn.decomposition import PCA
@@ -18,15 +19,15 @@ from rdkit import DataStructs
 
 # Our module
 from Python_Scoring_Export import Scoring, Export
-from Python_MLModel import RF, Ridge, XGB
+from Python_MLModel import RF, Ridge_M, XGB, SVC_R, NN, CB
 
 # %% Option
-MF_bit = 2**10
+MF_bit = 2**12
 MF_radius = 2
 
 # %% Import Data : 560 datapoint
 # Import Data
-df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
+df = pd.read_excel("../Data.xlsx",sheet_name="AllDataSet")
 
 # Select feature for data: X=SMILE, Y=Tb
 X_data_excel= df[["SMILES"]]
@@ -67,10 +68,9 @@ y_data_fp = Y_data.copy()
 x_train_fp, x_test_fp, y_train_fp, y_test_fp = train_test_split(x_data_fp, y_data_fp,
                                                                 test_size=0.25,
                                                                 random_state=42)
-RF_model = RF(x_train_fp, y_train_fp)
-
+Ridge_model = Ridge_M(x_train_fp, y_train_fp)
 
 # %%
 # Scoring & Export
-Score_table = Scoring(RF_model , x_train_fp, x_test_fp, x_data_fp, y_train_fp, y_test_fp, y_data_fp)
-Export(Score_table, "C_MF1024_RF.csv")
+Score_table = Scoring(Ridge_model , x_train_fp, x_test_fp, x_data_fp, y_train_fp, y_test_fp, y_data_fp)
+Export(Score_table, "C_MF4096_Ridge.csv")
