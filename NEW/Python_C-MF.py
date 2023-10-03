@@ -19,7 +19,7 @@ from rdkit import DataStructs
 
 # Our module
 from Python_Scoring_Export import Scoring, Export
-from Python_MLModel import RF, Ridge_M, XGB, NN, CB
+from Python_MLModel import RF, Ridge_M, XGB, NN, CB, DT, GP
 
 # %% Option
 MF_bit = 2**12
@@ -41,7 +41,8 @@ X_data_use["molecule"] = X_data_use["SMILES"].apply(lambda x: Chem.MolFromSmiles
 X_data_use["count_morgan_fp"] = X_data_use["molecule"].apply(lambda x: rdMolDescriptors.GetHashedMorganFingerprint(
     x, 
     radius=MF_radius, 
-    nBits=MF_bit))
+    nBits=MF_bit,
+    useFeatures=True, useChirality=True))
 X_data_use["arr_count_morgan_fp"] = 0
 #X_data_use["arr_count_morgan_fp"] = np.zeros((0,), dtype=np.int8)
 

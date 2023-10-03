@@ -9,8 +9,9 @@ import time
 # Machine Learning
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import Ridge
-from sklearn.svm import SVR
+from sklearn.tree import DecisionTreeRegressor
 from xgboost import XGBClassifier, XGBRegressor
+from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split, cross_validate
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, r2_score
@@ -82,4 +83,16 @@ def CB(x_train,y_train):
     model = CatBoostRegressor(iterations=999, bagging_temperature=116.85, depth=6, l2_leaf_reg=0.166, random_strength=43.40)
     model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
     model.fit(pool)
+    return model
+
+def GP(x_train,y_train):
+    model = GaussianProcessRegressor()
+    model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
+    model.fit(x_train,y_train)
+    return model
+
+def DT(x_train,y_train):
+    model = DecisionTreeRegressor()
+    model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
+    model.fit(x_train,y_train)
     return model
