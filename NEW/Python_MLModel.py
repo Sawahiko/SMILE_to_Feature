@@ -10,7 +10,7 @@ import time
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import Ridge
 from sklearn.svm import SVR
-from sklearn.ensemble import GradientBoostingRegressor
+from xgboost import XGBClassifier, XGBRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split, cross_validate
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, r2_score
@@ -32,7 +32,7 @@ def RF(x_train,y_train):
 #     grid_search.fit(x_train, y_train)
 #     best_model = grid_search.best_estimator_
 # =============================================================================
-    model_cv = cross_validate(model, x_train, y_train, return_train_score=True)
+    model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
     model.fit(x_train, y_train)
     return model
 
@@ -46,27 +46,12 @@ def Ridge_M(x_train,y_train):
 #     grid_search.fit(x_train, y_train)
 #     best_model = grid_search.best_estimator_
 # =============================================================================
-    model_cv = cross_validate(model, x_train, y_train, return_train_score=True)
-    model.fit(x_train, y_train)
-    return model
-
-def SVC_R(x_train,y_train):
-    model = SVR()
-# =============================================================================
-#     param_grid = {
-#         'C': [0.1, 1, 10, 100],
-#         'gamma': [0.01, 0.1, 1, 10]
-#         }
-#     grid_search = GridSearchCV(model, param_grid, cv=5)
-#     grid_search.fit(x_train, y_train)
-#     best_model = grid_search.best_estimator_
-# =============================================================================
-    model_cv = cross_validate(model, x_train, y_train, return_train_score=True)
+    model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
     model.fit(x_train, y_train)
     return model
 
 def XGB(x_train,y_train):
-    model = GradientBoostingRegressor()
+    model = XGBRegressor()
 # =============================================================================
 #     param_grid = {
 #         'n_estimators': [100, 200, 300],
@@ -78,7 +63,7 @@ def XGB(x_train,y_train):
 #     grid_search.fit(x_train, y_train)
 #     best_model = grid_search.best_estimator_  
 # =============================================================================
-    model_cv = cross_validate(model, x_train, y_train, return_train_score=True)
+    model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
     model.fit(x_train, y_train)
     return model
 
@@ -95,6 +80,6 @@ def NN(x_train,y_train):
 def CB(x_train,y_train):
     pool = Pool(x_train, y_train)
     model = CatBoostRegressor(iterations=999, bagging_temperature=116.85, depth=6, l2_leaf_reg=0.166, random_strength=43.40)
-    model_cv = cross_validate(model, x_train, y_train, return_train_score=True)
+    model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
     model.fit(pool)
     return model
