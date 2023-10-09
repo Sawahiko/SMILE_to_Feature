@@ -16,9 +16,9 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split, cross_validate
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, r2_score
 from catboost import CatBoostRegressor, Pool
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+#import tensorflow as tf
+#from tensorflow.keras.models import Sequential
+#from tensorflow.keras.layers import Dense
 
 def RF(x_train,y_train):
     model = RandomForestRegressor()
@@ -33,7 +33,7 @@ def RF(x_train,y_train):
 #     grid_search.fit(x_train, y_train)
 #     best_model = grid_search.best_estimator_
 # =============================================================================
-    model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
+    model_cv = cross_validate(model, x_train, y_train, cv=4, return_train_score=True)
     model.fit(x_train, y_train)
     return model
 
@@ -47,7 +47,7 @@ def Ridge_M(x_train,y_train):
 #     grid_search.fit(x_train, y_train)
 #     best_model = grid_search.best_estimator_
 # =============================================================================
-    model_cv = cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
+    model_cv = cross_validate(model, x_train, y_train, cv=4, return_train_score=True)
     model.fit(x_train, y_train)
     return model
 

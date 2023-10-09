@@ -1,6 +1,7 @@
 # Python
 import numpy as np
 import pandas as pd
+import time
 
 # Machine Learning
 from sklearn.decomposition import PCA
@@ -17,15 +18,15 @@ from rdkit.ML.Descriptors import MoleculeDescriptors
 
 # Our module
 from Python_Scoring_Export import Scoring, Export
-from Python_MLModel import RF, Ridge_M, XGB, SVC_R, NN
+from Python_MLModel import RF, Ridge_M, XGB, NN
 
 # %% Option
 MF_bit = 2**10
-MF_radius = 4
+MF_radius = 6
 
 # %% Import Data : 560 datapoint
 # Import Data
-df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
+df = pd.read_excel("../Data.xlsx",sheet_name="AllDataSet")
 
 # Select feature for data: X=SMILE, Y=Tb
 X_data_excel= df[["SMILES"]]
@@ -68,12 +69,15 @@ exp_var = pca.explained_variance_ratio_
 # %%
 
 x_train_fp, x_test_fp, y_train_fp, y_test_fp = train_test_split(x_pca, y_data_fp,
-                                                                test_size=0.25,
+                                                                test_size=0.20,
+  
                                                                 random_state=42)
+start_time = time.time()
 RF_model = RF(x_train_fp, y_train_fp)
-
+end_time = time.time()
+print("Elasped Time : ", end_time-start_time, " seconds")
 
 # %%
 # Scoring & Export
 Score_table = Scoring(RF_model , x_train_fp, x_test_fp, x_pca, y_train_fp, y_test_fp, y_data_fp)
-Export(Score_table, "MF1024_PCA512_RF.csv")
+Export(Score_table, "2023-10-09 MF1024_PCA512_RF.csv")

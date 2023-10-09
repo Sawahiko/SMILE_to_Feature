@@ -22,7 +22,7 @@ from Python_MLModel import RF, Ridge_M, XGB, NN, CB, DT, GP
 
 # %% Option
 MF_bit = 2**12
-MF_radius = 2
+MF_radius = 10
 
 # %% Import Data : 560 datapoint
 # Import Data
@@ -60,15 +60,15 @@ y_data_fp = Y_data.copy()
 
 
 x_train_fp, x_test_fp, y_train_fp, y_test_fp = train_test_split(x_data_fp, y_data_fp,
-                                                                test_size=0.25,
+                                                                test_size=0.20,
                                                                 random_state=42)
 start_time = time.time()
-CB_model = CB(x_train_fp, y_train_fp)
+RF_model = RF(x_train_fp, y_train_fp)
 end_time = time.time()
 print("Elasped Time : ", end_time-start_time, " seconds")
 
 
 # %%
 # Scoring & Export
-Score_table = Scoring(CB_model , x_train_fp, x_test_fp, x_data_fp, y_train_fp, y_test_fp, y_data_fp)
-Export(Score_table, "MF4096_CB.csv")
+Score_table = Scoring(RF_model , x_train_fp, x_test_fp, x_data_fp, y_train_fp, y_test_fp, y_data_fp)
+Export(Score_table, "2023-10-09 MF4096_RF r=10.csv")
