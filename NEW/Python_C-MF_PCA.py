@@ -22,7 +22,7 @@ from Python_Scoring_Export import Scoring, Export
 from Python_MLModel import RF, Ridge, XGB
 
 # %% Option
-MF_bit = 2**12
+MF_bit = 2**14
 MF_radius = 6
 
 # %% Import Data : 560 datapoint
