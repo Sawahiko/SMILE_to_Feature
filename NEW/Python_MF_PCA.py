@@ -58,15 +58,17 @@ y_data_fp = Y_data.copy()
 
 # %%
 # Train-test_Modeling & Cross Validation Modeling
-n_components = 1024
+n_components = 2048
 pca = PCA(n_components=n_components)
 x_pca = pca.fit_transform(x_data_fp)
 plt.plot(np.cumsum(pca.explained_variance_ratio_))
 plt.yticks(np.arange(0, 1.2, step=0.2))
-plt.xticks(np.arange(0, n_components, step=200))
+plt.xticks(np.arange(0, 2048, step=200))
 plt.plot([0,n_components], [0.75,0.75], '--')
 plt.plot([0,n_components], [0.95,0.95], '--')
 plt.plot([0,n_components], [1,1], '-')
+
+plt.xlim([0, 2048])
 plt.title(f" B-MF PCA From {MF_bit} bit, r={MF_radius} to {n_components} comp")
 plt.xlabel('components')
 plt.ylabel('cumulative explained variance');
