@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 import time
+import matplotlib.pyplot as plt
 
 # Machine Learning
 from sklearn.decomposition import PCA
@@ -18,11 +19,11 @@ from rdkit.ML.Descriptors import MoleculeDescriptors
 
 # Our module
 from Python_Scoring_Export import Scoring, Export
-from Python_MLModel import RF, Ridge_M, XGB, NN
+#from Python_MLModel import RF, Ridge_M, XGB, NN
 
 # %% Option
-MF_bit = 2**12
-MF_radius = 6
+MF_bit = 2**13
+MF_radius = 2
 
 # %% Import Data : 560 datapoint
 # Import Data
@@ -57,10 +58,19 @@ y_data_fp = Y_data.copy()
 
 # %%
 # Train-test_Modeling & Cross Validation Modeling
-#Decrase feature with PCA
-pca = PCA(n_components=512)
+n_components = 1024
+pca = PCA(n_components=n_components)
 x_pca = pca.fit_transform(x_data_fp)
-exp_var = pca.explained_variance_ratio_
+plt.plot(np.cumsum(pca.explained_variance_ratio_))
+plt.yticks(np.arange(0, 1.2, step=0.2))
+plt.xticks(np.arange(0, n_components, step=200))
+plt.plot([0,n_components], [0.75,0.75], '--')
+plt.plot([0,n_components], [0.95,0.95], '--')
+plt.plot([0,n_components], [1,1], '-')
+plt.title(f" B-MF PCA From {MF_bit} bit, r={MF_radius} to {n_components} comp")
+plt.xlabel('components')
+plt.ylabel('cumulative explained variance');
+
 # =============================================================================
 # print("Total variation explained : {0} = {1:.2f} %".format(exp_var, sum(pca.explained_variance_ratio_*100)))
 # print("Original shape (#instances, #features):   ",x_data_fp.shape)

@@ -19,15 +19,15 @@ from rdkit import DataStructs
 
 # Our module
 from Python_Scoring_Export import Scoring, Export
-from Python_MLModel import RF, Ridge, XGB
+#from Python_MLModel import RF, Ridge, XGB
 
 # %% Option
-MF_bit = 2**14
+MF_bit = 2**12
 MF_radius = 6
 
 # %% Import Data : 560 datapoint
 # Import Data
-df = pd.read_excel("../Data.xlsx",sheet_name="AllDataSet")
+df = pd.read_excel("../Data.xlsx",sheet_name="Load_AllDataSetC12")
 
 # Select feature for data: X=SMILE, Y=Tb
 X_data_excel= df[["SMILES"]]
@@ -64,11 +64,14 @@ y_data_fp = Y_data.copy()
 
 # %%
 # Train-test_Modeling & Cross Validation Modeling
-pca = PCA(n_components=1024)
+n_components = 1024
+pca = PCA(n_components=n_components)
 x_pca = pca.fit_transform(x_data_fp)
 plt.plot(np.cumsum(pca.explained_variance_ratio_))
 plt.plot([0,1024], [0.75,0.75], '--')
 plt.plot([0,1024], [0.95,0.95], '--')
+plt.plot([0,1024], [1,1], '-')
+plt.title(f" C-MF PCA From {MF_bit} to {n_components} comp")
 plt.xlabel('components')
 plt.ylabel('cumulative explained variance');
 # %%
