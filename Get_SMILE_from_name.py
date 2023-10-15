@@ -1,10 +1,11 @@
 import numpy as np
 import pandas as pd
 import pubchempy as pcp
+import time
 
 
 #Import Data
-df = pd.read_excel("Data.xlsx",sheet_name="SmileFromName")
+df = pd.read_excel("Data.xlsx",sheet_name="SmileFromName2")
 
 #Select feature for data: X=SMILE, Y=Tb
 X_data_excel= df[["Name"]]
@@ -18,7 +19,8 @@ names = X_data_excel.values.tolist()
 
 #names=names[:20]
 List1=list()
-
+#%%
+start_time = time.time()
 for name1 in names:
     print(name1)
     results = pcp.get_compounds(name1, 'name')
@@ -31,9 +33,12 @@ data = {
     "Name":names,
     "SMILES":List1
     }
-tdf =pd.DataFrame(data)
 
-tdf.to_csv("SMILES.csv")
+end_time = time.time()
+print("Elasped Time : ", end_time-start_time, "seconds")
+tdf = pd.DataFrame(data)
+
+tdf.to_csv("SMILES_2.csv")
 #print(a.cid)
 #a.
 #pcp.get_properties('IsomericSMILES', 'CC', 'smiles')

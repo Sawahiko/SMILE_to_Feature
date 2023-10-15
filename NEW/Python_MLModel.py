@@ -53,7 +53,7 @@ def Ridge_M(x_train, y_train):
     
     # Create a RandomizedSearchCV object
     ridge = Ridge(random_state=42)
-    kfold = KFold(n_splits=8, shuffle=True, random_state=42)  # Adjust number of splits as needed
+    kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
     
     random_search = RandomizedSearchCV(ridge, param_distributions=param_dist, n_iter=10, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
     

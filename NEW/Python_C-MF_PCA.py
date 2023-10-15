@@ -76,7 +76,7 @@ plt.ylabel('cumulative explained variance');
 x_train_fp, x_test_fp, y_train_fp, y_test_fp = train_test_split(x_pca, y_data_fp,
                                                                 test_size=0.25,
                                                                 random_state=42)
-model = RF(x_train_fp, y_train_fp)
+model = Ridge_M(x_train_fp, y_train_fp)
 
 
 # %%
