@@ -1,6 +1,7 @@
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, r2_score
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import inspect
 
 def get_name_of_input(func):
@@ -61,7 +62,8 @@ def Scoring(Model, x_train, x_test, x_total, y_train, y_test, y_total) :
     mape_train_table.append(mape_total*100)
     rmse_train_table.append(rmse_total)
     r2_train_table.append(R2_total)
-    
+    plt.scatter(y_test,y_predict_test)
+    plt.plot(y_test, y_test)
     # %% Store score y_predict
     # Table Score
     Score_Table = pd.DataFrame()

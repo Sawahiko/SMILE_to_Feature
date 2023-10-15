@@ -4,7 +4,7 @@ import pubchempy as pcp
 
 
 #Import Data
-df = pd.read_excel("Data.xlsx",sheet_name="SmileFromName")
+df = pd.read_excel("Data.xlsx",sheet_name="SmileFromName2")
 
 #Select feature for data: X=SMILE, Y=Tb
 X_data_excel= df[["Name"]]
@@ -31,9 +31,10 @@ data = {
     "Name":names,
     "SMILES":List1
     }
-tdf =pd.DataFrame(data)
 
-tdf.to_csv("SMILES.csv")
+tdf = pd.DataFrame(data)
+
+tdf.to_csv("SMILES_2.csv")
 #print(a.cid)
 #a.
 #pcp.get_properties('IsomericSMILES', 'CC', 'smiles')
