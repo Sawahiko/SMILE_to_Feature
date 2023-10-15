@@ -23,12 +23,12 @@ from Python_MLModel import RF, Ridge_M, XGB, CB
 
 
 # %% Option
-MF_bit = 2**15
-MF_radius = 10
+MF_bit = 2**10
+MF_radius = 6
 
 # %% Import Data : 560 datapoint
 # Import Data
-df = pd.read_excel("../Data.xlsx",sheet_name="Load_AllDataSetC12")
+df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
 
 # Select feature for data: X=SMILE, Y=Tb
 X_data_excel= df[["SMILES"]]
@@ -65,7 +65,7 @@ x_train_fp, x_test_fp, y_train_fp, y_test_fp = train_test_split(x_data_fp, y_dat
                                                                 test_size=0.20,
                                                                 random_state=42)
 start_time = time.time()
-Ridge_model = Ridge_M(x_train_fp, y_train_fp)
+Ridge_model = XGB(x_train_fp, y_train_fp)
 
 end_time = time.time()
 print("Elasped Time : ", end_time-start_time, " seconds")
@@ -74,5 +74,5 @@ print("Elasped Time : ", end_time-start_time, " seconds")
 # %%
 # Scoring & Export
 Score_table = Scoring(Ridge_model , x_train_fp, x_test_fp, x_data_fp, y_train_fp, y_test_fp, y_data_fp)
-Export(Score_table, "2023-10-09 MF32768_Ridge r=10.csv")
+#Export(Score_table, "2023-10-10 MF1024_XGB r=6.csv")
 
