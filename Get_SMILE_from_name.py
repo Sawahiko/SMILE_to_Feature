@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import pubchempy as pcp
-import time
 
 
 #Import Data
@@ -19,8 +18,7 @@ names = X_data_excel.values.tolist()
 
 #names=names[:20]
 List1=list()
-#%%
-start_time = time.time()
+
 for name1 in names:
     print(name1)
     results = pcp.get_compounds(name1, 'name')
@@ -34,8 +32,6 @@ data = {
     "SMILES":List1
     }
 
-end_time = time.time()
-print("Elasped Time : ", end_time-start_time, "seconds")
 tdf = pd.DataFrame(data)
 
 tdf.to_csv("SMILES_2.csv")
