@@ -22,13 +22,13 @@ from Python_Scoring_Export import Scoring, Export
 from Python_MLModel import RF, Ridge_M, XGB, NN, CB, DT, SVR_M
 
 # %% Option
-MF_bit = 2**10
+MF_bit = 2**14
 MF_radius = 3
 
 # %% Import Data : 560 datapoint
 # Import Data
-df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
-#df = pd.read_excel("../Data.xlsx",sheet_name="Load_AllDataSetC12")
+#df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
+df = pd.read_excel("../Data.xlsx",sheet_name="Load_AllDataSetC12")
 #df = pd.read_excel("../Data.xlsx",sheet_name="Load_CHO")
 
 # Select feature for data: X=SMILE, Y=Tb
@@ -79,4 +79,4 @@ print("Elasped Time : ", end_time-start_time, "seconds")
 # %%
 # Scoring & Export
 Score_table = Scoring(RF_model , x_train_fp, x_test_fp, x_data_fp, y_train_fp, y_test_fp, y_data_fp)
-#Export(Score_table, "C_MF4096_DT.csv")
+#Export(Score_table, "C_MF16384_XGB.csv")
