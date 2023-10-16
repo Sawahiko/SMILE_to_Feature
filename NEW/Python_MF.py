@@ -37,7 +37,7 @@ old_df = pd.DataFrame({
 #MF_radius_s = [2, 3, 4, 5, 6]
 
 MF_bit_s = [2**5-1, 2**6-1]
-MF_radius_s = [2]
+MF_radius_s = [3]
 Name_model = "XGB"
 j=0
 for MF_radius in MF_radius_s:
