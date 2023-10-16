@@ -77,7 +77,8 @@ def XGB(x_train, y_train):
     xgb = XGBRegressor(random_state=42)
     kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
     
-    random_search = RandomizedSearchCV(xgb, param_distributions=param_dist, n_iter=10, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
+    random_search = RandomizedSearchCV(xgb, param_distributions=param_dist, n_iter=10, cv=kfold, verbose=1, 
+                                       scoring='neg_mean_squared_error')
     
     # Fit the RandomizedSearchCV object
     random_search.fit(x_train, y_train)
