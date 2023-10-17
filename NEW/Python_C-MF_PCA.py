@@ -22,8 +22,8 @@ from Python_Scoring_Export import Scoring, Export
 from Python_MLModel import RF, Ridge_M, XGB
 
 # %% Option
-MF_bit = 2**12
-MF_radius = 3
+MF_bit = 2**10
+MF_radius = 2
 
 # %% Import Data : 560 datapoint
 # Import Data
@@ -65,7 +65,7 @@ y_data_fp = Y_data.copy()
 
 # %%
 # Train-test_Modeling & Cross Validation Modeling
-pca = PCA(n_components=400)
+pca = PCA(n_components=200)
 x_pca = pca.fit_transform(x_data_fp)
 plt.plot(np.cumsum(pca.explained_variance_ratio_))
 plt.plot([0,1024], [0.75,0.75], '--')
@@ -76,7 +76,7 @@ plt.ylabel('cumulative explained variance');
 x_train_fp, x_test_fp, y_train_fp, y_test_fp = train_test_split(x_pca, y_data_fp,
                                                                 test_size=0.25,
                                                                 random_state=42)
-model = Ridge_M(x_train_fp, y_train_fp)
+model = RF(x_train_fp, y_train_fp)
 
 
 # %%
