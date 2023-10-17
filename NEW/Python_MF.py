@@ -33,8 +33,8 @@ old_df = pd.DataFrame({
 # =============================================================================
 
 # %% Option Many Bit
-MF_bit_s = [2**8-1, 2**9-1, 2**10-1, 2**11-1, 2**12-1, 2**13-1]
-MF_radius_s = [2, 3, 4, 5, 6]
+MF_bit_s = [1200, 1400, 1600, 1800, 2000]
+MF_radius_s = [4, 5, 6]
 
 #MF_bit_s = [2**5-1, 2**6-1]
 #MF_radius_s = [3]
@@ -111,4 +111,4 @@ for MF_radius in MF_radius_s:
         df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 # %%
-Export(df_combine, "B-MF 2023-10-15/XGB.csv")
+Export(df_combine, "B-MF 2023-10-17/XGB2.csv")
