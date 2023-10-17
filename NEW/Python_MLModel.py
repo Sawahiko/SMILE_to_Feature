@@ -9,17 +9,16 @@ import time
 # Machine Learning
 from sklearn.model_selection import RandomizedSearchCV, KFold
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import Lasso
 from sklearn.linear_model import Ridge
 from xgboost import XGBRegressor
 from catboost import CatBoostRegressor
-from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.svm import SVR
-#from keras.models import Sequential
-#from keras.layers import Dense
-#import tensorflow as tf
-#from tensorflow.keras.models import Sequential
-#from tensorflow.keras.layers import Dense
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, Dense
 
 def RF(x_train, y_train):
     # Define the parameter grid for RandomizedSearchCV
@@ -55,7 +54,7 @@ def Ridge_M(x_train, y_train):
     ridge = Ridge(random_state=42)
     kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
     
-    random_search = RandomizedSearchCV(ridge, param_distributions=param_dist, n_iter=10, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
+    random_search = RandomizedSearchCV(ridge, param_distributions=param_dist, n_iter=7, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
     
     # Fit the RandomizedSearchCV object
     random_search.fit(x_train, y_train)
@@ -91,7 +90,7 @@ def XGB(x_train, y_train):
 
 def NN(x_train, y_train):
     model = Sequential()
-    model.add(Dense(1024, input_dim=x_train.shape[1] , activation='relu'))
+    model.add(Dense(2048, input_dim=x_train.shape[1] , activation='relu'))
     model.add(Dense(512, activation='relu'))
     model.add(Dense(1))
     model.compile(optimizer='adam', loss='mean_squared_error')
@@ -156,6 +155,50 @@ def SVR_M(x_train, y_train):
     kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
     
     random_search = RandomizedSearchCV(svr, param_distributions=param_dist, n_iter=10, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
+    
+    # Fit the RandomizedSearchCV object
+    random_search.fit(x_train, y_train)
+    
+    # Get the best model
+    best_model = random_search.best_estimator_
+    print(random_search.best_params_)
+    
+    return best_model
+
+def KNN(x_train, y_train):
+    # Define the parameter grid for RandomizedSearchCV
+    param_dist_knn = {
+        'n_neighbors': range(1, 21),  # Adjust the range as needed
+        'weights': ['uniform', 'distance'],
+        'p': [1, 2]  # 1 for Manhattan distance, 2 for Euclidean distance
+    }
+    
+    # Create a RandomizedSearchCV object for KNN
+    knn = KNeighborsRegressor()
+    kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
+    
+    random_search_knn = RandomizedSearchCV(knn, param_distributions=param_dist_knn, n_iter=10, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
+    
+    # Fit the RandomizedSearchCV object for KNN
+    random_search_knn.fit(x_train, y_train)
+    
+    # Get the best KNN model
+    best_knn_model = random_search_knn.best_estimator_
+    print(random_search_knn.best_params_)
+    
+    return best_knn_model
+
+def Lasso_R(x_train, y_train):
+    # Define the parameter grid for RandomizedSearchCV
+    param_dist = {
+        'alpha': np.logspace(-3, 3, 7)
+    }
+    
+    # Create a RandomizedSearchCV object
+    lasso = Lasso()
+    kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
+    
+    random_search = RandomizedSearchCV(lasso, param_distributions=param_dist, n_iter=10, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
     
     # Fit the RandomizedSearchCV object
     random_search.fit(x_train, y_train)
