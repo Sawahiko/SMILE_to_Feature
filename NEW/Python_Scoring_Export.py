@@ -62,8 +62,6 @@ def Scoring(Model, x_train, x_test, x_total, y_train, y_test, y_total) :
     mape_train_table.append(mape_total*100)
     rmse_train_table.append(rmse_total)
     r2_train_table.append(R2_total)
-    plt.scatter(y_test,y_predict_test)
-    plt.plot(y_test, y_test)
     # %% Store score y_predict
     # Table Score
     Score_Table = pd.DataFrame()

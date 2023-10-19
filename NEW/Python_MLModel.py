@@ -7,9 +7,8 @@ import seaborn as sn
 import time
 
 # Machine Learning
-from sklearn.model_selection import RandomizedSearchCV, KFold
+from sklearn.model_selection import RandomizedSearchCV, KFold, cross_validate
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import Lasso
 from sklearn.linear_model import Ridge
 from xgboost import XGBRegressor
 from catboost import CatBoostRegressor
@@ -141,6 +140,14 @@ def DT(x_train, y_train):
     print(random_search.best_params_)
     
     return best_model
+
+# =============================================================================
+# def DT(x_train, y_train):
+#     model = DecisionTreeRegressor()
+#     model_cv =cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
+#     model.fit(x_train,y_train)
+#     return model
+# =============================================================================
 
 def SVR_M(x_train, y_train):
     # Define the parameter grid for RandomizedSearchCV

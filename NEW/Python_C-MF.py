@@ -31,7 +31,7 @@ old_df = pd.DataFrame({
 
 MF_bit_s = [1024,2048,4096]
 MF_radius_s = [2,3,4]
-Name_model = "SVR"
+Name_model = "DT"
 j=0
 
 for MF_radius in MF_radius_s:
@@ -39,8 +39,8 @@ for MF_radius in MF_radius_s:
 
         # %% Import Data : 560 datapoint
         # Import Data
-        #df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
-        df = pd.read_excel("../Data.xlsx",sheet_name="Load_AllDataSetC12")
+        df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
+        #df = pd.read_excel("../Data.xlsx",sheet_name="Load_AllDataSetC12")
         #df = pd.read_excel("../Data.xlsx",sheet_name="Load_CHO")
         
         # Select feature for data: X=SMILE, Y=Tb
@@ -84,13 +84,14 @@ for MF_radius in MF_radius_s:
                                                                         test_size=0.2,
                                                                         random_state=42)
         start_time = time.time()
-        model = SVR_M(x_train_fp, y_train_fp)
+        model = DT(x_train_fp, y_train_fp)
         end_time = time.time()
         print("Elasped Time : ", end_time-start_time, "seconds")
         
         # %%
         # Scoring & Export
         Score_table = Scoring(model , x_train_fp, x_test_fp, x_data_fp, y_train_fp, y_test_fp, y_data_fp)
+        y_pred_test = model.predict(x_data_fp)
         #Export(Score_table, "C_MF16384_XGB.csv")
 
         # %%
@@ -101,6 +102,12 @@ for MF_radius in MF_radius_s:
                                       })
         
         df = pd.concat([Score_table, df2], axis=1)
+        
+# =============================================================================
+#         df3 = pd.DataFrame({'Actual': y_data_fp,
+#                             'Predict': y_pred_test})
+#         Export(df3, "Tb_Value2.csv")
+# =============================================================================
 # %%
         if(j>0):
             old_df = df_combine.copy()
