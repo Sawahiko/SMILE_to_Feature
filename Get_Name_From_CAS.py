@@ -17,21 +17,40 @@ cas_list = X_data_excel.values.tolist()
 
 #names=names[:20]
 List1=list()
+List2=list()
 i = 0
 
 for cas in cas_list[6927:8927]:
     print(str(i) + '. ' + str(cas))
+    print()
     results = pcp.get_compounds(cas, 'name')
     i += 1
     if results:
         print(results[0].iupac_name)
+        print(results[0].isomeric_smiles)
         List1.append(results[0].iupac_name)
+        if results[0].isomeric_smiles == []:
+            List2.append('None')
+        else:
+            List2.append(results[0].isomeric_smiles)
     else:
         List1.append('None')
+        List2.append('None')
+
+# =============================================================================
+# N_List1 = List1
+# N_List2 = List2
+# =============================================================================
+
+# =============================================================================
+# new_list = List1 + N_List1
+# new_list2 = List2 + N_List2
+# =============================================================================
 
 data = {
     "CAS":cas_list[6927:8927],
-    "NAME":List1
+    "NAME":new_list,
+    "SMILE":new_list2
     }
 
 tdf = pd.DataFrame(data)
