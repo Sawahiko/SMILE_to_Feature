@@ -31,7 +31,7 @@ def RF(x_train, y_train):
     
     # Create a RandomizedSearchCV object
     rf = RandomForestRegressor(random_state=42)
-    kfold = KFold(n_splits=8, shuffle=True, random_state=42)  # Adjust number of splits as needed
+    kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
     
     random_search = RandomizedSearchCV(rf, param_distributions=param_dist, n_iter=10, cv=kfold, verbose=1, n_jobs=-1, scoring='neg_mean_squared_error')
     
@@ -90,10 +90,10 @@ def XGB(x_train, y_train):
 def NN(x_train, y_train):
     model = Sequential()
     model.add(Dense(2048, input_dim=x_train.shape[1] , activation='relu'))
-    model.add(Dense(512, activation='relu'))
+    model.add(Dense(512, activation='sigmoid'))
     model.add(Dense(1))
     model.compile(optimizer='adam', loss='mean_squared_error')
-    model.fit(x_train, y_train, epochs=100, batch_size=32, validation_split=0.2)
+    model.fit(x_train, y_train, epochs=20, batch_size=32, validation_ssplit=0.2)
     return model
 
 def CB(x_train, y_train):

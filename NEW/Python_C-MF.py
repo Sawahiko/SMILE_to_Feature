@@ -20,6 +20,7 @@ from rdkit import DataStructs
 # Our module
 from Python_Scoring_Export import Scoring, Export
 from Python_MLModel import RF, Ridge_M, XGB, NN, CB, DT, SVR_M, KNN
+from Python_RemoveO import remove_outliers
 
 old_df = pd.DataFrame({
     'MAE':[0], 'MAPE(%)':[0], 'RMSE':[0], 'R2':[0], 'Radius':[0], 'nBits':[0], 'Model':[0]
@@ -29,9 +30,9 @@ old_df = pd.DataFrame({
 #MF_bit_s = [2**8-1, 2**9-1, 2**10-1, 2**11-1, 2**12-1, 2**13-1]
 #MF_radius_s = [2, 3, 4, 5, 6]
 
-MF_bit_s = [2**10,2**11,2**12,2**13]
-MF_radius_s = [2,3,4]
-Name_model = "DT"
+MF_bit_s = [2**12]
+MF_radius_s = [3]
+Name_model = "RF"
 j=0
 
 for MF_radius in MF_radius_s:
@@ -39,7 +40,8 @@ for MF_radius in MF_radius_s:
 
         # %% Import Data : 560 datapoint
         # Import Data
-        df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
+        df = remove_outliers("../Data.xlsx", "Load_AllDataSetC12", 2)
+        #df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
         #df = pd.read_excel("../Data.xlsx",sheet_name="Load_AllDataSetC12")
         #df = pd.read_excel("../Data.xlsx",sheet_name="Load_CHO")
         
@@ -84,7 +86,7 @@ for MF_radius in MF_radius_s:
                                                                         test_size=0.2,
                                                                         random_state=42)
         start_time = time.time()
-        model = DT(x_train_fp, y_train_fp)
+        model = RF(x_train_fp, y_train_fp)
         end_time = time.time()
         print("Elasped Time : ", end_time-start_time, "seconds")
         
@@ -117,4 +119,4 @@ for MF_radius in MF_radius_s:
         df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 # %%
-#Export(df_combine, "C-MF 2023-10-20/DT.csv")
+Export(df_combine, "C-MF 2023-10-22/RF.csv")
