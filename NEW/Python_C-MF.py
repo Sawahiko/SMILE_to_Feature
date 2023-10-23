@@ -31,8 +31,8 @@ old_df = pd.DataFrame({
 #MF_radius_s = [2, 3, 4, 5, 6]
 
 MF_bit_s = [2**12]
-MF_radius_s = [3]
-Name_model = "RF"
+MF_radius_s = [2]
+Name_model = "NN"
 j=0
 
 for MF_radius in MF_radius_s:
@@ -86,7 +86,7 @@ for MF_radius in MF_radius_s:
                                                                         test_size=0.2,
                                                                         random_state=42)
         start_time = time.time()
-        model = RF(x_train_fp, y_train_fp)
+        model = NN(x_train_fp, y_train_fp)
         end_time = time.time()
         print("Elasped Time : ", end_time-start_time, "seconds")
         
@@ -119,4 +119,4 @@ for MF_radius in MF_radius_s:
         df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 # %%
-Export(df_combine, "C-MF 2023-10-22/RF.csv")
+Export(df_combine, "C-MF 2023-10-23/NN.csv")

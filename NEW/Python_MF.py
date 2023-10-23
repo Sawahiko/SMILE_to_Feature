@@ -18,8 +18,9 @@ from rdkit.ML.Descriptors import MoleculeDescriptors
 
 # Our module
 from Python_Scoring_Export import Scoring, Export
+from Python_MLModel import RF, Ridge_M, XGB, NN
+from Python_RemoveO import remove_outliers
 
-from Python_MLModel import RF, Ridge_M, XGB, CB
 
 old_df = pd.DataFrame({
     'MAE':[0], 'MAPE(%)':[0], 'RMSE':[0], 'R2':[0], 'Radius':[0], 'nBits':[0], 'Model':[0]
@@ -33,20 +34,21 @@ old_df = pd.DataFrame({
 # =============================================================================
 
 # %% Option Many Bit
-MF_bit_s = [2**8-1, 2**9-1, 2**10-1, 2**11-1, 2**12-1, 2**13-1]
-MF_radius_s = [2,3 ,4, 5, 6]
+MF_bit_s = [2**12]
+MF_radius_s = [3]
 
 #MF_bit_s = [2**5-1, 2**6-1]
 #MF_radius_s = [3]
-Name_model = "XGB"
+Name_model = "NN"
 j=0
 for MF_radius in MF_radius_s:
     for MF_bit in MF_bit_s :
         
         # %% 
         # Import Data
-        df = pd.read_excel("../Data.xlsx",sheet_name="560point")
-        
+#con        df = pd.read_excel("../Data.xlsx",sheet_name="560point")
+        df = remove_outliers("../Data.xlsx", "Load_AllDataSetC12", 2)
+
         # Select feature for data: X=SMILE, Y=Tb
         X_data_excel= df[["SMILES"]]
         Y_data= df["Tb"]
@@ -82,7 +84,7 @@ for MF_radius in MF_radius_s:
                                                                         test_size=0.20,
                                                                         random_state=42)
         start_time = time.time()
-        model = XGB(x_train_fp, y_train_fp)
+        model = NN(x_train_fp, y_train_fp)
         
         end_time = time.time()
         print("Training Elasped Time : ", end_time-start_time, " seconds")
@@ -111,4 +113,4 @@ for MF_radius in MF_radius_s:
         df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 # %%
-Export(df_combine, "B-MF 2023-10-17/XGB3.csv")
+Export(df_combine, "B-MF 2023-10-23/NN.csv")

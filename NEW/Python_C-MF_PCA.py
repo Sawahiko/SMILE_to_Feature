@@ -20,14 +20,18 @@ from rdkit import DataStructs
 # Our module
 from Python_Scoring_Export import Scoring, Export
 from Python_MLModel import RF, Ridge_M, XGB
+from Python_RemoveO import remove_outliers
 
 # %% Option
-MF_bit = 2**10
+MF_bit = 2**12
 MF_radius = 2
 
 # %% Import Data : 560 datapoint
 # Import Data
-df = pd.read_excel("../Data.xlsx",sheet_name="Load_AllDataSetC12")
+#df = remove_outliers("../Data.xlsx", "Load_AllDataSetC12", 2)
+#df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
+#df = pd.read_excel("../Data.xlsx",sheet_name="Load_AllDataSetC12")
+df = pd.read_excel("../Data.xlsx",sheet_name="Load_CHO")
 
 # Select feature for data: X=SMILE, Y=Tb
 X_data_excel= df[["SMILES"]]
@@ -65,21 +69,23 @@ y_data_fp = Y_data.copy()
 
 # %%
 # Train-test_Modeling & Cross Validation Modeling
-pca = PCA(n_components=200)
+pca = PCA(n_components=1000)
 x_pca = pca.fit_transform(x_data_fp)
-plt.plot(np.cumsum(pca.explained_variance_ratio_))
-plt.plot([0,1024], [0.75,0.75], '--')
-plt.plot([0,1024], [0.95,0.95], '--')
-plt.xlabel('components')
-plt.ylabel('cumulative explained variance');
+# =============================================================================
+# plt.plot(np.cumsum(pca.explained_variance_ratio_))
+# plt.plot([0,4096], [0.75,0.75], '--')
+# plt.plot([0,4096], [0.95,0.95], '--')
+# plt.xlabel('components')
+# plt.ylabel('cumulative explained variance');
+# =============================================================================
 # %%
 x_train_fp, x_test_fp, y_train_fp, y_test_fp = train_test_split(x_pca, y_data_fp,
                                                                 test_size=0.25,
                                                                 random_state=42)
-model = RF(x_train_fp, y_train_fp)
+model = GP(x_train_fp, y_train_fp)
 
 
 # %%
 # Scoring & Export
 Score_table = Scoring(model , x_train_fp, x_test_fp, x_pca, y_train_fp, y_test_fp, y_data_fp)
-#Export(Score_table, "C_MF1024_RF_PCA512.csv")
+#Export(Score_table, "C_MF4096_RF_PCA1000.csv")
