@@ -34,12 +34,12 @@ old_df = pd.DataFrame({
 # =============================================================================
 
 # %% Option Many Bit
-MF_bit_s = [2**12]
+MF_bit_s = [2**11]
 MF_radius_s = [3]
 
 #MF_bit_s = [2**5-1, 2**6-1]
 #MF_radius_s = [3]
-Name_model = "NN"
+Name_model = "RF"
 j=0
 for MF_radius in MF_radius_s:
     for MF_bit in MF_bit_s :
@@ -47,7 +47,7 @@ for MF_radius in MF_radius_s:
         # %% 
         # Import Data
 #con        df = pd.read_excel("../Data.xlsx",sheet_name="560point")
-        df = remove_outliers("../Data.xlsx", "Load_AllDataSetC12", 2)
+        df = remove_outliers("../Data.xlsx", "New_Data", 2)
 
         # Select feature for data: X=SMILE, Y=Tb
         X_data_excel= df[["SMILES"]]
@@ -84,7 +84,7 @@ for MF_radius in MF_radius_s:
                                                                         test_size=0.20,
                                                                         random_state=42)
         start_time = time.time()
-        model = NN(x_train_fp, y_train_fp)
+        model = RF(x_train_fp, y_train_fp)
         
         end_time = time.time()
         print("Training Elasped Time : ", end_time-start_time, " seconds")
@@ -113,4 +113,4 @@ for MF_radius in MF_radius_s:
         df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 # %%
-Export(df_combine, "B-MF 2023-10-23/NN.csv")
+Export(df_combine, "B-MF 2023-10-23/RF.csv")

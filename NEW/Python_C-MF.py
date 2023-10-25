@@ -4,8 +4,8 @@ import pandas as pd
 import time
 
 # Machine Learning
-from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
+from sklearn.feature_selection import SelectKBest, f_regression
 
 # RDKit
 from rdkit.Chem import Descriptors
@@ -30,20 +30,23 @@ old_df = pd.DataFrame({
 #MF_bit_s = [2**8-1, 2**9-1, 2**10-1, 2**11-1, 2**12-1, 2**13-1]
 #MF_radius_s = [2, 3, 4, 5, 6]
 
-MF_bit_s = [2**12]
-MF_radius_s = [2]
-Name_model = "NN"
+MF_bit = 2**10
+MF_radius = 2
+Name_model = "DT"
 j=0
 
-for MF_radius in MF_radius_s:
-    for MF_bit in MF_bit_s :
+# =============================================================================
+# for MF_radius in MF_radius_s:
+#     for MF_bit in MF_bit_s :
+# =============================================================================
 
         # %% Import Data : 560 datapoint
         # Import Data
-        df = remove_outliers("../Data.xlsx", "Load_AllDataSetC12", 2)
-        #df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
+        #df = remove_outliers("../Data.xlsx", "New_Data", 2)
+        df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
         #df = pd.read_excel("../Data.xlsx",sheet_name="Load_AllDataSetC12")
         #df = pd.read_excel("../Data.xlsx",sheet_name="Load_CHO")
+        #df = pd.read_excel("../Data.xlsx",sheet_name="New_Data")
         
         # Select feature for data: X=SMILE, Y=Tb
         X_data_excel= df[["SMILES"]]
@@ -79,21 +82,27 @@ for MF_radius in MF_radius_s:
         
         y_data_fp = Y_data.copy()
         
+#        k_best = SelectKBest(f_regression, k=200) # Select the top 200 features
+
+#        x_data_fp = k_best.fit_transform(x_data_fp, y_data_fp)
+
+        
         # %%
         # Train-test_Modeling & Cross Validation Modeling
         
         x_train_fp, x_test_fp, y_train_fp, y_test_fp = train_test_split(x_data_fp, y_data_fp,
                                                                         test_size=0.2,
-                                                                        random_state=42)
+                                                                       random_state=42)
+        # %%
         start_time = time.time()
-        model = NN(x_train_fp, y_train_fp)
+        model = DT(x_train_fp, y_train_fp)
         end_time = time.time()
         print("Elasped Time : ", end_time-start_time, "seconds")
         
         # %%
         # Scoring & Export
         Score_table = Scoring(model , x_train_fp, x_test_fp, x_data_fp, y_train_fp, y_test_fp, y_data_fp)
-        y_pred_test = model.predict(x_data_fp)
+        y_pred_test = model.predict(x_test_fp,)
         #Export(Score_table, "C_MF16384_XGB.csv")
 
         # %%
@@ -106,9 +115,9 @@ for MF_radius in MF_radius_s:
         df = pd.concat([Score_table, df2], axis=1)
         
 # =============================================================================
-#         df3 = pd.DataFrame({'Actual': y_data_fp,
+#         df3 = pd.DataFrame({'Actual': y_test_fp,
 #                             'Predict': y_pred_test})
-#         Export(df3, "Tb_Value2.csv")
+#         Export(df3, "C-MF 2023-10-25/XGB_Tb_Value.csv")
 # =============================================================================
 # %%
         if(j>0):
@@ -119,4 +128,4 @@ for MF_radius in MF_radius_s:
         df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 # %%
-Export(df_combine, "C-MF 2023-10-23/NN.csv")
+Export(df_combine, "C-MF 2023-10-25/DT.csv")

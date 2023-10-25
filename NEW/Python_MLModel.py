@@ -22,7 +22,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, Dense
 
 def RF(x_train, y_train):
-    # Define the parameter grid for RandomizedSearchCV
+    # Define the parameter grid for GridSearchCV
     param_dist = {
         'n_estimators': [50, 100, 200],
         'max_features': [None,'sqrt', 'log2'],
@@ -31,17 +31,18 @@ def RF(x_train, y_train):
         'min_samples_leaf': [1, 2, 4]
     }
     
-    # Create a RandomizedSearchCV object
+    # Create a GridSearchCV object
     rf = RandomForestRegressor(random_state=42)
     kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
     
-    random_search = RandomizedSearchCV(rf, param_distributions=param_dist, n_iter=10, cv=kfold, verbose=1, n_jobs=-1, scoring='neg_mean_squared_error')
+    random_search = RandomizedSearchCV(rf, param_distributions=param_dist, n_iter=10, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
     
-    # Fit the RandomizedSearchCV object
+    # Fit the GridSearchCV object
     random_search.fit(x_train, y_train)
     
     # Get the best model
     best_model = random_search.best_estimator_
+    print(random_search.best_params_)
     
     return best_model
 
@@ -62,6 +63,7 @@ def Ridge_M(x_train, y_train):
     
     # Get the best model
     best_model = random_search.best_estimator_
+    print(random_search.best_params_)
     
     return best_model
 
@@ -92,12 +94,11 @@ def XGB(x_train, y_train):
 def NN(x_train, y_train):
     model = Sequential()
 #    model.add(Dense(1024, input_dim=x_train.shape[1]))
-    model.add(Dense(1024, input_dim=x_train.shape[1] , activation='relu'))
-    model.add(Dense(256, activation='relu'))
-    model.add(Dense(64, activation='relu'))
+    model.add(Dense(200, input_dim=x_train.shape[1] , activation='relu'))
+    model.add(Dense(50, activation='relu'))
     model.add(Dense(1))
     model.compile(optimizer='adam', loss='mean_squared_error')
-    model.fit(x_train, y_train, epochs=50, batch_size=32, validation_split=0.2)
+    model.fit(x_train, y_train, epochs=50, batch_size=16, validation_split=0.2)
     return model
 
 def CB(x_train, y_train):
@@ -109,7 +110,7 @@ def CB(x_train, y_train):
     
     # Create a RandomizedSearchCV object
     catboost = CatBoostRegressor(iterations=100, random_state=42, verbose=0)
-    kfold = KFold(n_splits=8, shuffle=True, random_state=42)  # Adjust number of splits as needed
+    kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
     
     random_search = RandomizedSearchCV(catboost, param_distributions=param_dist, n_iter=10, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
     
@@ -122,36 +123,36 @@ def CB(x_train, y_train):
     
     return best_model
 
-def DT(x_train, y_train):
-    # Define the parameter grid for RandomizedSearchCV
-    param_dist = {
-        'max_depth': [None, 5, 10, 20],
-        'min_samples_split': [2, 5, 10],
-        'min_samples_leaf': [1, 2, 4]
-    }
-    
-    # Create a RandomizedSearchCV object
-    dt = DecisionTreeRegressor(random_state=42)
-    kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
-    
-    random_search = RandomizedSearchCV(dt, param_distributions=param_dist, n_iter=10, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
-    
-    # Fit the RandomizedSearchCV object
-    random_search.fit(x_train, y_train)
-    
-    # Get the best model
-    best_model = random_search.best_estimator_
-    print(random_search.best_params_)
-    
-    return best_model
-
 # =============================================================================
 # def DT(x_train, y_train):
-#     model = DecisionTreeRegressor()
-#     model_cv =cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
-#     model.fit(x_train,y_train)
-#     return model
+#     # Define the parameter grid for RandomizedSearchCV
+#     param_dist = {
+#         'max_depth': [None, 5, 10, 20],
+#         'min_samples_split': [2, 5, 10],
+#         'min_samples_leaf': [1, 2, 4]
+#     }
+#     
+#     # Create a RandomizedSearchCV object
+#     dt = DecisionTreeRegressor(random_state=42)
+#     kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
+#     
+#     random_search = RandomizedSearchCV(dt, param_distributions=param_dist, n_iter=10, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
+#     
+#     # Fit the RandomizedSearchCV object
+#     random_search.fit(x_train, y_train)
+#     
+#     # Get the best model
+#     best_model = random_search.best_estimator_
+#     print(random_search.best_params_)
+#     
+#     return best_model
 # =============================================================================
+
+def DT(x_train, y_train):
+    model = DecisionTreeRegressor()
+    model_cv =cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
+    model.fit(x_train,y_train)
+    return model
 
 def SVR_M(x_train, y_train):
     # Define the parameter grid for RandomizedSearchCV
@@ -188,7 +189,7 @@ def KNN(x_train, y_train):
     knn = KNeighborsRegressor()
     kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
     
-    random_search_knn = RandomizedSearchCV(knn, param_distributions=param_dist_knn, n_iter=10, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
+    random_search_knn = RandomizedSearchCV(knn, param_distributions=param_dist_knn, n_iter=5, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
     
     # Fit the RandomizedSearchCV object for KNN
     random_search_knn.fit(x_train, y_train)
