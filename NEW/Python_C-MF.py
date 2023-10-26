@@ -30,20 +30,18 @@ old_df = pd.DataFrame({
 #MF_bit_s = [2**8-1, 2**9-1, 2**10-1, 2**11-1, 2**12-1, 2**13-1]
 #MF_radius_s = [2, 3, 4, 5, 6]
 
-MF_bit = 2**10
-MF_radius = 2
-Name_model = "DT"
+MF_bit_s = [2**11]
+MF_radius_s = [2]
+Name_model = "CB"
 j=0
 
-# =============================================================================
-# for MF_radius in MF_radius_s:
-#     for MF_bit in MF_bit_s :
-# =============================================================================
+for MF_radius in MF_radius_s:
+    for MF_bit in MF_bit_s :
 
         # %% Import Data : 560 datapoint
         # Import Data
-        #df = remove_outliers("../Data.xlsx", "New_Data", 2)
-        df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
+        df = remove_outliers("../Data.xlsx", "New_Data", 2)
+        #df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
         #df = pd.read_excel("../Data.xlsx",sheet_name="Load_AllDataSetC12")
         #df = pd.read_excel("../Data.xlsx",sheet_name="Load_CHO")
         #df = pd.read_excel("../Data.xlsx",sheet_name="New_Data")
@@ -91,11 +89,11 @@ j=0
         # Train-test_Modeling & Cross Validation Modeling
         
         x_train_fp, x_test_fp, y_train_fp, y_test_fp = train_test_split(x_data_fp, y_data_fp,
-                                                                        test_size=0.2,
+                                                                        test_size=0.1,
                                                                        random_state=42)
         # %%
         start_time = time.time()
-        model = DT(x_train_fp, y_train_fp)
+        model = CB(x_train_fp, y_train_fp)
         end_time = time.time()
         print("Elasped Time : ", end_time-start_time, "seconds")
         
@@ -114,11 +112,9 @@ j=0
         
         df = pd.concat([Score_table, df2], axis=1)
         
-# =============================================================================
-#         df3 = pd.DataFrame({'Actual': y_test_fp,
-#                             'Predict': y_pred_test})
-#         Export(df3, "C-MF 2023-10-25/XGB_Tb_Value.csv")
-# =============================================================================
+        df3 = pd.DataFrame({'Actual': y_test_fp,
+                            'Predict': y_pred_test})
+        Export(df3, "C-MF 2023-10-26/CB_Tb_Value.csv")
 # %%
         if(j>0):
             old_df = df_combine.copy()
@@ -128,4 +124,4 @@ j=0
         df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 # %%
-Export(df_combine, "C-MF 2023-10-25/DT.csv")
+Export(df_combine, "C-MF 2023-10-26/CB.csv")
