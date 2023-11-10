@@ -19,11 +19,11 @@ from rdkit import DataStructs
 
 # Our module
 from Python_Scoring_Export import Scoring, Export
-from Python_MLModel import RF, Ridge_M, XGB
+from Python_MLModel import RF, Ridge_M, XGB, KNN
 from Python_RemoveO import remove_outliers
 
 # %% Option
-MF_bit = 2**12
+MF_bit = 2**11
 MF_radius = 2
 
 # %% Import Data : 560 datapoint
@@ -70,8 +70,8 @@ y_data_fp = Y_data.copy()
 # %%
 # Train-test_Modeling & Cross Validation Modeling
 pca = PCA(n_components=1000)
+x_pca = pca.fit_transform(x_data_fp)
 # =============================================================================
-# x_pca = pca.fit_transform(x_data_fp)
 # plt.plot(np.cumsum(pca.explained_variance_ratio_))
 # plt.plot([0,4096], [0.75,0.75], '--')
 # plt.plot([0,4096], [0.95,0.95], '--')
@@ -80,9 +80,9 @@ pca = PCA(n_components=1000)
 # =============================================================================
 # %%
 x_train_fp, x_test_fp, y_train_fp, y_test_fp = train_test_split(x_pca, y_data_fp,
-                                                                test_size=0.25,
+                                                                test_size=0.2,
                                                                 random_state=42)
-model = RF(x_train_fp, y_train_fp)
+model = KNN(x_train_fp, y_train_fp)
 
 
 # %%

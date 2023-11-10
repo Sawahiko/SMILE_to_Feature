@@ -19,7 +19,7 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, Dense
+from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, Dense, BatchNormalization
 
 def RF(x_train, y_train):
     # Define the parameter grid for GridSearchCV
@@ -91,12 +91,28 @@ def XGB(x_train, y_train):
     
     return best_model
 
+# =============================================================================
+# def NN(x_train, y_train):
+#     model = Sequential()
+# #    model.add(Dense(1024, input_dim=x_train.shape[1]))
+#     model.add(Dense(200, input_dim=x_train.shape[1] , activation='relu'))
+#     model.add(Dense(50, activation='relu'))
+#     model.add(Dense(1))
+#     model.compile(optimizer='adam', loss='mean_squared_error')
+#     model.fit(x_train, y_train, epochs=50, batch_size=16, validation_split=0.2)
+#     return model
+# =============================================================================
+
 def NN(x_train, y_train):
     model = Sequential()
-#    model.add(Dense(1024, input_dim=x_train.shape[1]))
-    model.add(Dense(200, input_dim=x_train.shape[1] , activation='relu'))
-    model.add(Dense(50, activation='relu'))
+
+    # Add BatchNormalization after each dense layer
+    model.add(Dense(500, input_dim=x_train.shape[1], activation='relu'))
+    model.add(BatchNormalization())
+    model.add(Dense(100, activation='relu'))
+    model.add(BatchNormalization())
     model.add(Dense(1))
+
     model.compile(optimizer='adam', loss='mean_squared_error')
     model.fit(x_train, y_train, epochs=50, batch_size=16, validation_split=0.2)
     return model
@@ -123,36 +139,36 @@ def CB(x_train, y_train):
     
     return best_model
 
+def DT(x_train, y_train):
+    # Define the parameter grid for RandomizedSearchCV
+    param_dist = {
+        'max_depth': [None, 5, 10, 20],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4]
+    }
+    
+    # Create a RandomizedSearchCV object
+    dt = DecisionTreeRegressor(random_state=42)
+    kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
+    
+    random_search = RandomizedSearchCV(dt, param_distributions=param_dist, n_iter=10, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
+    
+    # Fit the RandomizedSearchCV object
+    random_search.fit(x_train, y_train)
+    
+    # Get the best model
+    best_model = random_search.best_estimator_
+    print(random_search.best_params_)
+    
+    return best_model
+
 # =============================================================================
 # def DT(x_train, y_train):
-#     # Define the parameter grid for RandomizedSearchCV
-#     param_dist = {
-#         'max_depth': [None, 5, 10, 20],
-#         'min_samples_split': [2, 5, 10],
-#         'min_samples_leaf': [1, 2, 4]
-#     }
-#     
-#     # Create a RandomizedSearchCV object
-#     dt = DecisionTreeRegressor(random_state=42)
-#     kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
-#     
-#     random_search = RandomizedSearchCV(dt, param_distributions=param_dist, n_iter=10, cv=kfold, verbose=1, scoring='neg_mean_squared_error')
-#     
-#     # Fit the RandomizedSearchCV object
-#     random_search.fit(x_train, y_train)
-#     
-#     # Get the best model
-#     best_model = random_search.best_estimator_
-#     print(random_search.best_params_)
-#     
-#     return best_model
+#     model = DecisionTreeRegressor()
+#     model_cv =cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
+#     model.fit(x_train,y_train)
+#     return model
 # =============================================================================
-
-def DT(x_train, y_train):
-    model = DecisionTreeRegressor()
-    model_cv =cross_validate(model, x_train, y_train, cv=5, return_train_score=True)
-    model.fit(x_train,y_train)
-    return model
 
 def SVR_M(x_train, y_train):
     # Define the parameter grid for RandomizedSearchCV
