@@ -32,7 +32,7 @@ old_df = pd.DataFrame({
 
 MF_bit_s = [2**12]
 MF_radius_s = [3]
-Name_model = "Ridge"
+Name_model = "RF"
 j=0
 
 for MF_radius in MF_radius_s:
@@ -124,7 +124,7 @@ for MF_radius in MF_radius_s:
                                                                        random_state=42)
         # %%
         start_time = time.time()
-        model = Ridge_M(x_train_fp, y_train_fp)
+        model = RF(x_train_fp, y_train_fp)
         end_time = time.time()
         print("Elasped Time : ", end_time-start_time, "seconds")
         
@@ -146,7 +146,7 @@ for MF_radius in MF_radius_s:
         
         df3 = pd.DataFrame({'Actual': y_test_fp,
                             'Predict': y_pred_test})
-        Export(df3, "C-MF 2023-11-11/Ridge_Test_Tb_Value.csv")
+        Export(df3, "C-MF 2023-11-11/RF_Test_Tb_Value.csv")
 # %%
         if(j>0):
             old_df = df_combine.copy()
@@ -156,4 +156,4 @@ for MF_radius in MF_radius_s:
         df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 # %%
-Export(df_combine, "C-MF 2023-11-10/Ridge.csv")
+#Export(df_combine, "C-MF 2023-11-11/RF.csv")
