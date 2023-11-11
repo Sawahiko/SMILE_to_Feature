@@ -30,9 +30,9 @@ old_df = pd.DataFrame({
 #MF_bit_s = [2**8-1, 2**9-1, 2**10-1, 2**11-1, 2**12-1, 2**13-1]
 #MF_radius_s = [2, 3, 4, 5, 6]
 
-MF_bit_s = [2**10, 2**11, 2**12]
-MF_radius_s = [2, 3, 4]
-Name_model = "CB"
+MF_bit_s = [2**12]
+MF_radius_s = [3]
+Name_model = "Ridge"
 j=0
 
 for MF_radius in MF_radius_s:
@@ -79,20 +79,42 @@ for MF_radius in MF_radius_s:
         x_data_fp = pd.concat(X_data_fp, ignore_index=True)
         
         y_data_fp = Y_data.copy()
-        
-        k_best = SelectKBest(f_regression, k=668) # Select the top 200 features
+        if MF_radius == 2:
+            if MF_bit == 1024:
+                K = 440
+            elif MF_bit == 2048:
+                K = 668
+            elif MF_bit == 4096:
+                K = 893
+        elif MF_radius == 3:
+            if MF_bit == 1024:
+                K = 556
+            elif MF_bit == 2048:
+                K = 824
+            elif MF_bit == 4096:
+                K = 1202
+        elif MF_radius == 4:
+            if MF_bit == 1024:
+                K = 668
+            elif MF_bit == 2048:
+                K = 972
+            elif MF_bit == 4096:
+                K = 1417
+        k_best = SelectKBest(f_regression, k=K) # Select the top 200 features
         x_new = k_best.fit_transform(x_data_fp, y_data_fp)
 
-        scores = k_best.scores_
-
-        # Get the names of the selected features
-        selected_features = k_best.get_support()
-        feature_names = x_data_fp.columns
-
-        # Print the scores of the selected features
-        for i, feature_name in enumerate(feature_names):
-            if selected_features[i]:
-                print(f"Feature {feature_name}: {scores[i]:.2f}")
+# =============================================================================
+#         scores = k_best.scores_
+# 
+#         # Get the names of the selected features
+#         selected_features = k_best.get_support()
+#         feature_names = x_data_fp.columns
+# 
+#         # Print the scores of the selected features
+#         for i, feature_name in enumerate(feature_names):
+#             if selected_features[i]:
+#                 print(f"Feature {feature_name}: {scores[i]:.2f}")
+# =============================================================================
         
         # %%
         # Train-test_Modeling & Cross Validation Modeling
@@ -102,7 +124,7 @@ for MF_radius in MF_radius_s:
                                                                        random_state=42)
         # %%
         start_time = time.time()
-        model = CB(x_train_fp, y_train_fp)
+        model = Ridge_M(x_train_fp, y_train_fp)
         end_time = time.time()
         print("Elasped Time : ", end_time-start_time, "seconds")
         
@@ -110,7 +132,7 @@ for MF_radius in MF_radius_s:
         # Scoring & Export
         #Score_table = Scoring(model , x_train_fp, x_test_fp, x_data_fp, y_train_fp, y_test_fp, y_data_fp)
         Score_table = Scoring(model , x_train_fp, x_test_fp, x_new, y_train_fp, y_test_fp, y_data_fp)
-        y_pred_test = model.predict(x_test_fp,)
+        y_pred_test = model.predict(x_test_fp)
         #Export(Score_table, "C_MF16384_XGB.csv")
 
         # %%
@@ -124,7 +146,7 @@ for MF_radius in MF_radius_s:
         
         df3 = pd.DataFrame({'Actual': y_test_fp,
                             'Predict': y_pred_test})
-        #Export(df3, "C-MF 2023-11-9/CB_Tb_Value.csv")
+        Export(df3, "C-MF 2023-11-11/Ridge_Test_Tb_Value.csv")
 # %%
         if(j>0):
             old_df = df_combine.copy()
@@ -134,4 +156,4 @@ for MF_radius in MF_radius_s:
         df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 # %%
-Export(df_combine, "C-MF 2023-11-9/Multi_CB4.csv")
+Export(df_combine, "C-MF 2023-11-10/Ridge.csv")
