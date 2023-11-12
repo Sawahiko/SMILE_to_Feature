@@ -9,7 +9,7 @@ from rdkit.Chem.Draw import rdMolDraw2D
 from rdkit.Chem import rdMolDescriptors
 from rdkit.Chem.rdMolDescriptors import GetHashedMorganFingerprint
 
-from rdkit.Chem.Draw import IPythonConsoleb
+#from rdkit.Chem.Draw import IPythonConsoleb
 from rdkit import DataStructs
 from rdkit.ML.Cluster import Butina
 
@@ -47,4 +47,4 @@ d=Draw.DrawMorganBits(all_fragments[:],
                       legends=[str(x) for x in get_index_of_array_that_contain_1_in_any_position(list(fp_mol))][:], 
                       subImgSize=(150,150))
 
-d.show()
+#d.show()
