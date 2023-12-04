@@ -46,8 +46,8 @@ for MF_radius in MF_radius_s:
         
         # %% 
         # Import Data
-#con        df = pd.read_excel("../Data.xlsx",sheet_name="560point")
-        df = remove_outliers("../Data.xlsx", "New_Data", 2)
+        df = pd.read_excel("../Data.xlsx",sheet_name="560point")
+        #df = remove_outliers("../Data.xlsx", "New_Data", 2)
 
         # Select feature for data: X=SMILE, Y=Tb
         X_data_excel= df[["SMILES"]]
