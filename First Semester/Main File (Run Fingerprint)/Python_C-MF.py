@@ -32,7 +32,7 @@ old_df = pd.DataFrame({
 
 MF_bit_s = [2**12]
 MF_radius_s = [3]
-Name_model = "RF"
+Name_model = "XGB"
 j=0
 
 for MF_radius in MF_radius_s:
@@ -41,6 +41,7 @@ for MF_radius in MF_radius_s:
         # %% Import Data : 560 datapoint
         # Import Data
         df = remove_outliers("../Data.xlsx", "New_Data", 2)
+        #df = remove_outliers("../Data.xlsx", "CHO", 2)
         #df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
         #df = pd.read_excel("../Data.xlsx",sheet_name="Load_AllDataSetC12")
         #df = pd.read_excel("../Data.xlsx",sheet_name="Load_CHO")
@@ -77,7 +78,9 @@ for MF_radius in MF_radius_s:
             datafram_i = datafram_i.T
             X_data_fp.append(datafram_i)
         x_data_fp = pd.concat(X_data_fp, ignore_index=True)
-        
+        sel_f = x_data_fp.sort_values(by=1, ascending=False, inplace=False)
+        print(sel_f[1])
+        print(X_data_excel["SMILES"][3421])
         y_data_fp = Y_data.copy()
         if MF_radius == 2:
             if MF_bit == 1024:
@@ -119,19 +122,19 @@ for MF_radius in MF_radius_s:
         # %%
         # Train-test_Modeling & Cross Validation Modeling
         
-        x_train_fp, x_test_fp, y_train_fp, y_test_fp = train_test_split(x_new, y_data_fp,
+        x_train_fp, x_test_fp, y_train_fp, y_test_fp = train_test_split(x_data_fp, y_data_fp,
                                                                         test_size=0.1,
-                                                                       random_state=42)
+                                                                        random_state=42)
         # %%
         start_time = time.time()
-        model = RF(x_train_fp, y_train_fp)
+        model = XGB(x_train_fp, y_train_fp)
         end_time = time.time()
         print("Elasped Time : ", end_time-start_time, "seconds")
         
         # %%
         # Scoring & Export
         #Score_table = Scoring(model , x_train_fp, x_test_fp, x_data_fp, y_train_fp, y_test_fp, y_data_fp)
-        Score_table = Scoring(model , x_train_fp, x_test_fp, x_new, y_train_fp, y_test_fp, y_data_fp)
+        Score_table = Scoring(model , x_train_fp, x_test_fp, x_data_fp, y_train_fp, y_test_fp, y_data_fp)
         y_pred_test = model.predict(x_test_fp)
         #Export(Score_table, "C_MF16384_XGB.csv")
 
@@ -146,7 +149,7 @@ for MF_radius in MF_radius_s:
         
         df3 = pd.DataFrame({'Actual': y_test_fp,
                             'Predict': y_pred_test})
-        Export(df3, "C-MF 2023-11-11/RF_Test_Tb_Value.csv")
+#        Export(df3, "C-MF 2023-11-11/Ridge_Test_Tb_Value.csv")
 # %%
         if(j>0):
             old_df = df_combine.copy()
@@ -156,4 +159,4 @@ for MF_radius in MF_radius_s:
         df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 # %%
-#Export(df_combine, "C-MF 2023-11-11/RF.csv")
+#Export(df_combine, "C-MF 2023-11-11/All.csv")
