@@ -43,9 +43,9 @@ def getSMART(mol, radius, atomidx):
     for atom in atomsToUse:
         a = mol.GetAtomWithIdx(atom)
         for b in a.GetBonds():
-          bidx = b.GetIdx()
-          if bidx not in env:
-            enlargedEnv.add(bidx)
+            bidx = b.GetIdx()
+            if bidx not in env:
+                enlargedEnv.add(bidx)
     enlargedEnv = list(enlargedEnv)
     enlargedEnv += env
     # find all relevant neighbors
