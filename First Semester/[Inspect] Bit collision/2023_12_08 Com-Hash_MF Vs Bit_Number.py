@@ -3,6 +3,8 @@
 import numpy as np
 import pandas as pd
 import time
+import sys
+sys.path.append("../")
 
 # RDKit
 from rdkit.Chem import Descriptors
@@ -14,6 +16,9 @@ from rdkit.Chem import Descriptors
 from rdkit.ML.Descriptors import MoleculeDescriptors
 from rdkit import DataStructs
 from rdkit.Chem.rdMolDescriptors import GetHashedMorganFingerprint
+
+# Our module
+from Python_RemoveO import remove_outliers
 
 
 def getSMART2(mol, radius, atomidx):
@@ -78,7 +83,8 @@ def get_All_SMART_1_mol_v2(mol, radius, nBits):
  
         
 # %%
-X_data_excel = pd.read_excel('../Data.xlsx', sheet_name="560point")
+#X_data_excel = pd.read_excel('../Data.xlsx', sheet_name="560point")
+X_data_excel = remove_outliers("../Data.xlsx", "New_Data", 2)
 radius = 3; nBits = 1024
 
 Dataframe = X_data_excel.copy()
@@ -106,8 +112,15 @@ Dataframe["morgan_fp"] = Dataframe["molecule"].apply(lambda x: rdMolDescriptors.
     radius=radius, 
     nBits=nBits,
     useFeatures=True, useChirality=True))
+#%%
 
-num_mol = 463
+#num_mol = 2205
+#num_mol = 2214
+#num_mol = 3967
+#num_mol = 3306
+#num_mol = 3381
+num_mol = 3178
+print(Dataframe["SMILES"].iloc[num_mol])
 m_test = Dataframe["molecule"].iloc[num_mol]
 mfp_test = Dataframe["morgan_fp"].iloc[num_mol]
 blank_arr = np.zeros((0,), dtype=np.int8)
