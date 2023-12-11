@@ -18,7 +18,7 @@ from rdkit import DataStructs
 from rdkit.Chem.rdMolDescriptors import GetHashedMorganFingerprint
 
 # Our module
-from Python_RemoveO import remove_outliers
+#from Python_RemoveO import remove_outliers
 
 
 def getSMART2(mol, radius, atomidx):
@@ -83,8 +83,8 @@ def get_All_SMART_1_mol_v2(mol, radius, nBits):
  
         
 # %%
-#X_data_excel = pd.read_excel('../Data.xlsx', sheet_name="560point")
-X_data_excel = remove_outliers("../Data.xlsx", "New_Data", 2)
+X_data_excel = pd.read_excel('../Data.xlsx', sheet_name="560point")
+#X_data_excel = remove_outliers("../Data.xlsx", "New_Data", 2)
 radius = 3; nBits = 1024
 
 Dataframe = X_data_excel.copy()
@@ -122,6 +122,7 @@ Dataframe["morgan_fp"] = Dataframe["molecule"].apply(lambda x: rdMolDescriptors.
 num_mol = 3178
 print(Dataframe["SMILES"].iloc[num_mol])
 m_test = Dataframe["molecule"].iloc[num_mol]
+
 mfp_test = Dataframe["morgan_fp"].iloc[num_mol]
 blank_arr = np.zeros((0,), dtype=np.int8)
 DataStructs.ConvertToNumpyArray(mfp_test,blank_arr)
@@ -133,3 +134,18 @@ new_num = set([number % nBits for number in num_arr ])
 
 #array = np.zeros((0,), dtype=np.int8)
 #temp = DataStructs.ConvertToNumpyArray(test, array )
+
+#%%
+
+m_test = Chem.MolFromSmiles("CC(N)C")
+fp_test = rdMolDescriptors.GetHashedMorganFingerprint(
+    m_test, 
+    radius=radius, 
+    nBits=nBits,
+    useFeatures=True, useChirality=True)
+blank_arr = np.zeros((0,), dtype=np.int8)
+DataStructs.ConvertToNumpyArray(fp_test,blank_arr)
+
+full_mfp_test = get_All_SMART_1_mol_v2(m_test,radius,nBits)
+num_arr = [key for key in full_mfp_test]
+new_num = set([number % nBits for number in num_arr ])

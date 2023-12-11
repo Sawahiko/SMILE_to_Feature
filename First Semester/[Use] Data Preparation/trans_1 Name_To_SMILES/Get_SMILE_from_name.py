@@ -1,11 +1,13 @@
+#%%
 import numpy as np
 import pandas as pd
 import pubchempy as pcp
-
+#%%
 
 #Import Data
-df = pd.read_excel("Data.xlsx",sheet_name="SmileFromName2")
+df = pd.read_csv("get_3 DWSIM & ChEDL/Psat_raw.csv")  # Psat data (A,B,C)
 
+#%%
 #Select feature for data: X=SMILE, Y=Tb
 X_data_excel= df[["Name"]]
 #Y_data= df["Tb"]
@@ -34,7 +36,7 @@ data = {
 
 tdf = pd.DataFrame(data)
 
-tdf.to_csv("SMILES_2.csv")
+tdf.to_csv("Psat_SMILES.csv")
 #print(a.cid)
 #a.
 #pcp.get_properties('IsomericSMILES', 'CC', 'smiles')
