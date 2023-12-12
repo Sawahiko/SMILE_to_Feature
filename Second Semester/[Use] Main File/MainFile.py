@@ -71,7 +71,7 @@ x_train, x_test, y_train, y_test = train_test_split(x_data_fp, y_data_fp,test_si
 import keras.backend as K
 from keras.layers import Input, Dense
 from keras.models import Model
-from keras.losses import mse
+from keras.losses import mean_squared_logarithmic_error as msle
 import numpy as np
 
 # Some random training data
@@ -101,15 +101,14 @@ model = Model(inputs=[input_layer, label_layer_1, label_layer_2, label_layer_3],
 # def loss(output_1, label_layer_1, output_2, label_layer_2) :
 #     return K.mean(mse(output_1, label_layer_1) * mse(output_2, label_layer_2))
 # =============================================================================
-def Psat_cal(T,A,B,C):
-    return np.log1p(A+(B/(T+C)))
+
 
 def Psat_cal_TF(T,A,B,C):
-    return A+(B/(T+C))
+    return A-(B/(T+C))
 
-Temp = 300
+Temp = 373
 #loss_fun = K.mean(mse(output_1, label_layer_1) * mse(output_2, label_layer_2) * mse(output_3, label_layer_3))
-loss_fun = K.mean(mse(Psat_cal_TF(Temp, output_1, output_2, output_3), Psat_cal_TF(Temp, label_layer_1, label_layer_2, label_layer_3)))
+loss_fun = K.mean(msle(Psat_cal_TF(Temp, output_1, output_2, output_3), Psat_cal_TF(Temp, label_layer_1, label_layer_2, label_layer_3)))
 
 # Add loss to model
 model.add_loss(loss_fun)
@@ -127,26 +126,41 @@ B_actual = y_test["B"]
 C_actual = y_test["C"]
 ABC_predict = model.predict([x_test, A_actual, B_actual, C_actual])
 ABC_predict = np.dstack(ABC_predict).reshape(x_test.shape[0],3)
-                             
+                          
 A_predict = ABC_predict[:,0]
 B_predict = ABC_predict[:,1]
 C_predict = ABC_predict[:,2]
 
+def Psat_cal(T,A,B,C):
+    #return pow(A-(B/(T+C)),10)/(10^(3))
+    return A-(B/(T+C))
 Psat_predict = Psat_cal(Temp , A_predict, B_predict, C_predict)
 Psat_antione = Psat_cal(Temp , A_actual, B_actual, C_actual)
 
+
+x_min, x_max = -5, 20
+y_min, y_max = -5, 20
 
 # =============================================================================
 # plt.xlim(x_min, x_max)
 # plt.ylim(y_min, y_max)
 # =============================================================================
 
-x_min, x_max = 2, 4.5
-y_min, y_max = 2, 4.5
 x = np.linspace(x_min, x_max, 100)
 y = x
 plt.plot(x, y, color='black',linestyle='dashed', label='x=y')
 
 plt.scatter(Psat_predict, Psat_antione)
 
+from sklearn.metrics import  mean_absolute_percentage_error as mape
+mape(Psat_antione, Psat_predict)
 
+df_pow = pd.DataFrame({
+    "Psat_antio" : pow(Psat_antione, 10),
+    "Psat_pree" : pow(Psat_predict, 10)
+})
+
+df = pd.DataFrame({
+    "Psat_antio" : Psat_antione,
+    "Psat_pree" : Psat_predict
+})
