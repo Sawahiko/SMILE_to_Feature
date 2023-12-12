@@ -5,11 +5,12 @@ import pubchempy as pcp
 #%%
 
 #Import Data
-df = pd.read_csv("get_3 DWSIM & ChEDL/Psat_raw.csv")  # Psat data (A,B,C)
+df = pd.read_csv("Liquid_morlar_density_raw1.csv")  # Psat data (A,B,C)
+df_add = df[["C1", "C2", "C3", "C4", "Tmin", "Tmax"]]
 
 #%%
 #Select feature for data: X=SMILE, Y=Tb
-X_data_excel= df[["Name"]]
+X_data_excel= df[["Chemical"]].iloc[0:2]
 #Y_data= df["Tb"]
 
 #pcp.get_synonyms('Aspirin', 'smiles')
@@ -35,8 +36,8 @@ data = {
     }
 
 tdf = pd.DataFrame(data)
-
-tdf.to_csv("Psat_SMILES.csv")
+tdf = tdf.join(df_add)
+tdf.to_csv("Density.csv")
 #print(a.cid)
 #a.
 #pcp.get_properties('IsomericSMILES', 'CC', 'smiles')
