@@ -24,7 +24,7 @@ from rdkit import DataStructs
 #%%
 
 # Import Data
-df = pd.read_excel("../[Use] Data Preparation/Psat_AllData.xlsx",sheet_name="All")
+df = pd.read_csv("Psat_SMILES_sky1.csv")
 df = df[df['SMILES'] != "None"].reset_index(drop=True)
 
 # Select feature for data: X=SMILE, Y=Tb
@@ -64,20 +64,37 @@ x_data_fp = pd.concat(X_data_fp, ignore_index=True)
 y_data_fp = Y_data.copy()
 
 #%%
-x_train, x_test, y_train, y_test = train_test_split(x_data_fp, y_data_fp,test_size=0.2,random_state=42)
+x_train, x_test, y_train_fp, y_test_fp = train_test_split(x_data_fp, y_data_fp,test_size=0.2,random_state=42)
 
+
+from sklearn.preprocessing import StandardScaler
+# created scaler
+scaler = StandardScaler()
+# fit scaler on training dataset
+scaler.fit(y_train_fp)
+# transform training dataset
+y_train = scaler.transform(y_train_fp)
+# transform test dataset
+y_test = scaler.transform(y_test_fp)
 # %%
-
+import keras
 import keras.backend as K
 from keras.layers import Input, Dense
 from keras.models import Model
 from keras.losses import mean_squared_logarithmic_error as msle
+from keras.losses import mean_squared_error as mse
 import numpy as np
 
 # Some random training data
-labels_1 = y_train["A"]
-labels_2 = y_train["B"]
-labels_3 = y_train["C"]
+# =============================================================================
+# labels_1 = y_train["A"]
+# labels_2 = y_train["B"]
+# labels_3 = y_train["C"]
+# =============================================================================
+
+labels_1 = y_train[:,0]
+labels_2 = y_train[:,1]
+labels_3 = y_train[:,2]
 
 # Input layer, one hidden layer
 input_layer = Input((x_train.shape[1],))
@@ -102,13 +119,28 @@ model = Model(inputs=[input_layer, label_layer_1, label_layer_2, label_layer_3],
 #     return K.mean(mse(output_1, label_layer_1) * mse(output_2, label_layer_2))
 # =============================================================================
 
-
 def Psat_cal_TF(T,A,B,C):
+# =============================================================================
+#     outputs = model.layers[1].output_mask
+#     print(B)
+#     print(type(A))
+#     print(dir(A))
+#     print(A.dtype)
+#     print(A.__array__)
+#     print(A.get_shape())
+#     #print(K.eval(outputs))
+# =============================================================================
+    y_transform = tf.reshape([A,B,C], (1,-1))
+    
+    #A_num = A.
+    A = A* K.constant(scaler.scale_[0]) + K.constant(scaler.mean_[0])
+    B = B* K.constant(scaler.scale_[1]) + K.constant(scaler.mean_[1])
+    C = C* K.constant(scaler.scale_[2]) + K.constant(scaler.mean_[2])
     return A-(B/(T+C))
 
 Temp = 373
 #loss_fun = K.mean(mse(output_1, label_layer_1) * mse(output_2, label_layer_2) * mse(output_3, label_layer_3))
-loss_fun = K.mean(msle(Psat_cal_TF(Temp, output_1, output_2, output_3), Psat_cal_TF(Temp, label_layer_1, label_layer_2, label_layer_3)))
+loss_fun = K.mean(mse(Psat_cal_TF(Temp, output_1, output_2, output_3), Psat_cal_TF(Temp, label_layer_1, label_layer_2, label_layer_3)))
 
 # Add loss to model
 model.add_loss(loss_fun)
@@ -118,15 +150,18 @@ model.compile(optimizer='adam')
 
 dummy = np.zeros(x_train.shape[0])
 model.fit([x_train, labels_1, labels_2, labels_3], dummy, epochs=100)
-
+a = K.eval(np.array([0.1,0.3]))
 
 #%%
-A_actual = y_test["A"]
-B_actual = y_test["B"]
-C_actual = y_test["C"]
+model2 = model
+A_actual = y_test_fp["A"]
+B_actual = y_test_fp["B"]
+C_actual = y_test_fp["C"]
+
 
 ABC_predict = model.predict([x_test, A_actual, B_actual, C_actual])
 ABC_predict = np.dstack(ABC_predict).reshape(x_test.shape[0],3)
+ABC_predict = scaler.inverse_transform(ABC_predict )
                           
 A_predict = ABC_predict[:,0]
 B_predict = ABC_predict[:,1]
@@ -138,9 +173,13 @@ def Psat_cal(T,A,B,C):
 Psat_predict = Psat_cal(Temp , A_predict, B_predict, C_predict)
 Psat_antione = Psat_cal(Temp , A_actual, B_actual, C_actual)
 
+plt.xscale("linear")
+plt.yscale("linear")
 
-x_min, x_max = -5, 20
-y_min, y_max = -5, 20
+x_min = min(Psat_antione)
+x_max = 25 #max(Psat_antione)
+x_min = -15; x_max = 19
+y_min, y_max = x_min, x_max
 
 plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
@@ -149,13 +188,13 @@ x = np.linspace(x_min, x_max, 100)
 y = x
 plt.plot(x, y, color='black',linestyle='dashed', label='x=y')
 
-plt.scatter(Psat_predict, Psat_antione)
+plt.scatter(Psat_antione, Psat_predict)
 
 
 
 df_pow = pd.DataFrame({
-    "Psat_antio" : pow(Psat_antione, 10),
-    "Psat_pree" : pow(Psat_predict, 10),
+    "Psat_antio" : pow(10, Psat_antione),
+    "Psat_pree" : pow(10, Psat_predict),
      
 })
 
@@ -163,7 +202,26 @@ df_compare = pd.DataFrame({
     "Psat_antio" : Psat_antione,
     "Psat_pree" : Psat_predict
 })
-df_compare["ABS"] = abs(df_compare["Psat_antio"]- df_compare["Psat_pree"])
+df_compare["Log(Psat) Diff"]= abs(df_compare["Psat_antio"]-df_compare["Psat_pree"])
 df_compare.describe()
 from sklearn.metrics import  mean_absolute_error as mae
-print(f'mae : {mae(df_compare["Psat_antio"], df_compare["Psat_pree"])}')
+from sklearn.metrics import  mean_absolute_percentage_error as mape
+print(f'mae log(Psat): {mae(df_compare["Psat_antio"], df_compare["Psat_pree"])}')
+print(f'msle Psat: {msle(df_pow["Psat_antio"], df_pow["Psat_pree"])}')
+#%%
+plt.xscale("log")
+plt.yscale("log")
+Psat_predict_new = np.float64(pow(10, Psat_predict))
+Psat_antione_new= np.float64(pow(10, Psat_antione))
+val_min = min(min(Psat_predict_new), min(Psat_antione_new))
+val_max = max(max(Psat_predict_new), max(Psat_antione_new))
+
+val_max = pow(10, 19)
+val_min = pow(10,-15)
+plt.xlim(val_min , val_max )
+plt.ylim(val_min , val_max )
+
+x = np.linspace(val_min, val_max, 20)
+y = x
+plt.plot(x, y, color='black',linestyle='dashed', label='x=y')
+plt.scatter(Psat_antione_new, Psat_predict_new)
