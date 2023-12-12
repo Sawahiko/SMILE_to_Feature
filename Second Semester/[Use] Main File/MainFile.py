@@ -24,7 +24,7 @@ from rdkit import DataStructs
 #%%
 
 # Import Data
-df = pd.read_csv("Psat_SMILES_sky1.csv")
+df = pd.read_excel("../[Use] Data Preparation/Psat_AllData.xlsx",sheet_name="All")
 df = df[df['SMILES'] != "None"].reset_index(drop=True)
 
 # Select feature for data: X=SMILE, Y=Tb
@@ -160,7 +160,9 @@ df_pow = pd.DataFrame({
     "Psat_pree" : pow(Psat_predict, 10)
 })
 
-df = pd.DataFrame({
+df_compare = pd.DataFrame({
     "Psat_antio" : Psat_antione,
     "Psat_pree" : Psat_predict
 })
+df_compare["ABS"] = abs(df_compare["Psat_antio"]- df_compare["Psat_pree"])
+df_compare.describe()
