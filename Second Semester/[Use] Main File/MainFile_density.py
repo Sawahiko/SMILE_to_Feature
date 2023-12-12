@@ -64,25 +64,44 @@ x_data_fp = pd.concat(X_data_fp, ignore_index=True)
 y_data_fp = Y_data.copy()
 
 #%%
-x_train, x_test, y_train, y_test = train_test_split(x_data_fp, y_data_fp,test_size=0.2,random_state=42)
+x_train, x_test, y_train_fp, y_test_fp = train_test_split(x_data_fp, y_data_fp,test_size=0.2,random_state=42)
+
+from sklearn.preprocessing import StandardScaler
+# created scaler
+scaler = StandardScaler()
+# fit scaler on training dataset
+scaler.fit(y_train_fp)
+# transform training dataset
+y_train = scaler.transform(y_train_fp)
+# transform test dataset
+y_test = scaler.transform(y_test_fp)
+
 
 # %%
 
 import keras.backend as K
-from keras.layers import Input, Dense
+from keras.layers import Input, Dense, Normalization
 from keras.models import Model
 #from keras.losses import mean_squared_logarithmic_error as msle
 from keras.losses import mean_squared_error as mse
 import numpy as np
 
 # Some random training data
-labels_1 = y_train["C1"]
-labels_2 = y_train["C2"]
-labels_3 = y_train["C3"]
-labels_4 = y_train["C4"]
+# =============================================================================
+# labels_1 = y_train["C1"]
+# labels_2 = y_train["C2"]
+# labels_3 = y_train["C3"]
+# labels_4 = y_train["C4"]
+# =============================================================================
+
+labels_1 = y_train[:,0]
+labels_2 = y_train[:,1]
+labels_3 = y_train[:,2]
+labels_4 = y_train[:,3]
 
 # Input layer, one hidden layer
 input_layer = Input((x_train.shape[1],))
+#norm_input_layer = Normalization(axis=1, )(input_layer)
 dense_1 = Dense(500, "relu")(input_layer)
 dense_2 = Dense(100, "relu")(dense_1)
 # Two outputs
@@ -139,14 +158,14 @@ model.fit([x_train, labels_1, labels_2, labels_3, labels_4], dummy, epochs=100)
 
 
 #%%
-C1_actual= y_test["C1"]
-C2_actual= y_test["C2"]
-C3_actual= y_test["C3"]
-C4_actual= y_test["C4"]
+C1_actual= y_test[:,0]
+C2_actual= y_test[:,1]
+C3_actual= y_test[:,2]
+C4_actual= y_test[:,3]
 
 C1234_predict = model.predict([x_test, C1_actual, C2_actual, C3_actual, C4_actual])
 C1234_predict = np.dstack(C1234_predict).reshape(x_test.shape[0],4)
-                          
+C1234_predict  = scaler.inverse_transform(C1234_predict)
 C1_predict = C1234_predict[:,0]
 C2_predict = C1234_predict[:,1]
 C3_predict = C1234_predict[:,2]
@@ -160,14 +179,14 @@ def rho_cal(T,C1,C2,C3,C4):
 rho_predict = rho_cal(Temp , C1_predict, C2_predict, C3_predict, C4_predict)
 rho_cal     = rho_cal(Temp , C1_actual, C2_actual, C3_actual, C4_actual)
 
-
-x_min, x_max = min(rho_cal), max(rho_cal)
+# %%
+x_min = min(rho_cal)
+x_max = max(rho_cal)
+#x_max = 4500
 y_min, y_max = x_min, x_max
 
-# =============================================================================
-# plt.xlim(x_min, x_max)
-# plt.ylim(y_min, y_max)
-# =============================================================================
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
 
 x = np.linspace(x_min, x_max, 100)
 y = x
