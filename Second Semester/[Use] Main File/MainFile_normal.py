@@ -186,9 +186,10 @@ plt.ylim(y_min, y_max)
 
 x = np.linspace(x_min, x_max, 100)
 y = x
-plt.plot(x, y, color='black',linestyle='dashed', label='x=y')
+p1 = plt.plot(x, y, color='black',linestyle='dashed', label='x=y')
 
 plt.scatter(Psat_antione, Psat_predict)
+
 
 
 
@@ -223,5 +224,5 @@ plt.ylim(val_min , val_max )
 
 x = np.linspace(val_min, val_max, 20)
 y = x
-plt.plot(x, y, color='black',linestyle='dashed', label='x=y')
+p2 = plt.plot(x, y, color='black',linestyle='dashed', label='x=y')
 plt.scatter(Psat_antione_new, Psat_predict_new)

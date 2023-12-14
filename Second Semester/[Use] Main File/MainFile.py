@@ -19,7 +19,7 @@ from rdkit.Chem import AllChem
 from rdkit import DataStructs
 
 # Our module
-#from Python_Scoring_Export import Scoring, Export
+from Python_Scoring_Export import Scoring, Export
 
 #%%
 
@@ -139,19 +139,6 @@ Psat_predict = Psat_cal(Temp , A_predict, B_predict, C_predict)
 Psat_antione = Psat_cal(Temp , A_actual, B_actual, C_actual)
 
 
-x_min, x_max = -5, 20
-y_min, y_max = -5, 20
-
-plt.xlim(x_min, x_max)
-plt.ylim(y_min, y_max)
-
-x = np.linspace(x_min, x_max, 100)
-y = x
-plt.plot(x, y, color='black',linestyle='dashed', label='x=y')
-
-plt.scatter(Psat_predict, Psat_antione)
-
-
 
 df_pow = pd.DataFrame({
     "Psat_antio" : pow(Psat_antione, 10),
@@ -163,7 +150,31 @@ df_compare = pd.DataFrame({
     "Psat_antio" : Psat_antione,
     "Psat_pree" : Psat_predict
 })
-df_compare["ABS"] = abs(df_compare["Psat_antio"]- df_compare["Psat_pree"])
-df_compare.describe()
-from sklearn.metrics import  mean_absolute_error as mae
-print(f'mae : {mae(df_compare["Psat_antio"], df_compare["Psat_pree"])}')
+df_compare["diff"] = abs(df_compare["Psat_antio"]- df_compare["Psat_pree"])
+df_compare_des = df_compare.describe()
+
+#%%
+#Score_table = Scoring(model , x_train, x_test, x_data_fp, y_train, y_test, y_data_fp)
+
+from sklearn.metrics import  mean_absolute_error as mae, mean_absolute_percentage_error as mape, r2_score
+
+print(f'mae test: {mae(df_compare["Psat_antio"], df_compare["Psat_pree"])}')
+print(f'mape test: {mape(df_compare["Psat_antio"], df_compare["Psat_pree"])}')
+print(f'r2 test: {r2_score(df_compare["Psat_antio"], df_compare["Psat_pree"])}')
+#%% Visualization
+#x_min = min(min(Psat_antione),min(Psat_predict))
+#x_max = max(max(Psat_antione),max(Psat_predict))
+
+x_min = -20; x_max = 25
+
+y_min, y_max = x_min, x_max
+
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+
+x = np.linspace(x_min, x_max, 100)
+y = x
+p1 = plt.plot(x, y, color='black',linestyle='dashed', label='x=y')
+
+plt.scatter(Psat_antione, Psat_predict, label="test", alpha=0.3)
+plt.legend()
