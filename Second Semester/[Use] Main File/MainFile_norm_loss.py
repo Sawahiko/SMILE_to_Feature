@@ -64,74 +64,71 @@ x_data_fp = pd.concat(X_data_fp, ignore_index=True)
 y_data_fp = Y_data.copy()
 
 #%%
-x_train, x_test, y_train, y_test = train_test_split(x_data_fp, y_data_fp,test_size=0.2,random_state=42)
+# =============================================================================
+# x_train, x_test, y_train, y_test = train_test_split(x_data_fp, y_data_fp,test_size=0.2,random_state=42)
+# =============================================================================
+x_train, x_test, y_train_fp, y_test_fp = train_test_split(x_data_fp, y_data_fp,test_size=0.2,random_state=42)
 
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+# created scaler
+scaler = MinMaxScaler()
+# fit scaler on training dataset
+scaler.fit(y_train_fp)
+# transform training dataset
+y_train = scaler.transform(y_train_fp)
+# transform test dataset
+y_test = scaler.transform(y_test_fp)
 # %%
 
 import keras.backend as K
-from keras.layers import Input, Dense
+from keras.layers import Input, Dense, BatchNormalization
 from keras.models import Model
-from keras.losses import mean_squared_logarithmic_error as msle
+from keras.losses import mean_squared_error as mse
 import numpy as np
 
-# Some random training data
-labels_1 = y_train["A"]
-labels_2 = y_train["B"]
-labels_3 = y_train["C"]
+# Add BatchNormalization after each dense layer
+model = Sequential()
+model.add(Dense(500, input_dim=x_train.shape[1], activation='relu'))
+#model.add(BatchNormalization())
+model.add(Dense(100, activation='relu'))
+#model.add(BatchNormalization())
+model.add(Dense(3))
 
-# Input layer, one hidden layer
-input_layer = Input((x_train.shape[1],))
-dense_1 = Dense(500, "relu")(input_layer)
-dense_2 = Dense(100, "relu")(dense_1)
-# Two outputs
-output_1 = Dense(1)(dense_2)
-output_2 = Dense(1)(dense_2)
-output_3 = Dense(1)(dense_2)
+# Define different weights for each output loss
+output_weights = [0.3, 0.6, 0.1]
 
-# Two additional 'inputs' for the labels
-label_layer_1 = Input((1,))
-label_layer_2 = Input((1,))
-label_layer_3 = Input((1,))
+def custom_loss(y_true, y_pred):
+  loss = tf.math.reduce_mean(tf.math.square(y_true - y_pred) * output_weights)
+  return loss
 
-# Instantiate model, pass label layers as inputs
-model = Model(inputs=[input_layer, label_layer_1, label_layer_2, label_layer_3], outputs=[output_1, output_2, output_3])
-
-# Construct your custom loss as a tensor
 # =============================================================================
-# def loss(output_1, label_layer_1, output_2, label_layer_2) :
-#     return K.mean(mse(output_1, label_layer_1) * mse(output_2, label_layer_2))
+# model.compile(optimizer='adam', loss='LogCosh')
 # =============================================================================
-
-
-def Psat_cal_TF(T,A,B,C):
-    return A-(B/(T+C))
-
-Temp = 373
-#loss_fun = K.mean(mse(output_1, label_layer_1) * mse(output_2, label_layer_2) * mse(output_3, label_layer_3))
-loss_fun = K.mean(msle(Psat_cal_TF(Temp, output_1, output_2, output_3), Psat_cal_TF(Temp, label_layer_1, label_layer_2, label_layer_3)))
-
-# Add loss to model
-model.add_loss(loss_fun)
-
-# Compile without specifying a loss
-model.compile(optimizer='adam')
-
-dummy = np.zeros(x_train.shape[0])
-model.fit([x_train, labels_1, labels_2, labels_3], dummy, epochs=100)
+model.compile(optimizer='adam', loss=custom_loss)
+model.fit(x_train, y_train, epochs=50, batch_size=16, validation_split=0.2)
 
 
 #%%
-A_actual = y_test["A"]
-B_actual = y_test["B"]
-C_actual = y_test["C"]
+# =============================================================================
+# A_actual = y_test["A"]
+# B_actual = y_test["B"]
+# C_actual = y_test["C"]
+# =============================================================================
 
-ABC_predict = model.predict([x_test, A_actual, B_actual, C_actual])
+A_actual = y_test_fp["A"]
+B_actual = y_test_fp["B"]
+C_actual = y_test_fp["C"]
+
+ABC_predict_raw = model.predict(x_test)
+ABC_predict = ABC_predict_raw.copy()
 ABC_predict = np.dstack(ABC_predict).reshape(x_test.shape[0],3)
+ABC_predict = scaler.inverse_transform(ABC_predict)
                           
 A_predict = ABC_predict[:,0]
 B_predict = ABC_predict[:,1]
 C_predict = ABC_predict[:,2]
 
+Temp = 373
 def Psat_cal(T,A,B,C):
     #return pow(A-(B/(T+C)),10)/(10^(3))
     return A-(B/(T+C))
@@ -163,10 +160,10 @@ print(f'rmse test: {rmse(df_compare["Psat_antio"], df_compare["Psat_pree"])}')
 print(f'mape test: {mape(df_compare["Psat_antio"], df_compare["Psat_pree"])}')
 print(f'r2 test: {r2_score(df_compare["Psat_antio"], df_compare["Psat_pree"])}')
 #%% Visualization
-#x_min = min(min(Psat_antione),min(Psat_predict))
-#x_max = max(max(Psat_antione),max(Psat_predict))
+x_min = min(min(Psat_antione),min(Psat_predict))
+x_max = max(max(Psat_antione),max(Psat_predict))
 
-x_min = -20; x_max = 25
+#x_min = -20; x_max = 25
 
 y_min, y_max = x_min, x_max
 
