@@ -24,7 +24,7 @@ from Python_Scoring_Export import Scoring, Export
 #%%
 
 # Import Data
-df = pd.read_excel("../[Use] Data Preparation/Psat_AllData.xlsx",sheet_name="All")
+df = pd.read_excel("../[Use] Data Preparation/Psat_AllData_1.xlsx",sheet_name="CHON")
 df = df[df['SMILES'] != "None"].reset_index(drop=True)
 
 # Select feature for data: X=SMILE, Y=Tb
@@ -35,7 +35,7 @@ Y_data= df[["A","B","C"]]
 # %% Data Preparation
 # Generate Fingerprint from SMILE
 MF_radius = 3
-MF_bit = 1024
+MF_bit = 4096
 
 X_data_use = X_data_excel.copy()
 X_data_use["molecule"] = X_data_use["SMILES"].apply(lambda x: Chem.MolFromSmiles(x))
