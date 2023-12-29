@@ -20,21 +20,42 @@ from rdkit import DataStructs
 
 # Our module
 from Python_Scoring_Export import Scoring, Export
-from Python_RemoveO import remove_outliers
+from Python_RemoveO import remove_outliers, remove_outliers_boxplot
 
 #%%
 
 # Import Data
-df = pd.read_excel("../[Use] Data Preparation/Psat_AllData_1.xlsx",sheet_name="CHON")
+# =============================================================================
+# df = pd.read_excel("../[Use] Data Preparation/Psat_AllData_1.xlsx",sheet_name="All")
+# df = df[df['SMILES'] != "None"].reset_index(drop=True)
+# =============================================================================
+
+columns_ouliers = ["A", "B", "C"]
+df = remove_outliers_boxplot("../[Use] Data Preparation/Psat_AllData_1.xlsx", 'All', columns_ouliers)
 df = df[df['SMILES'] != "None"].reset_index(drop=True)
-df = remove_outliers("../[Use] Data Preparation/Psat_AllData_1.xlsx", 'All', 'A')
-df = remove_outliers("../[Use] Data Preparation/Psat_AllData_1.xlsx", 'All', 'B')
-df = remove_outliers("../[Use] Data Preparation/Psat_AllData_1.xlsx", 'All', 'C')
 
 # Select feature for data: X=SMILE, Y=Tb
 X_data_excel= df[["SMILES"]]
 Y_data= df[["A","B","C"]]
         
+# Create individual boxplots for each group
+plt.figure(figsize=(6, 4))  # Adjust figure size as needed
+plt.boxplot(df["A"], labels=["A"], patch_artist=True)
+plt.title("Box Plot of A")
+plt.grid(True)
+plt.show()
+
+plt.figure(figsize=(6, 4))
+plt.boxplot(df["B"], labels=["B"], patch_artist=True)
+plt.title("Box Plot of B")
+plt.grid(True)
+plt.show()
+
+plt.figure(figsize=(6, 4))
+plt.boxplot(df["C"], labels=["C"], patch_artist=True)
+plt.title("Box Plot of C")
+plt.grid(True)
+plt.show()
 
 # %% Data Preparation
 # Generate Fingerprint from SMILE
@@ -109,7 +130,7 @@ def custom_loss(y_true, y_pred):
 # model.compile(optimizer='adam', loss='LogCosh')
 # =============================================================================
 model.compile(optimizer='adam', loss=custom_loss)
-model.fit(x_train, y_train, epochs=50, batch_size=16, validation_split=0.2)
+model.fit(x_train, y_train, epochs=50, batch_size=32, validation_split=0.2)
 
 
 #%%
@@ -132,49 +153,13 @@ A_predict = ABC_predict[:,0]
 B_predict = ABC_predict[:,1]
 C_predict = ABC_predict[:,2]
 
-Temp = 373
-def Psat_cal(T,A,B,C):
-    #return pow(A-(B/(T+C)),10)/(10^(3))
-    return A-(B/(T+C))
-Psat_predict = Psat_cal(Temp , A_predict, B_predict, C_predict)
-Psat_antione = Psat_cal(Temp , A_actual, B_actual, C_actual)
-
-df_pow = pd.DataFrame({
-    "Psat_antio" : pow(Psat_antione, 10),
-    "Psat_pree" : pow(Psat_predict, 10),
-     
-})
-
 df_compare = pd.DataFrame({
-    "Psat_antio" : Psat_antione,
-    "Psat_pree" : Psat_predict
-})
-df_compare["diff"] = abs(df_compare["Psat_antio"]- df_compare["Psat_pree"])
-df_compare_des = df_compare.describe()
-
-#%%
-#Score_table = Scoring(model , x_train, x_test, x_data_fp, y_train, y_test, y_data_fp)
-
-from sklearn.metrics import  mean_absolute_error as mae, mean_absolute_percentage_error as mape, r2_score, mean_squared_error as rmse
-
-print(f'mae test: {mae(df_compare["Psat_antio"], df_compare["Psat_pree"])}')
-print(f'rmse test: {rmse(df_compare["Psat_antio"], df_compare["Psat_pree"])}')
-print(f'mape test: {mape(df_compare["Psat_antio"], df_compare["Psat_pree"])}')
-print(f'r2 test: {r2_score(df_compare["Psat_antio"], df_compare["Psat_pree"])}')
-#%% Visualization
-x_min = min(min(Psat_antione),min(Psat_predict))
-x_max = max(max(Psat_antione),max(Psat_predict))
-
-#x_min = -20; x_max = 25
-
-y_min, y_max = x_min, x_max
-
-plt.xlim(x_min, x_max)
-plt.ylim(y_min, y_max)
-
-x = np.linspace(x_min, x_max, 100)
-y = x
-p1 = plt.plot(x, y, color='black',linestyle='dashed', label='x=y')
-
-plt.scatter(Psat_antione, Psat_predict, label="test", alpha=0.3)
-plt.legend()
+    "A_Actual" : A_actual,
+    "A_Predict" : A_predict,
+    "B_Actual" : B_actual,
+    "B_Predict" : B_predict,
+    "C_Actual" : C_actual,
+    "C_Predict" : C_predict})
+     
+plt.scatter(C_actual, C_predict)
+plt.plot(C_actual, C_actual)
