@@ -91,7 +91,7 @@ x_train, x_test, y_train, y_test = train_test_split(x_data_fp, y_data_fp,test_si
 # %%
 
 import keras.backend as K
-from keras.layers import Input, Dense
+from keras.layers import Input, Dense, BatchNormalization
 from keras.models import Model
 from keras.losses import mean_squared_error as mse
 import numpy as np
@@ -107,53 +107,17 @@ labels_3 = y_train["C"]
 x_train = x_train.drop(columns=MF_bit)
 x_test = x_test.drop(columns=MF_bit)
 
-# Input layer, one hidden layer
-input_layer = Input((x_train.shape[1],))
-dense_1 = Dense(500, "relu")(input_layer)
-dense_2 = Dense(500, "relu")(dense_1)
-# Two outputs
-output_1 = Dense(1)(dense_2)
-output_2 = Dense(1)(dense_2)
-output_3 = Dense(1)(dense_2)
+model = Sequential()
 
-# Two additional 'inputs' for the labels
-label_layer_0 = Input((1,))
-label_layer_1 = Input((1,))
-label_layer_2 = Input((1,))
-label_layer_3 = Input((1,))
+# Add BatchNormalization after each dense layer
+model.add(Dense(500, input_dim=x_train.shape[1], activation='relu'))
+model.add(BatchNormalization())
+model.add(Dense(100, activation='relu'))
+model.add(BatchNormalization())
+model.add(Dense(3))
 
-# Instantiate model, pass label layers as inputs
-model = Model(inputs=[input_layer, label_layer_0, label_layer_1, label_layer_2, label_layer_3], outputs=[output_1, output_2, output_3])
-
-# Construct your custom loss as a tensor
-# =============================================================================
-# def loss(output_1, label_layer_1, output_2, label_layer_2) :
-#     return K.mean(mse(output_1, label_layer_1) * mse(output_2, label_layer_2))
-# =============================================================================
-
-
-def Psat_cal_TF(T,A,B,C):
-    return A-(B/(T+C))
-
-def all_loss_fun(T, A_ac, B_ac, C_ac, A_pre, B_pre, C_pre):
-    loss_norm = mse(A_ac, A_pre)+ mse(B_ac, B_pre) +mse(C_ac, C_pre)
-    logPsat_ac = Psat_cal_TF(T, A_ac, B_ac, C_ac)
-    logPsat_pre = Psat_cal_TF(T, A_pre, B_pre, C_pre)
-    loss_psat = mse(logPsat_ac, logPsat_pre)
-    return loss_norm+loss_psat
-    
-#loss_fun = K.mean(mse(output_1, label_layer_1) * mse(output_2, label_layer_2) * mse(output_3, label_layer_3))
-#loss_fun = K.mean(msle(Psat_cal_TF(label_layer_0, output_1, output_2, output_3), Psat_cal_TF(label_layer_0, label_layer_1, label_layer_2, label_layer_3)))
-
-# Add loss to model
-#model.add_loss(all_loss_fun(label_layer_0, label_layer_1, label_layer_2, label_layer_3, output_1, output_2, output_3))
-
-# Compile without specifying a loss
-model.compile(optimizer='adam')
-model.compile(optimizer='adam', loss='mse')
-
-dummy = np.zeros(x_train.shape[0])
-model.fit([x_train, labels_0, labels_1, labels_2, labels_3], dummy, epochs=50)
+model.compile(optimizer='adam', loss='mean_squared_error')
+model.fit(x_train, y_train, epochs=50, batch_size=16, validation_split=0.2)
 
 
 #%%
@@ -163,7 +127,7 @@ B_actual = y_test["B"]
 C_actual = y_test["C"]
 
 dummy = np.zeros(x_test.shape[0])
-ABC_predict = model.predict([x_test, T_actual, dummy, dummy, dummy])
+ABC_predict = model.predict(x_test)
 ABC_predict = np.dstack(ABC_predict).reshape(x_test.shape[0],3)
                           
 A_predict = ABC_predict[:,0]
