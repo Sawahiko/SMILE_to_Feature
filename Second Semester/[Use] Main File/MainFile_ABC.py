@@ -33,6 +33,7 @@ from Python_RemoveO import remove_outliers, remove_outliers_boxplot
 columns_ouliers = ["A", "B", "C"]
 df = remove_outliers_boxplot("../[Use] Data Preparation/Psat_AllData_1.xlsx", 'All', columns_ouliers)
 df = df[df['SMILES'] != "None"].reset_index(drop=True)
+#df.to_csv('New_Data_Psat_Not_Outliers.csv')
 
 # Select feature for data: X=SMILE, Y=Tb
 X_data_excel= df[["SMILES"]]
