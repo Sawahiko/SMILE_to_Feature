@@ -104,14 +104,14 @@ result = result.reset_index()
 
 
 #%%
-x = 1/result["T"]
+x = result["T"].apply(lambda num: [1/num1 for num1 in num])
 y = result["Vapor_Presssure"]
 
 xy_table = pd.DataFrame({
     "x" : x,
     "y" : y})
 
-result = pd.concat([result, xy_table])
+result2 = result.join(xy_table)
 #%%
 from scipy.optimize import curve_fit
 def objective(X, a, b, c):
@@ -126,5 +126,5 @@ def getABC(row):
     a,b,c = popt
     return [a,b,c]
 #z = func((x,y), a, b, c) * 1
-result["ABC"] = result.apply(getABC, axis=1)
-result[['A', 'B', 'C']] = pd.DataFrame(result['ABC'].tolist())
+result2["ABC"] = result2.apply(getABC, axis=1)
+result2[['A', 'B', 'C']] = pd.DataFrame(result2['ABC'].tolist())
