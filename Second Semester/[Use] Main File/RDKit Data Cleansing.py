@@ -15,7 +15,7 @@ from rdkit import DataStructs
 
 #%% Import Data
 
-df_import = pd.read_excel("../[Use] Data Preparation/Psat_AllData_1.xlsx",sheet_name="All")
+df_import = pd.read_csv("New_Data_Psat_Not_Outliers.csv")
 df= df_import[df_import['SMILES'] != "None"].reset_index(drop=True)
 
 
