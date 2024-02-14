@@ -142,7 +142,10 @@ plt.title("Extracted Log(Psat)")
 plt.boxplot(df01["Vapor_Presssure"])
 plt.show()
 #%% Summary Output
-df_Psat = df1.copy()
 df_Psat_noOut = df01.copy()
 
-#df_export.to_csv("RDKit_CHON_New_Data_Psat_Not_Outliers.csv")
+filter2 = df_export["SMILES"].isin(df01["SMILES"].drop_duplicates())
+df02 = df_export[filter2]
+
+df_export.to_csv("Psat_NO_ABCTminTmaxC1-12.csv")
+df02.to_csv("Psat_NO_ABCTminTmaxC1-12Psat.csv")
