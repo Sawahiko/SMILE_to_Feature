@@ -14,12 +14,10 @@ from rdkit import DataStructs
 
 # Machine Learning
 from sklearn.model_selection import train_test_split
-from sklearn.feature_selection import SelectKBest, f_regression
 
 #Torch
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 from torch.optim import SGD, Adam
 from torch.utils.data import TensorDataset, DataLoader, random_split
@@ -35,7 +33,6 @@ from Python_RemoveO import remove_outliers, remove_outliers_boxplot
 import ray
 from ray import train, tune
 from ray.train import Checkpoint
-from ray.tune.schedulers import ASHAScheduler
 
 # Another
 import os
@@ -55,7 +52,6 @@ def generateTemp(Tmin, Tmax, amountpoint):
     return T_arr
 
 #%%
-columns_ouliers = ["A", "B", "C"]
 df = pd.read_csv("./RDKit_CHON_New_Data_Psat_Not_Outliers.csv")
 df = df[df['SMILES'] != "None"].reset_index(drop=True)
 #df.to_csv('New_Data_Psat_Not_Outliers.csv')
@@ -131,7 +127,7 @@ T_x_train = x_train_fp[[MF_bit]]; x_train = x_train_fp.drop(columns=MF_bit).asty
 T_x_test  = x_test_fp[[MF_bit]]; x_test = x_test_fp.drop(columns=MF_bit).astype(np.float64)
 
 # Normailzation
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()                     # created scaler
 scaler.fit(y_train_fp)                      # fit scaler on training dataset
 y_train = scaler.transform(y_train_fp)      # transform training dataset : y
@@ -147,7 +143,6 @@ testloader = TensorDataset(inputs_test, labels_test)
 
 trainloader_id = ray.put(trainloader)
 testloader_id = ray.put(testloader)
-
 
 #%%
 class ABC_2(nn.Module):
@@ -182,7 +177,7 @@ def train_model(config):
     optimizer = optim.Adam(model.parameters(), lr=config["learning_rate"])
     criterion = nn.MSELoss()
     model.to(device)
-    for epoch in range(300):  # loop over the dataset multiple times
+    for epoch in range(100):  # loop over the dataset multiple times
         running_loss = 0.0
         epoch_steps = 0
         trainloader = ray.get(trainloader_id)
@@ -198,14 +193,14 @@ def train_model(config):
             # forward + backward + optimize
             outputs = model(inputs)
             loss = criterion(outputs, labels)
+            
             loss.backward()
             optimizer.step()
 
             # print statistics
             running_loss += loss.item()
-#            print(running_loss)
             epoch_steps += 1
-            if i % 2000 == 1999:  # print every 2000 mini-batches
+            if i % 1000 == 999:  # print every 2000 mini-batches
                 print("[%d, %5d] loss: %.3f" % (epoch + 1, i + 1,
                                                 running_loss / epoch_steps))
                 running_loss = 0.0
@@ -240,40 +235,38 @@ def train_model(config):
 #                checkpoint=checkpoint,
             )
     print("Finished Training")
-
+        
 # Define the search space
 search_space = {
     "N_Hidden": tune.choice([1000, 1500, 2000]),
     "N_Layer": tune.choice([2, 3, 4]),
-    "dropout_rate": tune.uniform(0.2, 0.8),
-    "learning_rate": tune.uniform(1e-1, 1e-2),
+    "dropout_rate": tune.quniform(0.2, 0.5, 0.1),
+    "learning_rate": tune.choice([1e-2, 1e-3]),
 }
 
 # Start the hyperparameter tuning
 
-trainable_with_gpu = tune.with_resources(train_model, {"gpu": 0.25})
-
 tuner = tune.Tuner(
-    trainable_with_gpu,
+    train_model,
     param_space=search_space,
     tune_config=tune.TuneConfig(
         metric="loss",
         mode="min",
-        num_samples=4,
+        num_samples=12,
     ),
 )
 
 results = tuner.fit()
-#best_result = results.get_best_result("loss", "min")
+best_result = results.get_best_result("loss", "min")
 #print("Best hyperparameters found were: ", analysis.best_config)
-#best_result.config
+best_result.config
 
 import requests
 url = 'https://notify-api.line.me/api/notify'
 token = 'dU86jOuWu70g5gT43y1ICB5fZcKANukkLqOFNLxRKjk'
 headers = {'content-type':'application/x-www-form-urlencoded','Authorization':'Bearer '+token}
 
-msg = f'run เสร็จแล้ว จากเทรน 6 แบบ 300 epoch \n config = {best_result.config}'
+msg = f'run เสร็จแล้ว จากเทรน 12 แบบ 100 epoch \n config = {best_result.config}'
 r = requests.post(url, headers=headers, data = {'message':msg})
 print (r.text)
 
