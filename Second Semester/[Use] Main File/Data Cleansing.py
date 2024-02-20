@@ -87,6 +87,25 @@ df3 = df2.loc[df2["Pass Screen"].isin([True])]
 df3 = df3.drop(columns="SMILES", axis=0)
 df3_index = list(df3.index)
 
+#%% Change Scope Letter
+
+def cb(row):
+    #print(row)
+    if row == [1,6]:
+        return "CH"
+    elif row == [1,6,8]:
+        return "CHO"
+    elif row == [1,6,7]:
+        return "CHN"
+    elif row == [1,6,7,8]:
+        return "CHON"
+    elif row == [6,7]:
+        return "CN"
+    elif row == [6,8]:
+        return "CO"
+    elif row == [6,7,8]:
+        return "CON"
+df3["Atom2"] = df3["Atom"].apply(lambda x : cb(x))
 #%% Get ABC TMin Tmax CHON
 df_prepare = df_original_remove_ABCMinMax.copy()
 df_prepare = df_prepare.filter(items = df3_index, axis=0)
@@ -141,6 +160,7 @@ df01 = df1[~((df1[column] < lower_bound) | (df1[column] > upper_bound))]
 plt.title("Extracted Log(Psat)")
 plt.boxplot(df01["Vapor_Presssure"])
 plt.show()
+
 #%% Summary Output
 df_Psat_noOut = df01.copy()
 
