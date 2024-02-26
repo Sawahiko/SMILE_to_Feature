@@ -78,6 +78,8 @@ df = df[df['SMILES'] != "None"]
 df = df.drop_duplicates(subset='SMILES').reset_index(drop=True)
 df.sort_values(by="No.C")
 
+
+
 #%%
 # Genearate Temp in Tmin-Tmax and expand
 
@@ -100,6 +102,7 @@ df1["Vapor_Presssure"] = Psat_cal(df1["T"], df1["A"], df1["B"], df1["C"])
 # Get Needed Table and split for Training
 df2 = df1[["SMILES", "T", "Vapor_Presssure"]]
 df2 = df2[~df2["SMILES"].isin(df2[df2["Vapor_Presssure"] <-20]["SMILES"])].reset_index()
+df2_Temp = df1.groupby("SMILES", sort=False).agg({'T':lambda x: x.tolist()}).reset_index()
 
 X_data= df[["SMILES"]]               # feature: SMILE, T
 Y_data_A = df[["A"]]
@@ -159,10 +162,30 @@ y_notz_C = np.ravel(y_data_fp_C.copy())
 # y_train_fp = scale_y.transform(y_train_notz.reshape(-1,1)).flatten()
 # y_test_fp  = scale_y.transform(y_test_notz.reshape(-1,1)).flatten()
 # =============================================================================
+#%%
+# New Train-Test Split
+random.seed(42)
+msk = np.random.rand(len(df)) <= 0.8
+x_train = x_notz[msk];
+x_test = x_notz[~msk]; 
 
-x_train_A, x_test_A, y_train_A, y_test_A = train_test_split(x_notz, y_notz_A, test_size=0.20, random_state=42)
-x_train_B, x_test_B, y_train_B, y_test_B = train_test_split(x_notz, y_notz_B, test_size=0.20, random_state=42)
-x_train_C, x_test_C, y_train_C, y_test_C = train_test_split(x_notz, y_notz_C, test_size=0.20, random_state=42)
+y_train_A = y_notz_A[msk]; y_test_A = y_notz_A[~msk]
+y_train_B = y_notz_B[msk]; y_test_B = y_notz_B[~msk]
+y_train_C = y_notz_C[msk]; y_test_C = y_notz_C[~msk]
+
+T_train = df2_Temp[msk]; T_test = df2_Temp[~msk]
+
+x_train_A = x_train.copy(); x_test_A = x_test.copy()
+x_train_B = x_train.copy(); x_test_B = x_test.copy()
+x_train_C = x_train.copy(); x_test_C = x_test.copy()
+
+#train = df[msk]
+#test = df[~msk]
+
+
+#x_train_A, x_test_A, y_train_A, y_test_A = train_test_split(x_notz, y_notz_A, test_size=0.20, random_state=42)
+#x_train_B, x_test_B, y_train_B, y_test_B = train_test_split(x_notz, y_notz_B, test_size=0.20, random_state=42)
+#x_train_C, x_test_C, y_train_C, y_test_C = train_test_split(x_notz, y_notz_C, test_size=0.20, random_state=42)
 
 #%% Training Model
 from datetime import datetime
@@ -236,9 +259,9 @@ models = [Linear_default, Ridge_default, Lasso_default, DT_default, RF_default, 
 #x_train_notz = x_data_fp.copy()
 #y_train_notz_A = np.ravel(y_data_fp_A.copy())
 
-x_train_A, x_test_A, y_train_A, y_test_A = train_test_split(x_notz, y_notz_A, test_size=0.25, random_state=42)
-x_train_B, x_test_B, y_train_B, y_test_B = train_test_split(x_notz, y_notz_B, test_size=0.25, random_state=42)
-x_train_C, x_test_C, y_train_C, y_test_C = train_test_split(x_notz, y_notz_C, test_size=0.25, random_state=42)
+#x_train_A, x_test_A, y_train_A, y_test_A = train_test_split(x_notz, y_notz_A, test_size=0.25, random_state=42)
+#x_train_B, x_test_B, y_train_B, y_test_B = train_test_split(x_notz, y_notz_B, test_size=0.25, random_state=42)
+#x_train_C, x_test_C, y_train_C, y_test_C = train_test_split(x_notz, y_notz_C, test_size=0.25, random_state=42)
 
 # Run Training Model
 all_result_model_A = []
@@ -312,6 +335,11 @@ train_prediction_all = pd.concat([train_prediction_original_A,
 test_prediction_all = pd.concat([test_prediction_original_A,
                                    test_prediction_original_B,
                                    test_prediction_original_C])
+#%%
+A_best = result_evaluation_A[result_evaluation_A["Test RMSE"]==min(result_evaluation_A["Test RMSE"])]["Method"][0]
+B_best = result_evaluation_B[result_evaluation_B["Test RMSE"]==min(result_evaluation_B["Test RMSE"])]["Method"][0]
+C_best = result_evaluation_C[result_evaluation_C["Test RMSE"]==min(result_evaluation_C["Test RMSE"])]["Method"][0]
+
 
 #%%
 result_evaluation = result_evaluation_all.reset_index(drop=True)
@@ -350,8 +378,8 @@ train_prediction['Training Actual'] = train_prediction['Training Actual'].apply(
 
 #%%
 
-result_test = test_prediction.groupby("Method").agg(lambda x: list(x)).reset_index()
-result_train = train_prediction.groupby("Method").agg(lambda x: list(x)).reset_index()
+result_test = test_prediction.groupby("Method", sort=False).agg(lambda x: list(x)).reset_index()
+result_train = train_prediction.groupby("Method", sort=False).agg(lambda x: list(x)).reset_index()
 print(result_train)
 print(result_test)
 
@@ -453,32 +481,76 @@ test_prediction_original_A_2 = test_prediction_original_A.copy()
 test_prediction_original_B_2 = test_prediction_original_B.copy()
 test_prediction_original_C_2 = test_prediction_original_C.copy()
 
-test_prediction_original_A_2.columns = ['Method', 'A Test Predict', 'A Test Actual', 'ABC_result']
-test_prediction_original_B_2.columns = ['Method', 'B Test Predict', 'B Test Actual', 'ABC_result']
-test_prediction_original_C_2.columns = ['Method', 'C Test Predict', 'C Test Actual', 'ABC_result']
+test_prediction_original_A_2.columns = ['Method_A', 'A Test Predict', 'A Test Actual', 'ABC_result']
+test_prediction_original_B_2.columns = ['Method_B', 'B Test Predict', 'B Test Actual', 'ABC_result']
+test_prediction_original_C_2.columns = ['Method_C', 'C Test Predict', 'C Test Actual', 'ABC_result']
 
 test_prediction_original_A_2 = test_prediction_original_A_2.drop(columns="ABC_result")
 test_prediction_original_B_2 = test_prediction_original_B_2.drop(columns="ABC_result")
 test_prediction_original_C_2 = test_prediction_original_C_2.drop(columns="ABC_result")
+#%% Select Best A,B,C Model
+test_prediction_original_A_2 = test_prediction_original_A_2[test_prediction_original_A_2["Method_A"]==A_best].reset_index(drop=True)
+test_prediction_original_B_2 = test_prediction_original_B_2[test_prediction_original_B_2["Method_B"]==B_best].reset_index(drop=True)
+test_prediction_original_C_2 = test_prediction_original_C_2[test_prediction_original_C_2["Method_C"]==C_best].reset_index(drop=True)
+
+
 #%%
 temp_df = pd.concat([test_prediction_original_A_2, test_prediction_original_B_2, 
            test_prediction_original_C_2], axis=1)
-temp_df = temp_df[["Method", 'A Test Predict', 'B Test Predict', 'C Test Predict', 'A Test Actual', 'B Test Actual', 'C Test Actual']]
-temp_df = temp_df.iloc[:, [0, 3, 4, 5, 6, 7, 8]]
+
+#%%
+T_test_temp = T_test.copy()
+T_test_temp["Method"] = A_best
+T_temp_df = T_test_temp.groupby("Method", sort=False).agg({"T": lambda x: x.tolist()})
+T_temp_df_arr = T_temp_df["T"][0]
+
+A_arr = temp_df.iloc[0,1]
+#%%
+
+
+temp_df['T'] = 0
+temp_df['T'] = temp_df['T'].astype('object')
+temp_df.at[0,"T"] = np.array(sum(T_temp_df["T"][0], []))
+#temp_df["T"]
+#%%
+temp_df = temp_df[["Method_A", "Method_B", "Method_C", 'T', 'A Test Predict', 'B Test Predict', 'C Test Predict', 'A Test Actual', 'B Test Actual', 'C Test Actual']]
+#temp_df = temp_df.iloc[:, [0, 3, 4, 5, 6, 7, 8]]
 #temp_df = temp_df[temp_df["Method"].isin(["RF"])]
-temp_df["VP_Pred"] = Psat_cal(300, temp_df["A Test Predict"], temp_df["B Test Predict"], temp_df["C Test Predict"])
-temp_df["VP_Act"] = Psat_cal(300, temp_df["A Test Actual"], temp_df["B Test Actual"], temp_df["C Test Actual"])
+#%%
+lst = temp_df["A Test Predict"][0]
+temp_df["A Test Predict"][0] = np.array(np.repeat(lst,5))
+
+lst = temp_df["B Test Predict"][0]
+temp_df["B Test Predict"][0] = np.array(np.repeat(lst,5))
+
+lst = temp_df["C Test Predict"][0]
+temp_df["C Test Predict"][0] = np.array(np.repeat(lst,5))
+
+lst = temp_df["A Test Actual"][0]
+temp_df["A Test Actual"][0] = np.array(np.repeat(lst,5))
+lst = temp_df["B Test Actual"][0]
+temp_df["B Test Actual"][0] = np.array(np.repeat(lst,5))
+lst = temp_df["C Test Actual"][0]
+temp_df["C Test Actual"][0] = np.array(np.repeat(lst,5))
+#%%
+#temp_df["A Test Predict"][0].iloc[1:10,].apply(lambda x: print(x))
+
+temp_df["VP_Pred"] = Psat_cal(temp_df["T"], temp_df["A Test Predict"], temp_df["B Test Predict"], temp_df["C Test Predict"])
+temp_df["VP_Act"] = Psat_cal(temp_df["T"], temp_df["A Test Actual"], temp_df["B Test Actual"], temp_df["C Test Actual"])
 
 temp_df = temp_df.reset_index(drop=True)
 
 #%%
+
+
 for i in range(len(temp_df)):
     #print(i+1)
     
     temp = temp_df.copy()
     VP_pred = temp["VP_Pred"][i]
     VP_act = temp["VP_Act"][i]
-    name_plot = temp["Method"][i]
+    Diff = VP_pred - VP_act
+    name_plot = f'A-{temp["Method_A"][i]}, B-{temp["Method_B"][i]}, C-{temp["Method_C"][i]}'
     x_min = min(min(VP_pred),min(VP_act))
     x_max = max(max(VP_pred),max(VP_act))
     x_min = -20; x_max= 25
@@ -490,7 +562,7 @@ for i in range(len(temp_df)):
     t3 = r2_score(VP_act, VP_pred)
     
     # Add Legend, range of show
-    plt.scatter(VP_pred, VP_act)
+    plt.scatter(VP_act, VP_pred)
     plt.axline((0, 0), slope=1, color='.5', linestyle='--')
     #g.fig.subplots_adjust(top=0.9)
     #g.fig.suptitle('C')
@@ -502,3 +574,43 @@ for i in range(len(temp_df)):
     plt.xlim(x_min, x_max)
     plt.ylim(y_min, y_max)
     plt.show()
+    
+    # Add Legend, range of show
+    plt.title(f'Error {name_plot}')
+    plt.scatter(VP_act, Diff )
+    plt.axline((0, 0), slope=0, color='.5', linestyle='--')
+    #g.fig.subplots_adjust(top=0.9)
+    #g.fig.suptitle('C')
+    
+    # Add Legend, range of sh
+    plt.show()
+#%%    
+print(result_evaluation_A[result_evaluation_A["Method"]==A_best][["Method", "Test MAE", "Test RMSE", "Test R2"]])
+temp = test_prediction_original_A[test_prediction_original_A["Method"]==A_best]
+temp = temp.explode(['Test Predict', 'Test Actual'])
+sns.scatterplot(temp, x="Test Actual", y="Test Predict")
+plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+plt.title(f'A-{A_best}')
+plt.xlim(15, 30)
+plt.ylim(15, 30)
+plt.show()
+
+print(result_evaluation_B[result_evaluation_B["Method"]==B_best][["Method", "Test MAE", "Test RMSE", "Test R2"]])
+temp = test_prediction_original_B[test_prediction_original_B["Method"]==B_best]
+temp = temp.explode(['Test Predict', 'Test Actual'])
+sns.scatterplot(temp, x="Test Actual", y="Test Predict")
+plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+plt.title(f'B-{B_best}')
+plt.xlim(0, 10000)
+plt.ylim(0, 10000)
+plt.show()
+
+print(result_evaluation_C[result_evaluation_C["Method"]==C_best][["Method", "Test MAE", "Test RMSE", "Test R2"]])
+temp = test_prediction_original_C[test_prediction_original_C["Method"]==C_best]
+temp = temp.explode(['Test Predict', 'Test Actual'])
+sns.scatterplot(temp, x="Test Actual", y="Test Predict")    
+plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+plt.title(f'C-{C_best}')
+plt.xlim(-200, 100)
+plt.ylim(-200, 100)
+plt.show()
