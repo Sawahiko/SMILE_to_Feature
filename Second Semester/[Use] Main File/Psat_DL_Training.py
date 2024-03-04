@@ -288,14 +288,14 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Create a loop to vary the number of hidden layers and nodes
 training_log = {"train_loss": [], "val_loss": [], "N_Hidden": [], "N_Layer": []}
-for N_Layer in range(1, 4):  # Vary the number of layers from 1 to 3
-    for N_Hidden in [100, 500, 1000]:  # Vary the number of nodes in each layer
+for N_Layer in range(2, 5):  # Vary the number of layers from 1 to 3
+    for N_Hidden in [500, 1000, 1500, 2000]:  # Vary the number of nodes in each layer
         model = PSAT_DL(N_Input=(MF_bit + 1), N_Output=N_Output, N_Hidden=N_Hidden, N_Layer=N_Layer, dropout_rate=dropout_rate)
         model.to(device)
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
         criterion = nn.MSELoss()
 
-        for epoch in range(20):  # loop over the dataset multiple times
+        for epoch in range(150):  # loop over the dataset multiple times
             model.train()
             train_loss = 0.0
             for i, data in enumerate(train_loader):
@@ -345,6 +345,7 @@ def plot_graph(history):
 
 plot_graph(training_log)
 train_df = pd.DataFrame(training_log)
+train_df.to_csv("Training_log")
 # =============================================================================
 # # Save Deep Learning Model
 # save_path = "Psat_H1000_L3_D2_noearly.pth"
