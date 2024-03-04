@@ -51,10 +51,13 @@ df.sort_values(by="No.C")
 #len(df["SMILES"].unique())
 
 # New Train-Test Split
-random.seed(42)
-msk = np.random.rand(len(df)) < 0.8
-train = df[msk]
-test = df[~msk]
+train, test = train_test_split(df, test_size=0.2, random_state=42)
+# =============================================================================
+# random.seed(42)
+# msk = np.random.rand(len(df)) < 0.8
+# train = df[msk]
+# test = df[~msk]
+# =============================================================================
 
 # Genearate Temp in Tmin-Tmax and expand
 df1 = train.copy()
@@ -287,47 +290,50 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # =============================================================================
 
 # Create a loop to vary the number of hidden layers and nodes
+N_Output = 1
+N_Hidden = 1000
+N_Layer = 2
+dropout_rate = 0.2
+learning_rate = 0.0001
 training_log = {"train_loss": [], "val_loss": [], "N_Hidden": [], "N_Layer": []}
-for N_Layer in range(2, 5):  # Vary the number of layers from 1 to 3
-    for N_Hidden in [500, 1000, 1500, 2000]:  # Vary the number of nodes in each layer
-        model = PSAT_DL(N_Input=(MF_bit + 1), N_Output=N_Output, N_Hidden=N_Hidden, N_Layer=N_Layer, dropout_rate=dropout_rate)
-        model.to(device)
-        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-        criterion = nn.MSELoss()
+model = PSAT_DL(N_Input=(MF_bit + 1), N_Output=N_Output, N_Hidden=N_Hidden, N_Layer=N_Layer, dropout_rate=dropout_rate)
+model.to(device)
+optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+criterion = nn.MSELoss()
 
-        for epoch in range(150):  # loop over the dataset multiple times
-            model.train()
-            train_loss = 0.0
-            for i, data in enumerate(train_loader):
-                inputs, labels = data
-                inputs, labels = inputs.to(device), labels.to(device)
-                optimizer.zero_grad()
-                outputs = model(inputs)
-                outputs = torch.reshape(outputs, (-1,))
-                loss = criterion(outputs, labels)
-                loss.backward()
-                optimizer.step()
-                train_loss += loss.item()
+for epoch in range(500):  # loop over the dataset multiple times
+    model.train()
+    train_loss = 0.0
+    for i, data in enumerate(train_loader):
+        inputs, labels = data
+        inputs, labels = inputs.to(device), labels.to(device)
+        optimizer.zero_grad()
+        outputs = model(inputs)
+        outputs = torch.reshape(outputs, (-1,))
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+        train_loss += loss.item()
 
-            model.eval()
-            val_loss = 0.0
-            with torch.no_grad():  # Disable gradient calculation during validation
-                for i, data in enumerate(test_loader):
-                    inputs, labels = data
-                    inputs, labels = inputs.to(device), labels.to(device)
-                    output = model(inputs)
-                    output = torch.reshape(output, (-1,))
-                    val_loss += criterion(output, labels).item()
+    model.eval()
+    val_loss = 0.0
+    with torch.no_grad():  # Disable gradient calculation during validation
+        for i, data in enumerate(test_loader):
+            inputs, labels = data
+            inputs, labels = inputs.to(device), labels.to(device)
+            output = model(inputs)
+            output = torch.reshape(output, (-1,))
+            val_loss += criterion(output, labels).item()
 
-            train_loss /= len(train_loader)
-            val_loss /= len(test_loader)
-            training_log["train_loss"].append(train_loss)
-            training_log["val_loss"].append(val_loss)
-            training_log["N_Hidden"].append(N_Hidden)
-            training_log["N_Layer"].append(N_Layer)
-            print(f'N_Layer: {N_Layer}, N_Hidden: {N_Hidden}, Epoch {epoch + 1}: Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}')
+    train_loss /= len(train_loader)
+    val_loss /= len(test_loader)
+    training_log["train_loss"].append(train_loss)
+    training_log["val_loss"].append(val_loss)
+    training_log["N_Hidden"].append(N_Hidden)
+    training_log["N_Layer"].append(N_Layer)
+    print(f'N_Layer: {N_Layer}, N_Hidden: {N_Hidden}, Epoch {epoch + 1}: Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}')
 
-        print(f"Finished Training for N_Layer: {N_Layer}, N_Hidden: {N_Hidden}")
+print(f"Finished Training for N_Layer: {N_Layer}, N_Hidden: {N_Hidden}")
 
 def plot_graph(history):
     # Sample data (replace with your actual data)
@@ -344,10 +350,10 @@ def plot_graph(history):
     plt.show()
 
 plot_graph(training_log)
-train_df = pd.DataFrame(training_log)
-train_df.to_csv("Training_log")
 # =============================================================================
-# # Save Deep Learning Model
-# save_path = "Psat_H1000_L3_D2_noearly.pth"
-# torch.save(model.state_dict(), save_path)
+# train_df = pd.DataFrame(training_log)
+# train_df.to_csv("Training_log.csv")
 # =============================================================================
+# Save Deep Learning Model
+save_path = "Psat_H1000_L2_D2_500epoch.pth"
+torch.save(model.state_dict(), save_path)

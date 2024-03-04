@@ -28,7 +28,8 @@ from rdkit import DataStructs
 
 df = pd.read_csv("Training_log.csv")
 
-df_log = df.loc[df.index%150== 149][["N_Hidden", "N_Layer", "val_loss"]]
+df_log = df.loc[df.index%100== 99][["N_Hidden", "N_Layer", "val_loss"]]
+
 
 
 #df.loc[(df.index < 6) & (df.A == 0), 'C'] = 99
@@ -49,5 +50,9 @@ df.rename(columns = {'Unnamed: 0':'idx'}, inplace = True)
 # After renaming the columns 
 print(df.columns) 
 #%%
+num_repeat = int(len(df)/100)
+x = np.tile(np.linspace(1,100,100),num_repeat)
+print(x)
+df["Index_each"] = x
 df_log_sns2 = df.pivot_table(index="Index_each", columns="Combined", values="val_loss")
 sns.lineplot(data=df_log_sns2)
