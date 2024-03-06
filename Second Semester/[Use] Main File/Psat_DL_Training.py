@@ -301,7 +301,7 @@ model.to(device)
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 criterion = nn.MSELoss()
 
-for epoch in range(500):  # loop over the dataset multiple times
+for epoch in range(100):  # loop over the dataset multiple times
     model.train()
     train_loss = 0.0
     for i, data in enumerate(train_loader):
@@ -350,10 +350,11 @@ def plot_graph(history):
     plt.show()
 
 plot_graph(training_log)
+#%%
 # =============================================================================
 # train_df = pd.DataFrame(training_log)
 # train_df.to_csv("Training_log.csv")
 # =============================================================================
 # Save Deep Learning Model
-save_path = "Psat_H1000_L2_D2_500epoch.pth"
+save_path = "Psat_H1000_L2_D2_100epoch.pth"
 torch.save(model.state_dict(), save_path)
