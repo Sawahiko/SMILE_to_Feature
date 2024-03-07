@@ -15,8 +15,10 @@ from rdkit import DataStructs
 df = pd.read_csv("csv_01 Psat_[X]_ABCTminTmaxC1-12.csv")
 
 # New Train-Test Split
-train, test = train_test_split(df, test_size=0.2, random_state=42)
+train, test = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Atom2"])
 
+train.groupby("Atom2").agg({'SMILES': ['count']})
+test.groupby("Atom2").agg({'SMILES': ['count']})
 #%% 
 # Genearate Temp in Tmin-Tmax and expand
 df1 = train.copy()
@@ -50,7 +52,9 @@ df2 = df2[~df2["SMILES"].isin(df2[df2["Vapor_Presssure"] <-20]["SMILES"])].reset
 #print(df2[['SMILES','Vapor_Presssure']].sort_values(by="Vapor_Presssure").head(5))
 X_data= df2[["SMILES"]]               # feature: SMILE, T
 Y_data= df2[["Vapor_Presssure"]]        # Target : Psat
-print(df2.sort_values(by="Vapor_Presssure"))
+
+df2_train = df2.copy()
+print(df2_train.sort_values(by="Vapor_Presssure"))
 
 # Fingerprint
 # Parameter for Generate Morgan Fingerprint
@@ -108,7 +112,8 @@ df2 = df2[~df2["SMILES"].isin(df2[df2["Vapor_Presssure"] <-20]["SMILES"])].reset
 X_data= df2[["SMILES"]]               # feature: SMILE, T
 Y_data= df2[["Vapor_Presssure"]]        # Target : Psat
 #df[df["SMILES"].isin(df2[df2["Vapor_Presssure"] <-20]["SMILES"])]
-print(df2.sort_values(by="Vapor_Presssure"))
+df2_test = df2.copy()
+print(df2_test.sort_values(by="Vapor_Presssure"))
 
 # Fingerprint
 # Parameter for Generate Morgan Fingerprint
@@ -158,13 +163,15 @@ y_test_fp  = scale_y.transform(y_test_notz.reshape(-1,1)).flatten()
 
 #%% Export Section
 from joblib import dump, load
-#df2_train.to_csv("csv_02-1 df_train.csv")
-#df2_test.to_csv("csv_02-2 df_test.csv")
+df2_train.to_csv("csv_02-1 df_train.csv")
+df2_test.to_csv("csv_02-2 df_test.csv")
 
-pd.DataFrame(x_train_fp).to_csv("csv_02-3 std_x_train.csv")
-pd.DataFrame(y_train_fp).to_csv("csv_02-4 std_y_train.csv")
-pd.DataFrame(x_test_fp).to_csv("csv_02-5 std_x_test.csv")
-pd.DataFrame(y_test_fp).to_csv("csv_02-6 std_y_test.csv")
-
-dump(scale_x, "file_02-1 scaler_x.joblib")
-dump(scale_y, "file_02-2 scaler_y.joblib")
+# =============================================================================
+# pd.DataFrame(x_train_fp).to_csv("csv_02-3 std_x_train.csv")
+# pd.DataFrame(y_train_fp).to_csv("csv_02-4 std_y_train.csv")
+# pd.DataFrame(x_test_fp).to_csv("csv_02-5 std_x_test.csv")
+# pd.DataFrame(y_test_fp).to_csv("csv_02-6 std_y_test.csv")
+# 
+# dump(scale_x, "file_02-1 scaler_x.joblib")
+# dump(scale_y, "file_02-2 scaler_y.joblib")
+# =============================================================================

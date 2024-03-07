@@ -82,7 +82,12 @@ df2 = df_original_remove_ABCMinMax[["SMILES"]].copy()
 df2["Atom"] = df2["SMILES"].apply(lambda x: get_all_atomic_number(x))
 df2["Count Unique Atom"] = df2["Atom"].apply(lambda x: len(x))
 def scopeCHON (list_atom_number):
-    return all( x in [1,6,7,8] for x in list_atom_number)
+    
+    cond1 = all(x in [1,6,7,8] for x in list_atom_number)
+    cond2 = sum(x in [1,6] for x in list_atom_number)==2
+    return all([cond1, cond2])
+    #print(list_atom_number, cond1, cond2)
+    #return cond2
 df2["Pass Screen"] = df2["Atom"].apply(lambda x: scopeCHON(x))
 df3 = df2.loc[df2["Pass Screen"].isin([True])]
 df3 = df3.drop(columns="SMILES", axis=0)

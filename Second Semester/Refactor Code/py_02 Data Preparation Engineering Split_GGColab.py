@@ -15,7 +15,7 @@ from rdkit import DataStructs
 df = pd.read_csv("/content/SMILE_to_Feature/Second Semester/Refactor Code/csv_01 Psat_[X]_ABCTminTmaxC1-12.csv")
 
 # New Train-Test Split
-train, test = train_test_split(df, test_size=0.2, random_state=42)
+train, test = train_test_split(df, test_size=0.2, random_state=42, stratify=True)
 
 #%% 
 # Genearate Temp in Tmin-Tmax and expand
