@@ -39,7 +39,7 @@ import seaborn as sns
 df_log_sns = df_log.pivot_table(index="N_Hidden", columns="N_Layer", values="val_loss")
 g = sns.heatmap(df_log_sns, annot=True, fmt=".4f", cmap=sns.color_palette("YlOrBr", as_cmap=True))
 g.invert_yaxis()
-
+plt.show(g)
 #%%
 df['Combined'] = df['N_Hidden'].astype(str) +"-"+ df['N_Layer'].astype(str)
 
