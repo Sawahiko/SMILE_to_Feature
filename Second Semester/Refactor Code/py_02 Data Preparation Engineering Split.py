@@ -23,6 +23,11 @@ df1 = train.copy()
     ## Function to generate equally distributed points
 def generate_points(row, amount_point):
     start = row["Tmin"]; end = row["Tmax"];
+    temp = amount_point
+    if end-start == 0:
+        amount_point = 1
+    else:
+        amount_point = temp
     return np.linspace(start, end, amount_point)
 df1["T"] = df1.apply(lambda x : generate_points(x, 5), axis=1)
 
@@ -84,9 +89,6 @@ y_train_notz = np.ravel(y_data_fp.copy())
 # Genearate Temp in Tmin-Tmax and expand
 df1 = test.copy()
     ## Function to generate equally distributed points
-def generate_points(row, amount_point):
-    start = row["Tmin"]; end = row["Tmax"];
-    return np.linspace(start, end, amount_point)
 df1["T"] = df1.apply(lambda x : generate_points(x, 5), axis=1)
 
 df1  = df1.explode('T')
