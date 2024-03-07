@@ -15,14 +15,22 @@ from rdkit import DataStructs
 df = pd.read_csv("/content/SMILE_to_Feature/Second Semester/Refactor Code/csv_01 Psat_[X]_ABCTminTmaxC1-12.csv")
 
 # New Train-Test Split
-train, test = train_test_split(df, test_size=0.2, random_state=42, stratify=True)
+train, test = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Atom2"])
 
+train_out = train.groupby("Atom2").agg({'SMILES': ['count']})
+test_out = test.groupby("Atom2").agg({'SMILES': ['count']})
+print(pd.concat([train_out, test_out ], axis=1))
 #%% 
 # Genearate Temp in Tmin-Tmax and expand
 df1 = train.copy()
     ## Function to generate equally distributed points
 def generate_points(row, amount_point):
     start = row["Tmin"]; end = row["Tmax"];
+    temp = amount_point
+    if end-start == 0:
+        amount_point = 1
+    else:
+        amount_point = temp
     return np.linspace(start, end, amount_point)
 df1["T"] = df1.apply(lambda x : generate_points(x, 5), axis=1)
 
@@ -45,7 +53,9 @@ df2 = df2[~df2["SMILES"].isin(df2[df2["Vapor_Presssure"] <-20]["SMILES"])].reset
 #print(df2[['SMILES','Vapor_Presssure']].sort_values(by="Vapor_Presssure").head(5))
 X_data= df2[["SMILES"]]               # feature: SMILE, T
 Y_data= df2[["Vapor_Presssure"]]        # Target : Psat
-print(df2.sort_values(by="Vapor_Presssure"))
+
+df2_train = df2.copy()
+print(df2_train.sort_values(by="Vapor_Presssure"))
 
 # Fingerprint
 # Parameter for Generate Morgan Fingerprint
@@ -84,9 +94,6 @@ y_train_notz = np.ravel(y_data_fp.copy())
 # Genearate Temp in Tmin-Tmax and expand
 df1 = test.copy()
     ## Function to generate equally distributed points
-def generate_points(row, amount_point):
-    start = row["Tmin"]; end = row["Tmax"];
-    return np.linspace(start, end, amount_point)
 df1["T"] = df1.apply(lambda x : generate_points(x, 5), axis=1)
 
 df1  = df1.explode('T')
@@ -106,7 +113,8 @@ df2 = df2[~df2["SMILES"].isin(df2[df2["Vapor_Presssure"] <-20]["SMILES"])].reset
 X_data= df2[["SMILES"]]               # feature: SMILE, T
 Y_data= df2[["Vapor_Presssure"]]        # Target : Psat
 #df[df["SMILES"].isin(df2[df2["Vapor_Presssure"] <-20]["SMILES"])]
-print(df2.sort_values(by="Vapor_Presssure"))
+df2_test = df2.copy()
+print(df2_test.sort_values(by="Vapor_Presssure"))
 
 # Fingerprint
 # Parameter for Generate Morgan Fingerprint
@@ -156,13 +164,13 @@ y_test_fp  = scale_y.transform(y_test_notz.reshape(-1,1)).flatten()
 
 #%% Export Section
 from joblib import dump, load
-#df2_train.to_csv("csv_02-1 df_train.csv")
-#df2_test.to_csv("csv_02-2 df_test.csv")
+df2_train.to_csv("csv_02-1 df_train.csv")
+df2_test.to_csv("csv_02-2 df_test.csv")
 
 pd.DataFrame(x_train_fp).to_csv("/content/SMILE_to_Feature/Second Semester/Refactor Code/csv_02-3 std_x_train.csv")
 #pd.DataFrame(y_train_fp).to_csv("csv_02-4 std_y_train.csv")
 pd.DataFrame(x_test_fp).to_csv("/content/SMILE_to_Feature/Second Semester/Refactor Code/csv_02-5 std_x_test.csv")
 #pd.DataFrame(y_test_fp).to_csv("csv_02-6 std_y_test.csv")
 
-#dump(scale_x, "file_02-1 scaler_x.joblib")
-#dump(scale_y, "file_02-2 scaler_y.joblib")
+##dump(scale_x, "file_02-1 scaler_x.joblib")
+dump(scale_y, "file_02-2 scaler_y.joblib")
