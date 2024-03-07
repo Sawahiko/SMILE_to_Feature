@@ -17,8 +17,9 @@ df = pd.read_csv("csv_01 Psat_[X]_ABCTminTmaxC1-12.csv")
 # New Train-Test Split
 train, test = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Atom2"])
 
-train.groupby("Atom2").agg({'SMILES': ['count']})
-test.groupby("Atom2").agg({'SMILES': ['count']})
+train_out = train.groupby("Atom2").agg({'SMILES': ['count']})
+test_out = test.groupby("Atom2").agg({'SMILES': ['count']})
+print(pd.concat([train_out, test_out ], axis=1))
 #%% 
 # Genearate Temp in Tmin-Tmax and expand
 df1 = train.copy()
@@ -166,12 +167,10 @@ from joblib import dump, load
 df2_train.to_csv("csv_02-1 df_train.csv")
 df2_test.to_csv("csv_02-2 df_test.csv")
 
-# =============================================================================
-# pd.DataFrame(x_train_fp).to_csv("csv_02-3 std_x_train.csv")
-# pd.DataFrame(y_train_fp).to_csv("csv_02-4 std_y_train.csv")
-# pd.DataFrame(x_test_fp).to_csv("csv_02-5 std_x_test.csv")
-# pd.DataFrame(y_test_fp).to_csv("csv_02-6 std_y_test.csv")
-# 
-# dump(scale_x, "file_02-1 scaler_x.joblib")
-# dump(scale_y, "file_02-2 scaler_y.joblib")
-# =============================================================================
+pd.DataFrame(x_train_fp).to_csv("csv_02-3 std_x_train.csv")
+pd.DataFrame(y_train_fp).to_csv("csv_02-4 std_y_train.csv")
+pd.DataFrame(x_test_fp).to_csv("csv_02-5 std_x_test.csv")
+pd.DataFrame(y_test_fp).to_csv("csv_02-6 std_y_test.csv")
+
+dump(scale_x, "file_02-1 scaler_x.joblib")
+dump(scale_y, "file_02-2 scaler_y.joblib")
