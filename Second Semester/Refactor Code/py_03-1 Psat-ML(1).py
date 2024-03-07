@@ -66,7 +66,7 @@ def RF(x_train, y_train):
     param_grid = {
         'n_estimators': [50, 100, 200],
         'max_features': [None, 1, 'sqrt', 'log2'],
-        'max_depth': [None, 5, 10, 20],
+        'max_depth': [None, 5, 10, 20]
     }
     rf = RandomForestRegressor(random_state=42)
     kfold = KFold(n_splits=5, shuffle=True, random_state=42)  # Adjust number of splits as needed
@@ -172,8 +172,8 @@ scaler_y = load("file_02-2 scaler_y.joblib")
 
 # Specified model need to run
 #names_bestpar = ["DT", "RF", "XGB", "KNN"]
-names_bestpar = ["DT"]
-models_bestpar = [DT]
+names_bestpar = ["RF"]
+models_bestpar = [RF]
 
 # Run Training Model
 all_result_model_bestpar = []
