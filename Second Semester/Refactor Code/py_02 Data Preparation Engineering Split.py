@@ -28,7 +28,7 @@ def generate_points(row, amount_point):
     start = row["Tmin"]; end = row["Tmax"];
     temp = amount_point
     if end-start == 0:
-        amount_point = 1
+        amount_point = 2
     else:
         amount_point = temp
     return np.linspace(start, end, amount_point)
