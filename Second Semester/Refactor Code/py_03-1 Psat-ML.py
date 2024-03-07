@@ -258,7 +258,7 @@ for i in range(len(names_bestpar)):
     dump(all_result_model_bestpar[i], path_model)
     
 # Export Prediction Table
-train_predict_table.to_csv("csv_03-1-1 Predict Table - train DT+RF.csv")
-test_predict_table.to_csv("csv_03-1-2 Predict Table - test DT+RF.csv")
+train_predict_table.to_csv("csv_03-1-1 Predict Table - train DT.csv")
+test_predict_table.to_csv("csv_03-1-2 Predict Table - test DT.csv")
 
 # Export Evaluation

@@ -248,6 +248,7 @@ train_prediction_bestpar_original, test_prediction_bestpar_original = model_asse
 train_predict_table = train_prediction_bestpar_original.explode(["Training Predict", "Training Actual"]).reset_index(drop=True)
 test_predict_table = test_prediction_bestpar_original.explode(["Test Predict", "Test Actual"]).reset_index(drop=True)
 
+# RF: {'max_depth': None, 'max_features': None, 'n_estimators': 200}
 #%% Export
 
 # Export Model
