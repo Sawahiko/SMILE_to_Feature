@@ -70,19 +70,19 @@ class PSAT_DL(nn.Module):
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') #Check GPU
 N_Output = 1
 N_Layer = 2
-N_Hidden = 1000
-dropout_rate = 0.2
+N_Hidden = 256
+dropout_rate = 0.3
 learning_rate = 0.0001
 
 #Create Model
 MF_bit = 2048
 model = PSAT_DL(N_Input=(MF_bit + 1), N_Output=N_Output, N_Hidden=N_Hidden, N_Layer=N_Layer, dropout_rate=dropout_rate)
 model.to(device)
-optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay = 0.001)
 criterion = nn.MSELoss()
 training_log = {"train_loss": [], "val_loss": [], "N_Hidden": [], "N_Layer": []}
 
-for epoch in range(150):  # loop over the dataset multiple times
+for epoch in range(1000):  # loop over the dataset multiple times
     model.train()
     train_loss = 0.0
     for i, data in enumerate(train_loader):
@@ -132,6 +132,7 @@ def plot_graph(history):
     plt.show()
 
 plot_graph(training_log)
+
 #%% Predict
 #inputs_test
 model.to("cpu")
@@ -156,3 +157,59 @@ df_com1 = pd.DataFrame({
 })
 df_com1["Psat_act (atm)"] = np.exp(df_com1["ln_Psat_act"])/10**5
 df_com1["Psat_pred (atm)"] = np.exp(df_com1["ln_Psat_pred"])/10**5
+
+#%% Visualization
+
+x_min = min(min(df_com0["ln_Psat_act"]),min(df_com0["ln_Psat_pred"]))
+x_max = max(max(df_com0["ln_Psat_act"]),max(df_com0["ln_Psat_pred"]))
+y_min, y_max = x_min, x_max
+
+x = np.linspace(x_min, x_max, 100)
+y = x
+
+# PyPlot
+plt.plot([x_min, x_max], [y_min, y_max], color="black", alpha=0.5, linestyle="--")
+plt.scatter(df_com0["ln_Psat_act"], df_com0["ln_Psat_pred"], alpha=0.5)
+plt.xlabel("Actual")    
+plt.ylabel("Predictions")
+plt.title("Psat")
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+
+#%% Visualization
+
+x_min = min(min(df_com1["ln_Psat_act"]),min(df_com1["ln_Psat_pred"]))
+x_max = max(max(df_com1["ln_Psat_act"]),max(df_com1["ln_Psat_pred"]))
+y_min, y_max = x_min, x_max
+
+x = np.linspace(x_min, x_max, 100)
+y = x
+
+# PyPlot
+plt.plot([x_min, x_max], [y_min, y_max], color="black", alpha=0.5, linestyle="--")
+plt.scatter(df_com1["ln_Psat_act"], df_com1["ln_Psat_pred"], alpha=0.5)
+plt.xlabel("Actual")
+plt.ylabel("Predictions")
+plt.title("Psat")
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+
+#%% Visualization
+
+# =============================================================================
+# x_min = -20
+# x_max = 20
+# y_min, y_max = x_min, x_max
+# 
+# x = np.linspace(x_min, x_max, 100)
+# y = x
+# 
+# # PyPlot
+# plt.plot([x_min, x_max], [y_min, y_max], color="black", alpha=0.5, linestyle="--")
+# plt.scatter(df_com1["ln_Psat_act"], df_com1["ln_Psat_pred"], alpha=0.5)
+# plt.xlabel("Actual")
+# plt.ylabel("Predictions")
+# plt.title("Psat")
+# plt.xlim(x_min, x_max)
+# plt.ylim(y_min, y_max)
+# =============================================================================

@@ -253,6 +253,7 @@ def train_model(config):
 
             # forward + backward + optimize
             outputs = model(inputs)
+            outputs = torch.reshape(outputs, (-1,))
             loss = criterion(outputs, labels)
             
             loss.backward()
@@ -275,6 +276,7 @@ def train_model(config):
                 inputs, labels = inputs.to(device), labels.to(device)
 
                 outputs = model(inputs)
+                outputs = torch.reshape(outputs, (-1,))
                 loss = criterion(outputs, labels)
                 val_loss += loss.cpu().numpy()
                 val_steps += 1
@@ -293,7 +295,7 @@ def train_model(config):
 
 # Define the search space
 search_space = {
-    "N_Hidden": tune.choice([128, 256, 512]),
+    "N_Hidden": tune.choice([500, 1000, 1500, 2000]),
     "N_Layer": tune.choice([2, 3, 4]),
     "dropout_rate": tune.quniform(0.2, 0.5, 0.1),
     "learning_rate": tune.choice([1e-2, 1e-3, 1e-4]),
