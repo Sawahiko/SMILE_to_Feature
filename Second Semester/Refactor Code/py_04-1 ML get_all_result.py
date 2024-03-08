@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, r2_score
 
 #%% Combined Train
 # Get File
@@ -131,7 +132,7 @@ g.map_dataframe(lambda data, **kws: plt.axline((0, 0), slope=1, color='.5', line
 #plt.ylim(y_min, y_max)
 
 #%% Evaluation
-from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, r2_score
+
 temp_train = result_train.groupby(['Method']).agg({'ln_Psat_Pred (Pa)': lambda x: x.tolist(),
                                       'ln_Psat_Actual (Pa)': lambda x: x.tolist()})
 temp_test = result_test.groupby(['Method']).agg({'ln_Psat_Pred (Pa)': lambda x: x.tolist(),

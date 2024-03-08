@@ -28,7 +28,7 @@ def generate_points(row, amount_point):
     start = row["Tmin"]; end = row["Tmax"];
     temp = amount_point
     if end-start == 0:
-        amount_point = 2
+        amount_point = 1
     else:
         amount_point = temp
     return np.linspace(start, end, amount_point)
@@ -59,7 +59,7 @@ print(df2_train.sort_values(by="Vapor_Presssure"))
 
 # Fingerprint
 # Parameter for Generate Morgan Fingerprint
-MF_radius = 3;   MF_bit = 2048
+MF_radius = 2;   MF_bit = 1024
 
 # Generate Fingerprint from SMILE
 X_data_use = X_data.copy()
@@ -118,7 +118,6 @@ print(df2_test.sort_values(by="Vapor_Presssure"))
 
 # Fingerprint
 # Parameter for Generate Morgan Fingerprint
-MF_radius = 3;   MF_bit = 2048
 
 # Generate Fingerprint from SMILE
 X_data_use = X_data.copy()

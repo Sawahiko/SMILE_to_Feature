@@ -111,7 +111,7 @@ def DT(x_train, y_train):
     dt = DecisionTreeRegressor(random_state=42)
     kfold = KFold(n_splits=5, shuffle=True, random_state=42)
 
-    grid_search = GridSearchCV(dt, param_grid=param_grid, cv=kfold, verbose=2)
+    grid_search = GridSearchCV(dt, param_grid=param_grid, cv=kfold, verbose=3)
     grid_search.fit(x_train, y_train)
 
     best_model = grid_search.best_estimator_
