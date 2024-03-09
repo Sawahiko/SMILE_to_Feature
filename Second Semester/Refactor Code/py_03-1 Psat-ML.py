@@ -248,6 +248,7 @@ train_prediction_bestpar_original, test_prediction_bestpar_original = model_asse
 train_predict_table = train_prediction_bestpar_original.explode(["Training Predict", "Training Actual"]).reset_index(drop=True)
 test_predict_table = test_prediction_bestpar_original.explode(["Test Predict", "Test Actual"]).reset_index(drop=True)
 
+# DT : {'max_depth': None, 'min_samples_leaf': 1, 'min_samples_split': 2}
 #%% Export
 
 # Export Model

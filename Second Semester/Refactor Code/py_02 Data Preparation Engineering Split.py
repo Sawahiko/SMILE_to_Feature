@@ -12,8 +12,15 @@ from rdkit import DataStructs
 
 
 #%% Import Data
-df = pd.read_csv("csv_01 Psat_[X]_ABCTminTmaxC1-12.csv")
-
+df = pd.read_csv("csv_01-1 Psat_[X]_ABCTminTmaxC1-12.csv")
+filter1 = df["SMILES"].str.contains("\+")
+#filter2 = df["SMILES"].str.contains("\-")
+filter3 = df["SMILES"].str.contains("\.")
+print(filter1.sum(), filter3.sum())
+f = filter1 +filter3 
+f.sum()
+df = df[~f]
+#%%
 # New Train-Test Split
 train, test = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Atom2"])
 

@@ -17,6 +17,34 @@ temp_Psat_actual_file = df2_test.copy()
 temp_Psat_actual_file
 
 best_name = rrr2[rrr2["RMSE.1"]==min(rrr2["RMSE.1"])]["Method"].iloc[0]
+
+#%% Select Best Algo
+data = rrr2
+column_headers = data.columns
+
+data = data.applymap(str)
+data.round(3) 
+cell_text = data.to_numpy()
+# =============================================================================
+# cell_text = []
+# for row in data:
+#     try:
+#         cell_text.append([f'{x/1000:1.1f}' for x in row])
+#     except:
+#         cell_text.append(row)
+# =============================================================================
+fig, ax = plt.subplots()
+
+# hide axes
+fig.patch.set_visible(False)
+ax.axis('off')
+ax.axis('tight')
+ax.table(cellText=cell_text,
+                      colLabels=column_headers,
+                      loc='center')
+fig.tight_layout()
+
+plt.show()
 #%%
 prediction_file = result_test[result_test["Method"]==best_name].iloc[:,[2,3]].reset_index(drop=True)
 prediction_file
@@ -228,3 +256,52 @@ plt.ylim(y_min, y_max)
 #plt.ylabel("Predict log($P_{sat}$) [Pa]")
 #gc.set_xlabels("Actual log($P_{sat}$) [Pa]")
 #gc.set_ylabels("Predict log($P_{sat}$) [Pa]")
+plt.show()
+#%%
+x_min = min(min(df_plot["A"]), min(df_plot["A_Pred"]))-10
+x_max = max(max(df_plot["A"]), max(df_plot["A_Pred"]))+10
+y_min = x_min; y_max = x_max
+
+sns.scatterplot(df_plot, x="A", y="A_Pred", alpha=0.6)
+plt.axline((20, 20), slope=1, color='.5', linestyle='--')
+
+text = "A"
+plt.title(text)
+plt.xlabel(f"Actual {text}")
+plt.ylabel(f"Predict {text}")
+#plt.xlim(x_min, x_max)
+#plt.ylim(y_min, y_max)
+plt.show()
+#%%
+#x_min = min(min(df_plot["B"]), min(df_plot["B_Pred"]))
+#x_max = max(max(df_plot["B"]), max(df_plot["B_Pred"]))+1000
+x_min = -10000; x_max = 40000
+y_min = x_min; y_max = x_max
+
+sns.scatterplot(df_plot, x="B", y="B_Pred", alpha=0.6)
+plt.axline((2000, 2000), slope=1, color='.5', linestyle='--')
+
+text = "B"
+plt.title(text)
+plt.xlabel(f"Actual {text}")
+plt.ylabel(f"Predict {text}")
+#plt.xlim(x_min, x_max)
+#plt.ylim(y_min, y_max)
+plt.show()
+
+#%%
+x_min = min(min(df_plot["C"]), min(df_plot["C_Pred"]))-100
+x_max = max(max(df_plot["C"]), max(df_plot["C_Pred"]))+100
+#x_min = -10000; x_max = 40000
+y_min = x_min; y_max = x_max
+
+sns.scatterplot(df_plot, x="C", y="C_Pred", alpha=0.6)
+plt.axline((-50, -50), slope=1, color='.5', linestyle='--')
+
+text = "C"
+plt.title(text)
+plt.xlabel(f"Actual {text}")
+plt.ylabel(f"Predict {text}")
+#plt.xlim(x_min, x_max)
+#plt.ylim(y_min, y_max)
+plt.show()
