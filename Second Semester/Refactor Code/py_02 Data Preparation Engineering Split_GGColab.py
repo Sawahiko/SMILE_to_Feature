@@ -12,7 +12,16 @@ from rdkit import DataStructs
 
 
 #%% Import Data
-df = pd.read_csv("/content/SMILE_to_Feature/Second Semester/Refactor Code/csv_01 Psat_[X]_ABCTminTmaxC1-12.csv")
+df_original = pd.read_csv("/content/SMILE_to_Feature/Second Semester/Refactor Code/csv-01-0 Psat-1800.csv")
+filter1 = df_original["SMILES"].str.contains("\+")
+#filter2 = df["SMILES"].str.contains("\-")
+filter3 = df_original["SMILES"].str.contains("\.")
+print(filter1.sum(), filter3.sum())
+f = filter1 +filter3 
+f.sum()
+#df = df[~f]
+#df = df_original[~f]
+df = df_original.copy()
 
 # New Train-Test Split
 train, test = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Atom2"])
@@ -59,7 +68,7 @@ print(df2_train.sort_values(by="Vapor_Presssure"))
 
 # Fingerprint
 # Parameter for Generate Morgan Fingerprint
-MF_radius = 2;   MF_bit = 1024
+MF_radius = 2;   MF_bit = 2048
 
 # Generate Fingerprint from SMILE
 X_data_use = X_data.copy()

@@ -64,7 +64,7 @@ def SVM_default(x_train, y_train):
   return svr
 #%% Import Data
 #df = pd.read_csv("csv_01 Psat_[X]_ABCTminTmaxC1-12.csv")
-df_original = pd.read_csv("csv_01-1 Psat_[X]_ABCTminTmaxC1-12.csv")
+df_original = pd.read_csv("../Refactor Code/csv-01-0 Psat-1800.csv")
 filter1 = df_original["SMILES"].str.contains("\+")
 #filter2 = df["SMILES"].str.contains("\-")
 filter3 = df_original["SMILES"].str.contains("\.")
@@ -219,16 +219,19 @@ import matplotlib.pyplot as plt
 df_log_sns = temp.pivot_table(index="MF_Bits", columns="MF_radius", values="RMSE")
 g = sns.heatmap(df_log_sns, annot=True, fmt=".4f", cmap=sns.color_palette("light:g", as_cmap=True))
 g.invert_yaxis()
+plt.title("Fingerprint Heatmap with RMSE")
 plt.show(g)
 #%%
 df_log_sns = temp.pivot_table(index="MF_Bits", columns="MF_radius", values="MAE")
 g = sns.heatmap(df_log_sns, annot=True, fmt=".4f", cmap=sns.color_palette("light:g", as_cmap=True))
 g.invert_yaxis()
+plt.title("Fingerprint Heatmap with MAE")
 plt.show(g)
 #%%
 df_log_sns = temp.pivot_table(index="MF_Bits", columns="MF_radius", values="R2")
 g = sns.heatmap(df_log_sns, annot=True, fmt=".4f", cmap=sns.color_palette("light:g_r", as_cmap=True))
 g.invert_yaxis()
+plt.title("Fingerprint Heatmap with R2")
 plt.show(g)
 #%% Export Section
 
