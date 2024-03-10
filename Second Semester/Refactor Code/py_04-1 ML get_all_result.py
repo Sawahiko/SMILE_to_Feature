@@ -8,7 +8,7 @@ from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error,
 #%% Combined Train
 # Get File
 files_train = glob.glob('csv_03*train*.csv')
-#files_train = [x for x in files_train[0:2]] ### Temporary  ###
+#files_train = [x for x in files_train[0:3]] ### Temporary  ###
 dfs_train = [pd.read_csv(file)for file in files_train] 
 
 #Change Unit and header
@@ -29,7 +29,7 @@ result_train = pd.concat([prediction_table_train, SMILES_T_table_train_ex], axis
 #%% Combined Test
 # Get File
 files_test = glob.glob('csv_03*test*.csv')
-#files_test = [x for x in files_test[0:2]] ### Temporary  ###
+#files_test = [x for x in files_test[0:3]] ### Temporary  ###
 dfs_test = [pd.read_csv(file)for file in files_test] 
 
 #Change Unit and header

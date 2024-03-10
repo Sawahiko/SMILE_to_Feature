@@ -243,15 +243,20 @@ y_min, y_max = x_min, x_max
 
 #plt.plot(x = final3["Test Predict"], y = final3["Test Predict"])
 markers = {"Pass": "o", "NOT": "X"}
-gc = sns.scatterplot(df_plot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)", hue="Atom2", style= "RMSE2", alpha=0.6, markers=markers)
+gc = sns.scatterplot(df_plot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)",
+                     hue="Atom2",
+                     #style= "RMSE2", markers=markers
+                     alpha=0.6, )
 plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+
 
 # Add Legend, range of show
 plt.title(best_name)
-plt.xlabel("Actual log($P_{sat}$) [Pa]")
-plt.ylabel("Predict log($P_{sat}$) [Pa]")
+plt.xlabel("Actual ln($P_{sat}$)")
+plt.ylabel("Predict ln($P_{sat}$)")
 plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
+plt.figure(figsize=(300,300))
 #gc.xlabels("Actual log($P_{sat}$) [Pa]")
 #plt.ylabel("Predict log($P_{sat}$) [Pa]")
 #gc.set_xlabels("Actual log($P_{sat}$) [Pa]")
@@ -269,24 +274,26 @@ text = "A"
 plt.title(text)
 plt.xlabel(f"Actual {text}")
 plt.ylabel(f"Predict {text}")
-#plt.xlim(x_min, x_max)
-#plt.ylim(y_min, y_max)
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+plt.figure(figsize=(300,300))
 plt.show()
 #%%
-#x_min = min(min(df_plot["B"]), min(df_plot["B_Pred"]))
-#x_max = max(max(df_plot["B"]), max(df_plot["B_Pred"]))+1000
-x_min = -10000; x_max = 40000
+x_min = min(min(df_plot["B"]), min(df_plot["B_Pred"]))
+x_max = max(max(df_plot["B"]), max(df_plot["B_Pred"]))+1000
+#x_min = -10000; x_max = 40000
 y_min = x_min; y_max = x_max
 
 sns.scatterplot(df_plot, x="B", y="B_Pred", alpha=0.6)
-plt.axline((2000, 2000), slope=1, color='.5', linestyle='--')
+plt.axline((0, 0), slope=1, color='.5', linestyle='--')
 
 text = "B"
 plt.title(text)
 plt.xlabel(f"Actual {text}")
 plt.ylabel(f"Predict {text}")
-#plt.xlim(x_min, x_max)
-#plt.ylim(y_min, y_max)
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+plt.figure(figsize=(300,300))
 plt.show()
 
 #%%
@@ -302,6 +309,7 @@ text = "C"
 plt.title(text)
 plt.xlabel(f"Actual {text}")
 plt.ylabel(f"Predict {text}")
-#plt.xlim(x_min, x_max)
-#plt.ylim(y_min, y_max)
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+plt.figure(figsize=(300,300))
 plt.show()

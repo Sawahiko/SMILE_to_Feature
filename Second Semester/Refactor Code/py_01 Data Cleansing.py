@@ -191,10 +191,10 @@ df1 = df_CHON.copy().reset_index(drop=True)
 def generate_points(row, amount_point):
     start = row["Tmin"]; end = row["Tmax"];
     range_temp = end-start
-    if range_temp>5:
+    if range_temp>0:
         return np.linspace(start, end, amount_point)
     else:
-        return start
+        return np.linspace(start, end, 1)
 df1["T"] = df1.apply(lambda x : generate_points(x, 5), axis=1)
 df1 = df1.explode('T')
 df1['T'] = df1['T'].astype('float32')
@@ -206,9 +206,10 @@ def Psat_cal(T,A,B,C):
 df1["Vapor_Presssure"] = Psat_cal(df1["T"], df1["A"], df1["B"], df1["C"])
 
 
-plt.title("Before ln(Psat)")
+plt.title("Before ln($P_{sat}$)")
 plt.boxplot(df1["Vapor_Presssure"])
 plt.show()
+print(min(df1["Vapor_Presssure"]), max(df1["Vapor_Presssure"]))
 #%% boxplot ABC Tmin
 
 
@@ -228,14 +229,16 @@ df01 = df1[~((df1[column] < lower_bound) | (df1[column] > upper_bound))]
 df01_outliners = df1[((df1[column] < lower_bound) | (df1[column] > upper_bound))]
 df_outliner_export = df01_outliners[["SMILES", "Name", "T", "Vapor_Presssure"]]
 
-plt.title("After ln(Psat)")
+plt.title("After ln($P_{sat}$)")
 plt.boxplot(df01["Vapor_Presssure"])
 plt.show()
+print(min(df01["Vapor_Presssure"]), max(df01["Vapor_Presssure"]))
 
 df01["Psat_atm"] = np.exp(df01[column])/(10**5)
 plt.title("AFter Psat (atm)")
 plt.boxplot(df01["Psat_atm"])
 plt.show()
+print(min(df01["Psat_atm"]), max(df01["Psat_atm"]))
 
 plt.hist(df01["Psat_atm"], bins=5)
 
@@ -247,7 +250,7 @@ df_VP_export = df_CHON[filter2]
 df_VP_outliner_export = df_CHON[~filter2]
 
 
-filter3 = df01["SMILES"].isin(df01["SMILES"].drop_duplicates())
+filter3 = df01["SMILES"].isin(df_VP_export["SMILES"].drop_duplicates())
 df_5VP_1 = df01[filter3][["SMILES", "Vapor_Presssure"]]
 df_5VP_2 = df_5VP_1.groupby(["SMILES"]).agg({'Vapor_Presssure': lambda x :x.tolist()})
 df_5VP_SMILES = df_5VP_1[["SMILES"]].drop_duplicates().reset_index(drop=True)
@@ -259,8 +262,12 @@ df_5VP_na = df_5VP_all[df_5VP_all.isna().any(axis=1)]
 df_5VP_export1 = df_5VP_dropna.copy()
 df_5VP_export2 = df_5VP_na.copy()
 
-filter4 = df_CHON["SMILES"].isin(df_5VP_export1["SMILES"].drop_duplicates())
-df_VP_final_export = df_CHON[filter4]
+#%%
+# =============================================================================
+# filter4 = df_VP_export["SMILES"].isin(df_5VP_export1["SMILES"])
+# df_VP_final_export = df_VP_export[filter4]
+# =============================================================================
+df_VP_final_export = pd.merge(df_5VP_export1, df_VP_export, on="SMILES")
 #%% Export Section
 df_VP_export.to_csv("csv_01-1 Psat_[X]_ABCTminTmaxC1-12.csv")
 df_VP_outliner_export.to_csv("csv_01-2 Psat_Outliner.csv")

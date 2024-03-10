@@ -35,12 +35,11 @@ df1 = train.copy()
     ## Function to generate equally distributed points
 def generate_points(row, amount_point):
     start = row["Tmin"]; end = row["Tmax"];
-    temp = amount_point
-    if end-start == 0:
-        amount_point = 1
+    range_temp = end-start
+    if range_temp>0:
+        return np.linspace(start, end, amount_point)
     else:
-        amount_point = temp
-    return np.linspace(start, end, amount_point)
+        return np.linspace(start, end, 1)
 df1["T"] = df1.apply(lambda x : generate_points(x, 5), axis=1)
 
 df1  = df1.explode('T')
@@ -172,13 +171,15 @@ y_test_fp  = scale_y.transform(y_test_notz.reshape(-1,1)).flatten()
 
 #%% Export Section
 from joblib import dump, load
-df2_train.to_csv("csv_02-1 df_train.csv")
-df2_test.to_csv("csv_02-2 df_test.csv")
-
-pd.DataFrame(x_train_fp).to_csv("csv_02-3 std_x_train.csv")
-pd.DataFrame(y_train_fp).to_csv("csv_02-4 std_y_train.csv")
-pd.DataFrame(x_test_fp).to_csv("csv_02-5 std_x_test.csv")
-pd.DataFrame(y_test_fp).to_csv("csv_02-6 std_y_test.csv")
-
-dump(scale_x, "file_02-1 scaler_x.joblib")
-dump(scale_y, "file_02-2 scaler_y.joblib")
+# =============================================================================
+# df2_train.to_csv("csv_02-1 df_train.csv")
+# df2_test.to_csv("csv_02-2 df_test.csv")
+# 
+# pd.DataFrame(x_train_fp).to_csv("csv_02-3 std_x_train.csv")
+# pd.DataFrame(y_train_fp).to_csv("csv_02-4 std_y_train.csv")
+# pd.DataFrame(x_test_fp).to_csv("csv_02-5 std_x_test.csv")
+# pd.DataFrame(y_test_fp).to_csv("csv_02-6 std_y_test.csv")
+# 
+# dump(scale_x, "file_02-1 scaler_x.joblib")
+# dump(scale_y, "file_02-2 scaler_y.joblib")
+# =============================================================================
