@@ -162,8 +162,8 @@ class ABC_2(nn.Module):
         return x
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = ABC_2(N_Input=MF_bit, N_Output=3, N_Hidden=20, N_Layer=2, dropout_rate=0.2)
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+model = ABC_2(N_Input=MF_bit, N_Output=3, N_Hidden=1024, N_Layer=2, dropout_rate=0.2)
+optimizer = optim.Adam(model.parameters(), lr=0.0001)
 criterion = nn.MSELoss()
 model.to(device)
 
@@ -172,7 +172,7 @@ patience = 10  # Number of epochs to wait before stopping if no improvement
 best_val_loss = float('inf')
 epochs_no_improvement = 0
 training_log = {"train_loss": [], "val_loss": []}
-for epoch in range(500):  # loop over the dataset multiple times
+for epoch in range(400):  # loop over the dataset multiple times
 #    trainloader = ray.get(trainloader_id)
 #    testloader = ray.get(testloader_id)
     model.train()
@@ -212,16 +212,18 @@ for epoch in range(500):  # loop over the dataset multiple times
     print(f'Epoch {epoch+1}: Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}')
 
     
-    # Early stopping logic
-    if val_loss < best_val_loss:
-        best_val_loss = val_loss
-        epochs_no_improvement = 0
-    else:
-        epochs_no_improvement += 1
-
-    if epochs_no_improvement >= patience:
-        print('Early stopping triggered.')
-        break
+# =============================================================================
+#     # Early stopping logic
+#     if val_loss < best_val_loss:
+#         best_val_loss = val_loss
+#         epochs_no_improvement = 0
+#     else:
+#         epochs_no_improvement += 1
+# 
+#     if epochs_no_improvement >= patience:
+#         print('Early stopping triggered.')
+#         break
+# =============================================================================
 
 print("Finished Training")
 

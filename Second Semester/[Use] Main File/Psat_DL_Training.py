@@ -44,14 +44,14 @@ from ray import train, tune
 from ray.train import Checkpoint
 
 #%% Import Data
-df = pd.read_csv("./Psat_NO_ABCTminTmaxC1-12.csv")
+df = pd.read_csv("C:/Users/oomsin/Documents/GitHub/SMILE_to_Feature/Second Semester/Refactor Code/csv-01-0 Psat-1800.csv")
 df = df[df['SMILES'] != "None"]
 df = df.drop_duplicates(subset='SMILES').reset_index(drop=True)
 df.sort_values(by="No.C")
 #len(df["SMILES"].unique())
 
 # New Train-Test Split
-train, test = train_test_split(df, test_size=0.2, random_state=42)
+train, test = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Atom2"])
 # =============================================================================
 # random.seed(42)
 # msk = np.random.rand(len(df)) < 0.8
@@ -90,7 +90,7 @@ print(df2.sort_values(by="Vapor_Presssure"))
 
 # Fingerprint
 # Parameter for Generate Morgan Fingerprint
-MF_radius = 3;   MF_bit = 2048
+MF_radius = 2;   MF_bit = 2048
 
 # Generate Fingerprint from SMILE
 X_data_use = X_data.copy()
@@ -148,9 +148,6 @@ Y_data= df2[["Vapor_Presssure"]]        # Target : Psat
 #df[df["SMILES"].isin(df2[df2["Vapor_Presssure"] <-20]["SMILES"])]
 print(df2.sort_values(by="Vapor_Presssure"))
 #%%
-# Fingerprint
-# Parameter for Generate Morgan Fingerprint
-MF_radius = 3;   MF_bit = 2048
 
 # Generate Fingerprint from SMILE
 X_data_use = X_data.copy()
@@ -235,105 +232,115 @@ class PSAT_DL(nn.Module):
 
 # Define hyperparameters
 N_Output = 1
-dropout_rate = 0.2
-learning_rate = 0.0001
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-# =============================================================================
-# for epoch in range(100):  # loop over the dataset multiple times
-# #    trainloader = ray.get(trainloader_id)
-# #    testloader = ray.get(testloader_id)
-#     model.train()
-#     train_loss = 0.0
-#     for i, data in enumerate(train_loader):
-#         # get the inputs; data is a list of [inputs, labels]
-#         inputs, labels = data
-#         inputs, labels = inputs.to(device), labels.to(device)
-# 
-#         # zero the parameter gradients
-#         optimizer.zero_grad()
-# 
-#         # forward + backward + optimize
-#         outputs = model(inputs)
-#         outputs = torch.reshape(outputs,(-1,))
-#         loss = criterion(outputs, labels)
-#         loss.backward()
-#         optimizer.step()
-# 
-#         # print statistics
-#         train_loss += loss.item()
-#         
-#     model.eval()
-#     val_loss = 0.0
-#     with torch.no_grad():  # Disable gradient calculation during validation
-#         for i, data in enumerate(test_loader):
-#             inputs, labels = data
-#             inputs, labels = inputs.to(device), labels.to(device)
-# 
-#             output = model(inputs)
-#             output = torch.reshape(output,(-1,))
-# # =============================================================================
-# #             print(labels.shape)
-# #             print(torch.reshape(output,(-1,)).shape)
-# # =============================================================================
-#             val_loss += criterion(output, labels).item()
-# 
-#     # Logging training/validation performance
-#     train_loss /= len(trainloader)
-#     val_loss /= len(testloader)
-#     training_log["train_loss"].append(train_loss)
-#     training_log["val_loss"].append(val_loss)
-#     print(f'Epoch {epoch+1}: Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}')
-#     
-# print("Finished Training")
-# 
-# =============================================================================
-
-# Create a loop to vary the number of hidden layers and nodes
-N_Output = 1
 N_Hidden = 1000
 N_Layer = 2
-dropout_rate = 0.2
+dropout_rate = 0.5
 learning_rate = 0.0001
-training_log = {"train_loss": [], "val_loss": [], "N_Hidden": [], "N_Layer": []}
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = PSAT_DL(N_Input=(MF_bit + 1), N_Output=N_Output, N_Hidden=N_Hidden, N_Layer=N_Layer, dropout_rate=dropout_rate)
 model.to(device)
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 criterion = nn.MSELoss()
+training_log = {"train_loss": [], "val_loss": []}
 
-for epoch in range(100):  # loop over the dataset multiple times
+
+for epoch in range(200):  # loop over the dataset multiple times
+#    trainloader = ray.get(trainloader_id)
+#    testloader = ray.get(testloader_id)
     model.train()
     train_loss = 0.0
     for i, data in enumerate(train_loader):
+        # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
         inputs, labels = inputs.to(device), labels.to(device)
+
+        # zero the parameter gradients
         optimizer.zero_grad()
+
+        # forward + backward + optimize
         outputs = model(inputs)
-        outputs = torch.reshape(outputs, (-1,))
+        outputs = torch.reshape(outputs,(-1,))
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
-        train_loss += loss.item()
 
+        # print statistics
+        train_loss += loss.item()
+        
     model.eval()
     val_loss = 0.0
     with torch.no_grad():  # Disable gradient calculation during validation
         for i, data in enumerate(test_loader):
             inputs, labels = data
             inputs, labels = inputs.to(device), labels.to(device)
+
             output = model(inputs)
-            output = torch.reshape(output, (-1,))
+            output = torch.reshape(output,(-1,))
+# =============================================================================
+#             print(labels.shape)
+#             print(torch.reshape(output,(-1,)).shape)
+# =============================================================================
             val_loss += criterion(output, labels).item()
 
-    train_loss /= len(train_loader)
-    val_loss /= len(test_loader)
+    # Logging training/validation performance
+    train_loss /= len(trainloader)
+    val_loss /= len(testloader)
     training_log["train_loss"].append(train_loss)
     training_log["val_loss"].append(val_loss)
-    training_log["N_Hidden"].append(N_Hidden)
-    training_log["N_Layer"].append(N_Layer)
-    print(f'N_Layer: {N_Layer}, N_Hidden: {N_Hidden}, Epoch {epoch + 1}: Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}')
+    print(f'Epoch {epoch+1}: Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}')
+    
+print("Finished Training")
 
-print(f"Finished Training for N_Layer: {N_Layer}, N_Hidden: {N_Hidden}")
+
+# Create a loop to vary the number of hidden layers and nodes
+# =============================================================================
+# N_Output = 1
+# N_Hidden = 1000
+# N_Layer = 2
+# dropout_rate = 0.2
+# learning_rate = 0.0001
+# training_log = {"train_loss": [], "val_loss": [], "N_Hidden": [], "N_Layer": []}
+# model = PSAT_DL(N_Input=(MF_bit + 1), N_Output=N_Output, N_Hidden=N_Hidden, N_Layer=N_Layer, dropout_rate=dropout_rate)
+# model.to(device)
+# optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+# criterion = nn.MSELoss()
+# 
+# =============================================================================
+# =============================================================================
+# for epoch in range(100):  # loop over the dataset multiple times
+#     model.train()
+#     train_loss = 0.0
+#     for i, data in enumerate(train_loader):
+#         inputs, labels = data
+#         inputs, labels = inputs.to(device), labels.to(device)
+#         optimizer.zero_grad()
+#         outputs = model(inputs)
+#         outputs = torch.reshape(outputs, (-1,))
+#         loss = criterion(outputs, labels)
+#         loss.backward()
+#         optimizer.step()
+#         train_loss += loss.item()
+# 
+#     model.eval()
+#     val_loss = 0.0
+#     with torch.no_grad():  # Disable gradient calculation during validation
+#         for i, data in enumerate(test_loader):
+#             inputs, labels = data
+#             inputs, labels = inputs.to(device), labels.to(device)
+#             output = model(inputs)
+#             output = torch.reshape(output, (-1,))
+#             val_loss += criterion(output, labels).item()
+# 
+#     train_loss /= len(train_loader)
+#     val_loss /= len(test_loader)
+#     training_log["train_loss"].append(train_loss)
+#     training_log["val_loss"].append(val_loss)
+#     training_log["N_Hidden"].append(N_Hidden)
+#     training_log["N_Layer"].append(N_Layer)
+#     print(f'N_Layer: {N_Layer}, N_Hidden: {N_Hidden}, Epoch {epoch + 1}: Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}')
+# 
+# print(f"Finished Training for N_Layer: {N_Layer}, N_Hidden: {N_Hidden}")
+# =============================================================================
 
 def plot_graph(history):
     # Sample data (replace with your actual data)
@@ -351,10 +358,8 @@ def plot_graph(history):
 
 plot_graph(training_log)
 #%%
-# =============================================================================
-# train_df = pd.DataFrame(training_log)
-# train_df.to_csv("Training_log.csv")
-# =============================================================================
-# Save Deep Learning Model
-save_path = "Psat_H1000_L2_D2_100epoch.pth"
+train_df = pd.DataFrame(training_log)
+train_df.to_csv("Training_log.csv")
+#Save Deep Learning Model
+save_path = "Psat_H1000_L2_D2_200epoch.pth"
 torch.save(model.state_dict(), save_path)
