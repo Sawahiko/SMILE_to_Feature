@@ -119,8 +119,8 @@ def generate_FP(MF_bit, MF_radius, SMILES_data, T_data):
     return x_data_fp
 #%% Set up Fingerprint
 # Parameter for Generate Morgan Fingerprint
-all_MF_radius = [2,3,4 ]
-all_MF_bit = [256, 512, 1024, 2048, 4096, 2**13]
+all_MF_radius = [2,3,4]
+all_MF_bit = [256, 1024, 2048, 2**13]
 
 MF_loop = list(itertools.product(all_MF_radius, all_MF_bit))
 
@@ -216,19 +216,21 @@ temp["MF_Bits"] = temp.apply(lambda x: x["r-Bits set up"][1], axis=1)
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-df_log_sns = temp.pivot_table(index="MF_Bits", columns="MF_radius", values="RMSE")
+#temp2 = temp[temp["MF_Bits"]!= 8192]
+temp2 = temp.copy()
+df_log_sns = temp2.pivot_table(index="MF_Bits", columns="MF_radius", values="RMSE")
 g = sns.heatmap(df_log_sns, annot=True, fmt=".4f", cmap=sns.color_palette("light:g", as_cmap=True))
 g.invert_yaxis()
 plt.title("Fingerprint Heatmap with RMSE")
 plt.show(g)
 #%%
-df_log_sns = temp.pivot_table(index="MF_Bits", columns="MF_radius", values="MAE")
+df_log_sns = temp2.pivot_table(index="MF_Bits", columns="MF_radius", values="MAE")
 g = sns.heatmap(df_log_sns, annot=True, fmt=".4f", cmap=sns.color_palette("light:g", as_cmap=True))
 g.invert_yaxis()
 plt.title("Fingerprint Heatmap with MAE")
 plt.show(g)
 #%%
-df_log_sns = temp.pivot_table(index="MF_Bits", columns="MF_radius", values="R2")
+df_log_sns = temp2.pivot_table(index="MF_Bits", columns="MF_radius", values="R2")
 g = sns.heatmap(df_log_sns, annot=True, fmt=".4f", cmap=sns.color_palette("light:g_r", as_cmap=True))
 g.invert_yaxis()
 plt.title("Fingerprint Heatmap with R2")

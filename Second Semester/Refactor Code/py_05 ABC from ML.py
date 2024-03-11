@@ -313,3 +313,15 @@ plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
 plt.figure(figsize=(300,300))
 plt.show()
+#%% MAPE ABC
+mean_absolute_error(final3["A"], final3["A_Pred"])
+mean_absolute_error(final3["B"], final3["B_Pred"])
+mean_absolute_error(final3["C"], final3["C_Pred"])
+
+mean_absolute_percentage_error(final3["A"], final3["A_Pred"])
+mean_absolute_percentage_error(final3["B"], final3["B_Pred"])
+mean_absolute_percentage_error(final3["C"], final3["C_Pred"])
+
+r2_score(final3["A"], final3["A_Pred"])
+r2_score(final3["B"], final3["B_Pred"])
+r2_score(final3["C"], final3["C_Pred"])

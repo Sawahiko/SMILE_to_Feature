@@ -185,9 +185,90 @@ df_CHON = df_CHON[df_CHON["No.C"]>0]
 df_CHON = df_CHON.drop_duplicates(subset=['SMILES'])
 df_CHON = df_CHON.drop_duplicates(subset=['Name'])
 
+#%%
+from rdkit.Chem.Fragments import fr_Al_OH
+from rdkit.Chem import MolFromSmiles 
+from thermo.functional_groups import *
+from rdkit.Chem.Fragments import *
+def cb(row):
+    mol = Chem.MolFromSmiles(row["SMILES"]) 
+    func_list = [is_alkane, is_alkene, is_alkyne, is_aromatic,
+                 is_alcohol, is_ketone, is_aldehyde, is_carboxylic_acid,
+                 is_ether, is_phenol, is_ester, is_amine, is_amide]
+    for func in func_list:
+        func_name = func.__name__
+        result_1 = func(mol)
+        if result_1:
+            pass
+        else:
+            result_1= None
+        row[func_name] = result_1
+        
+    
+    return row
+df_func_group = df_CHON.apply(cb, axis=1)
+#%%
+dffff = pd.DataFrame(df_func_group.iloc[:, 13:].sum(axis=1))
+filter01 = dffff[0]>1
+df_func_group_1 = df_func_group[~filter01]
+df_func_group_more2 = df_func_group[filter01]
 
+#%% get Func Group of only 1 Group
+func_list = [is_alkane, is_alkene, is_alkyne, is_aromatic,
+             is_alcohol, is_ketone, is_aldehyde, is_carboxylic_acid,
+             is_ether, is_phenol, is_ester, is_amine, is_amide]
+# =============================================================================
+# func_order = [is_carboxylic_acid, is_ester, is_amide, is_aldehyde, is_ketone, is_alcohol,
+#               is_amine, is_phenol, is_aromatic, is_alkene, is_alkyne, is_alkane, is_ether]
+# =============================================================================
+func_order = [12, 10, 11, 9, 6, 5, 4, 1, 13, 8, 2, 7, 3]
+func_name_list = []
+for func in func_list:
+    func_name = func.__name__
+    func_name_list.append(func_name)
+f1 = pd.melt(df_func_group_1, id_vars='SMILES', value_vars=func_name_list)
+f2 = f1[f1["value"]==True]
+f2["Func. Group"] = f2["variable"].str[3:]
+f2 = f2.drop(columns=["variable","value"])
+
+#%% get Func Group of more than 1 Group
+
+f3 = pd.melt(df_func_group_more2, id_vars='SMILES', value_vars=func_name_list)
+f4 = f3[f3["value"]==True]
+f4 = f4.drop(columns=["value"])
+f5 = f4.groupby("SMILES").agg(list)
+#%%
+def cb2(row):
+    
+    #row = row.drop(columns="variable")
+    #print(row["variable"])
+    for index in range(len(func_order)):
+        #print("\n\n")
+        for idx_fun_sub in range(len(row["variable"])):
+            #print(idx_fun_sub)
+            sub_func = row["variable"][idx_fun_sub]
+            check_func = func_list[index].__name__
+            if sub_func==check_func:
+                row["variable"][idx_fun_sub] = func_order[index]
+    
+        #row =row.sort_values("variable")
+    row["variable"] = min(row["variable"])
+    sub_order_idx = func_order.index(row["variable"])
+    row["variable"] = func_list[sub_order_idx].__name__
+    row["variable"] = row["variable"][3:]
+    
+    return row
+f6= f5.apply(lambda x: cb2(x), axis=1)
+f6.columns=["Func. Group"]
+f6 = f6.reset_index()
+#f2["Func. Group"] = f2["variable"].str[3:]
+#f2 = f2.drop(columns=["variable","value"])
+#%% COmbine Functional Group
+f7 = pd.concat([f2, f6])
+
+df_func = pd.merge(df_CHON, f7, on="SMILES")
 #%% Generate 5 Temp
-df1 = df_CHON.copy().reset_index(drop=True)
+df1 = df_func.copy().reset_index(drop=True)
 def generate_points(row, amount_point):
     start = row["Tmin"]; end = row["Tmax"];
     range_temp = end-start
@@ -245,9 +326,9 @@ plt.hist(df01["Psat_atm"], bins=5)
 #%% Summary Output
 df_Psat_noOut = df01.copy()
 
-filter2 = df_CHON["SMILES"].isin(df01["SMILES"].drop_duplicates())
-df_VP_export = df_CHON[filter2]
-df_VP_outliner_export = df_CHON[~filter2]
+filter2 = df_func["SMILES"].isin(df01["SMILES"].drop_duplicates())
+df_VP_export = df_func[filter2]
+df_VP_outliner_export = df_func[~filter2]
 
 
 filter3 = df01["SMILES"].isin(df_VP_export["SMILES"].drop_duplicates())

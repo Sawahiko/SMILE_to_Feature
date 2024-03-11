@@ -22,12 +22,12 @@ f.sum()
 #df = df[~f]
 #df = df_original[~f]
 df = df_original.copy()
-
+#%%
 # New Train-Test Split
-train, test = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Atom2"])
+train, test = train_test_split(df, test_size=0.2, random_state=42, stratify=df["Func. Group"])
 
-train_out = train.groupby("Atom2").agg({'SMILES': ['count']})
-test_out = test.groupby("Atom2").agg({'SMILES': ['count']})
+train_out = train.groupby("Func. Group").agg({'SMILES': ['count']})
+test_out = test.groupby("Func. Group").agg({'SMILES': ['count']})
 print(pd.concat([train_out, test_out ], axis=1))
 #%% 
 # Genearate Temp in Tmin-Tmax and expand
@@ -68,7 +68,7 @@ print(df2_train.sort_values(by="Vapor_Presssure"))
 
 # Fingerprint
 # Parameter for Generate Morgan Fingerprint
-MF_radius = 2;   MF_bit = 2048
+MF_radius = 3;   MF_bit = 2048
 
 # Generate Fingerprint from SMILE
 X_data_use = X_data.copy()
