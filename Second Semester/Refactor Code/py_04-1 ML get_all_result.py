@@ -12,16 +12,19 @@ files_train = glob.glob('csv_03*train*.csv')
 dfs_train = [pd.read_csv(file)for file in files_train] 
 
 #Change Unit and header
-prediction_table_train = pd.concat(dfs_train).iloc[:,1:]
+prediction_table_train = pd.concat(dfs_train).iloc[:,1:].reset_index(drop=True)
 prediction_table_train.columns = ['Method', 'ln_Psat_Pred (Pa)', 'ln_Psat_Actual (Pa)']
 prediction_table_train["Psat_Pred (atm)"] = np.exp(prediction_table_train["ln_Psat_Pred (Pa)"])/(10**5)
 prediction_table_train["Psat_Actual (atm)"] = np.exp(prediction_table_train["ln_Psat_Actual (Pa)"])/(10**5)
+
+### Temporary  ###
+#prediction_table_train=prediction_table_train.iloc[0:int((int(len(prediction_table_train)/4)-105)*4),:]    
 
 #Insert SMILES, Temp, CHON
 df2_train = pd.read_csv("csv_02-1 df_train.csv").iloc[:,1:]
 
 SMILES_T_table_train = df2_train.iloc[:,[1,2]]
-SMILES_T_table_train_ex = pd.concat([SMILES_T_table_train] * len(dfs_train))
+SMILES_T_table_train_ex = pd.concat([SMILES_T_table_train] * len(dfs_train)).reset_index(drop=True)
 
 # Merged
 result_train = pd.concat([prediction_table_train, SMILES_T_table_train_ex], axis=1)
@@ -33,16 +36,18 @@ files_test = glob.glob('csv_03*test*.csv')
 dfs_test = [pd.read_csv(file)for file in files_test] 
 
 #Change Unit and header
-prediction_table_test = pd.concat(dfs_test).iloc[:,1:]
+prediction_table_test = pd.concat(dfs_test).iloc[:,1:].reset_index(drop=True)
 prediction_table_test.columns = ['Method', 'ln_Psat_Pred (Pa)', 'ln_Psat_Actual (Pa)']
 prediction_table_test["Psat_Pred (atm)"] = np.exp(prediction_table_test["ln_Psat_Pred (Pa)"])/(10**5)
 prediction_table_test["Psat_Actual (atm)"] = np.exp(prediction_table_test["ln_Psat_Actual (Pa)"])/(10**5)
 
+### Temporary  ###
+#prediction_table_test=prediction_table_test.iloc[0:int((int(len(prediction_table_test)/4)-105)*4),:]    
 #Insert SMILES, Temp, CHON
 df2_test = pd.read_csv("csv_02-2 df_test.csv").iloc[:,1:]
 
 SMILES_T_table_test = df2_test.iloc[:,[1,2]]
-SMILES_T_table_test_ex = pd.concat([SMILES_T_table_test] * len(dfs_test))
+SMILES_T_table_test_ex = pd.concat([SMILES_T_table_test] * len(dfs_test)).reset_index(drop=True)
 
 # Merged
 result_test = pd.concat([prediction_table_test, SMILES_T_table_test_ex], axis=1)
@@ -182,5 +187,7 @@ rrr2 = pd.concat([train_rrr, test_rrr], axis=1)
 print(rrr2)
 
 #%% Export
-rrr1.to_csv("csv_04-1 test_eval_ln(Psat).csv")
+rrr2.to_csv("csv_04-1 test_eval_ln(Psat).csv")
 prediction_table_test.to_csv("csv_04-2 test_pred_ln(Psat).csv")
+
+prediction_table_train.to_csv("csv_04-3 train_pred_ln(Psat).csv")

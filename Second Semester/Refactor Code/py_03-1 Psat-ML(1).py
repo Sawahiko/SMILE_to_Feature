@@ -265,3 +265,12 @@ train_predict_table.to_csv("csv_03-1-1 Predict Table - train RF.csv")
 test_predict_table.to_csv("csv_03-1-2 Predict Table - test RF.csv")
 
 # Export Evaluation
+#%%
+import requests
+url = 'https://notify-api.line.me/api/notify'
+token = '3CfMWfczpal9Zye6bD72a8Ud6FWOODnBHQZHIWM1YU4'
+headers = {'content-type':'application/x-www-form-urlencoded','Authorization':'Bearer '+token}
+
+msg = f'Train RF Done'
+r = requests.post(url, headers=headers, data = {'message':msg})
+print (r.text)

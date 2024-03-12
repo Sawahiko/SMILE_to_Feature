@@ -6,14 +6,14 @@ import seaborn as sns
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error, mean_squared_error, r2_score
 
 #%% Import data
-df = pd.read_csv("csv_01 Psat_[X]_ABCTminTmaxC1-12.csv")
-df2_test = pd.read_csv("csv_02-2 df_test.csv").iloc[:,1:]
+df = pd.read_csv("csv-01-0 Psat-1800.csv")
+df2_train = pd.read_csv("csv_02-1 df_train.csv").iloc[:,1:]
 rrr2 = pd.read_csv("csv_04-1 test_eval_ln(Psat).csv")
-result_test = pd.read_csv("csv_04-2 test_pred_ln(Psat).csv")
+result_train = pd.read_csv("csv_04-3 train_pred_ln(Psat).csv")
 
 
 #%%
-temp_Psat_actual_file = df2_test.copy()
+temp_Psat_actual_file = df2_train.copy()
 temp_Psat_actual_file
 
 best_name = rrr2[rrr2["RMSE.1"]==min(rrr2["RMSE.1"])]["Method"].iloc[0]
@@ -46,7 +46,7 @@ fig.tight_layout()
 
 plt.show()
 #%%
-prediction_file = result_test[result_test["Method"]==best_name].iloc[:,[2,3]].reset_index(drop=True)
+prediction_file = result_train[result_train["Method"]==best_name].iloc[:,[2,3]].reset_index(drop=True)
 prediction_file
 
 df3 = pd.concat([temp_Psat_actual_file, prediction_file], axis = 1)
@@ -96,9 +96,13 @@ def getABC(row):
     #print(row.x)
     x1 = row.x
     y1 = row.y
-    popt, _ = curve_fit(objective, (x1,y1), y1, p0=[20, 2000, -5], method="lm")
+    #print(row.SMILES)
+    popt, _ = curve_fit(objective, (x1,y1), y1, p0=[20, 2000, -5], method="dogbox")
     a,b,c = popt
-    return [a,b,c]
+    row.a = a
+    row.b = b
+    row.c = c
+    return [row.a, row.b, row.c]
 #z = func((x,y), a, b, c) * 1
 result2["ABC"] = result2.apply(getABC, axis=1)
 result2[['A_Pred', 'B_Pred', 'C_Pred']] = pd.DataFrame(result2['ABC'].tolist())
@@ -114,9 +118,13 @@ def getABC2(row):
     #print(row.x)
     x1 = row.x_test
     y1 = row.y_test
-    popt, _ = curve_fit(objective, (x1,y1), y1, p0=[20, 2000, 60], method="lm")
+    #print(row.SMILES)
+    popt, _ = curve_fit(objective, (x1,y1), y1, p0=[20, 2000, -5], method="dogbox")
     a,b,c = popt
-    return [a,b,c]
+    row.a = a
+    row.b = b
+    row.c = c
+    return [row.a, row.b, row.c]
 result2["ABC_test"] = result2.apply(getABC2, axis=1)
 result2[['A_test', 'B_test', 'C_test']] = pd.DataFrame(result2['ABC_test'].tolist())
 result2
@@ -130,7 +138,7 @@ df_for_lookup = df_initial.copy()
 
 final = result3.merge(df_for_lookup, on="SMILES")
 #final = result3.join(df_for_lookup, on="SMILES")
-final = pd.concat([result3, df_for_lookup[["A", "B", "C", "Atom2"]]], axis=1, join="inner")
+final = pd.concat([result3, df_for_lookup[["A", "B", "C", "Atom2", "Func. Group"]]], axis=1, join="inner")
 #print(final.describe())
 final2 = pd.concat([final, result["T"]], axis=1, join="inner")
 final2
@@ -231,7 +239,9 @@ gp = sns.histplot(final3, x="RMSE", alpha=0.6, binwidth=0.25)
 plt.show(gp)
 #%%
 df_plot = final3.explode(["T", "ln_Psat_Actual (Pa)","ln_Psat_Pred (Pa)"]).reset_index(drop=True)
-df_plot
+df_plot["T"] = df_plot["T"].astype(float)
+df_plot["ln_Psat_Actual (Pa)"] = df_plot["ln_Psat_Actual (Pa)"].astype(float)
+df_plot["ln_Psat_Pred (Pa)"] = df_plot["ln_Psat_Pred (Pa)"].astype(float)
 
 #%%
 # Specified Range for plot
@@ -242,16 +252,31 @@ y_min, y_max = x_min, x_max
 #Test Predict	Test Actual
 
 #plt.plot(x = final3["Test Predict"], y = final3["Test Predict"])
-markers = {"Pass": "o", "NOT": "X"}
-gc = sns.scatterplot(df_plot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)",
-                     hue="Atom2",
-                     #style= "RMSE2", markers=markers
-                     alpha=0.6, )
-plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+# =============================================================================
+# markers = {"Pass": "o", "NOT": "X"}
+# gc = sns.scatterplot(df_plot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)",
+#                      hue="Atom2",
+#                      #style= "RMSE2", markers=markers
+#                      alpha=0.6, )
+# plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+# =============================================================================
+g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
+g.map_dataframe(sns.scatterplot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)", alpha=0.6)
+#g.map_dataframe(lambda data, **kws: plt.axline((0, 0), slope=1, color='.5', linestyle='--'))
 
+def annotate(data, **kws):
+    plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+    r2 = r2_score(data['ln_Psat_Actual (Pa)'], data['ln_Psat_Pred (Pa)'])
+    rmse = mean_squared_error(data['ln_Psat_Actual (Pa)'], data['ln_Psat_Pred (Pa)'], squared=False)
+    mape = mean_absolute_percentage_error(data['ln_Psat_Actual (Pa)'], data['ln_Psat_Pred (Pa)'])
+    mape = mape*100
+    ax = plt.gca()
+    ax.text(.05, .8, 'r2={:.3f}\n rmse={:.3f}\n mape={:.2f}(%)'.format(r2, rmse, mape),
+            transform=ax.transAxes)
+g.map_dataframe(annotate)
 
 # Add Legend, range of show
-plt.title(best_name)
+#plt.title(best_name)
 plt.xlabel("Actual ln($P_{sat}$)")
 plt.ylabel("Predict ln($P_{sat}$)")
 plt.xlim(x_min, x_max)
@@ -263,15 +288,67 @@ plt.figure(figsize=(300,300))
 #gc.set_ylabels("Predict log($P_{sat}$) [Pa]")
 plt.show()
 #%%
+# Specified Range for plot
+x_min = -20;  x_max = 25
+y_min, y_max = x_min, x_max
+
+df_plot["Psat_Actual (atm)"] = np.exp(df_plot["ln_Psat_Actual (Pa)"])/(10**5)
+df_plot["Psat_Pred (atm)"] = np.exp(df_plot["ln_Psat_Pred (Pa)"])/(10**5)
+
+g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
+g.map_dataframe(sns.scatterplot, x="Psat_Actual (atm)", y="Psat_Pred (atm)", alpha=0.6)
+#g.map_dataframe(lambda data, **kws: plt.axline((0, 0), slope=1, color='.5', linestyle='--'))
+def annotate(data, **kws):
+    plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+    rmse = r2_score(data['Psat_Actual (atm)'], data['Psat_Pred (atm)'])
+    ax = plt.gca()
+    ax.text(.05, .8, 'mse={:.4f}'.format(rmse),
+            transform=ax.transAxes)
+g.map_dataframe(annotate)
+    
+# Add Legend, range of show
+#plt.title(best_name)
+plt.xlabel("Actual $P_{sat}$")
+plt.ylabel("Predict $P_{sat}$")
+#plt.xlim(x_min, x_max)
+#plt.ylim(y_min, y_max)
+plt.figure(figsize=(300,300))
+#gc.xlabels("Actual log($P_{sat}$) [Pa]")
+#plt.ylabel("Predict log($P_{sat}$) [Pa]")
+#gc.set_xlabels("Actual log($P_{sat}$) [Pa]")
+#gc.set_ylabels("Predict log($P_{sat}$) [Pa]")
+plt.show()
+#%%
+g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
+g.map_dataframe(sns.scatterplot, x="Psat_Actual (atm)", y="Psat_Pred (atm)", alpha=0.6)
+#g.map_dataframe(lambda data, **kws: plt.axline((0, 0), slope=1, color='.5', linestyle='--'))
+g.map_dataframe(annotate)
+plt.xlim(-5, 10)
+plt.ylim(-5, 10)
+plt.figure(figsize=(300,300))
+plt.show()
+#%%
 x_min = min(min(df_plot["A"]), min(df_plot["A_Pred"]))-10
 x_max = max(max(df_plot["A"]), max(df_plot["A_Pred"]))+10
 y_min = x_min; y_max = x_max
 
-sns.scatterplot(df_plot, x="A", y="A_Pred", alpha=0.6)
-plt.axline((20, 20), slope=1, color='.5', linestyle='--')
+# =============================================================================
+# sns.scatterplot(df_plot, x="A", y="A_Pred", alpha=0.6)
+# plt.axline((20, 20), slope=1, color='.5', linestyle='--')
+# =============================================================================
 
+g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
+g.map_dataframe(sns.scatterplot, x="A", y="A_Pred", alpha=0.6)
+#g.map_dataframe(lambda data, **kws: plt.axline((20, 20), slope=1, color='.5', linestyle='--'))
+def annotate(data, **kws):
+    plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+    rmse = r2_score(data['A'], data['A_Pred'])
+    ax = plt.gca()
+    ax.text(.05, .8, 'mse={:.4f}'.format(rmse),
+            transform=ax.transAxes)
+g.map_dataframe(annotate)
 text = "A"
-plt.title(text)
+#plt.title(text)
 plt.xlabel(f"Actual {text}")
 plt.ylabel(f"Predict {text}")
 plt.xlim(x_min, x_max)
@@ -281,14 +358,28 @@ plt.show()
 #%%
 x_min = min(min(df_plot["B"]), min(df_plot["B_Pred"]))
 x_max = max(max(df_plot["B"]), max(df_plot["B_Pred"]))+1000
-#x_min = -10000; x_max = 40000
+x_min = -10000;
+#x_max = 40000
 y_min = x_min; y_max = x_max
 
-sns.scatterplot(df_plot, x="B", y="B_Pred", alpha=0.6)
-plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+# =============================================================================
+# sns.scatterplot(df_plot, x="B", y="B_Pred", alpha=0.6)
+# plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+# =============================================================================
+
+g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
+g.map_dataframe(sns.scatterplot, x="B", y="B_Pred", alpha=0.6)
+#g.map_dataframe(lambda data, **kws: plt.axline((0, 0), slope=1, color='.5', linestyle='--'))
+def annotate(data, **kws):
+    plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+    rmse = r2_score(data['B'], data['B_Pred'])
+    ax = plt.gca()
+    ax.text(.05, .8, 'mse={:.4f}'.format(rmse),
+            transform=ax.transAxes)
+g.map_dataframe(annotate)
 
 text = "B"
-plt.title(text)
+#plt.title(text)
 plt.xlabel(f"Actual {text}")
 plt.ylabel(f"Predict {text}")
 plt.xlim(x_min, x_max)
@@ -302,11 +393,23 @@ x_max = max(max(df_plot["C"]), max(df_plot["C_Pred"]))+100
 #x_min = -10000; x_max = 40000
 y_min = x_min; y_max = x_max
 
-sns.scatterplot(df_plot, x="C", y="C_Pred", alpha=0.6)
-plt.axline((-50, -50), slope=1, color='.5', linestyle='--')
+# =============================================================================
+# sns.scatterplot(df_plot, x="C", y="C_Pred", alpha=0.6)
+# plt.axline((-50, -50), slope=1, color='.5', linestyle='--')
+# =============================================================================
 
+g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
+g.map_dataframe(sns.scatterplot, x="C", y="C_Pred", alpha=0.6)
+#g.map_dataframe(lambda data, **kws: plt.axline((20, 20), slope=1, color='.5', linestyle='--'))
+def annotate(data, **kws):
+    plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+    rmse = r2_score(data['C'], data['C_Pred'])
+    ax = plt.gca()
+    ax.text(.05, .8, 'mse={:.4f}'.format(rmse),
+            transform=ax.transAxes)
+g.map_dataframe(annotate)
 text = "C"
-plt.title(text)
+#plt.title(text)
 plt.xlabel(f"Actual {text}")
 plt.ylabel(f"Predict {text}")
 plt.xlim(x_min, x_max)
