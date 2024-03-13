@@ -187,7 +187,9 @@ rrr2 = pd.concat([train_rrr, test_rrr], axis=1)
 print(rrr2)
 
 #%% Export
-rrr2.to_csv("csv_04-1 test_eval_ln(Psat).csv")
-prediction_table_test.to_csv("csv_04-2 test_pred_ln(Psat).csv")
-
-prediction_table_train.to_csv("csv_04-3 train_pred_ln(Psat).csv")
+# =============================================================================
+# rrr2.to_csv("csv_04-1 test_eval_ln(Psat).csv")
+# prediction_table_test.to_csv("csv_04-2 test_pred_ln(Psat).csv")
+# 
+# prediction_table_train.to_csv("csv_04-3 train_pred_ln(Psat).csv")
+# =============================================================================

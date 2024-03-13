@@ -25,14 +25,6 @@ column_headers = data.columns
 data = data.applymap(str)
 data.round(3) 
 cell_text = data.to_numpy()
-# =============================================================================
-# cell_text = []
-# for row in data:
-#     try:
-#         cell_text.append([f'{x/1000:1.1f}' for x in row])
-#     except:
-#         cell_text.append(row)
-# =============================================================================
 fig, ax = plt.subplots()
 
 # hide axes
@@ -243,26 +235,28 @@ df_plot["T"] = df_plot["T"].astype(float)
 df_plot["ln_Psat_Actual (Pa)"] = df_plot["ln_Psat_Actual (Pa)"].astype(float)
 df_plot["ln_Psat_Pred (Pa)"] = df_plot["ln_Psat_Pred (Pa)"].astype(float)
 
-#%%
-# Specified Range for plot
+#%% ln(Psat)
+# All
 x_min = -20;  x_max = 25
 y_min, y_max = x_min, x_max
 
-# Plot each method
-#Test Predict	Test Actual
+sns.scatterplot(df_plot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)", alpha=0.6)
+plt.axline((0, 0), slope=1, color='.5', linestyle='--')
 
-#plt.plot(x = final3["Test Predict"], y = final3["Test Predict"])
-# =============================================================================
-# markers = {"Pass": "o", "NOT": "X"}
-# gc = sns.scatterplot(df_plot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)",
-#                      hue="Atom2",
-#                      #style= "RMSE2", markers=markers
-#                      alpha=0.6, )
-# plt.axline((0, 0), slope=1, color='.5', linestyle='--')
-# =============================================================================
+plt.title("ln($P^{Sat}$) Prediction from XGB Model, All Substance")
+plt.xlabel("Actual ln($P_{sat}$)")
+plt.ylabel("Predict ln($P_{sat}$)")
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+plt.figure(figsize=(300,300))
+plt.show()
+
+# functional Group
+x_min = -20;  x_max = 25
+y_min, y_max = x_min, x_max
+
 g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
 g.map_dataframe(sns.scatterplot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)", alpha=0.6)
-#g.map_dataframe(lambda data, **kws: plt.axline((0, 0), slope=1, color='.5', linestyle='--'))
 
 def annotate(data, **kws):
     plt.axline((0, 0), slope=1, color='.5', linestyle='--')
@@ -276,28 +270,20 @@ def annotate(data, **kws):
 g.map_dataframe(annotate)
 
 # Add Legend, range of show
-#plt.title(best_name)
-plt.xlabel("Actual ln($P_{sat}$)")
-plt.ylabel("Predict ln($P_{sat}$)")
 plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
 plt.figure(figsize=(300,300))
-#gc.xlabels("Actual log($P_{sat}$) [Pa]")
-#plt.ylabel("Predict log($P_{sat}$) [Pa]")
-#gc.set_xlabels("Actual log($P_{sat}$) [Pa]")
-#gc.set_ylabels("Predict log($P_{sat}$) [Pa]")
+g.set_xlabels("Actual ln($P_{sat}$)")
+g.set_ylabels("Predict ln($P_{sat}$)")
+g.fig.subplots_adjust(top=0.9)
+g.fig.suptitle('ln($P^{Sat}$) Prediction from XGB Model, Functional Group')
 plt.show()
-#%%
-# Specified Range for plot
-x_min = -20;  x_max = 25
-y_min, y_max = x_min, x_max
-
+#%% Psat - functional Group
 df_plot["Psat_Actual (atm)"] = np.exp(df_plot["ln_Psat_Actual (Pa)"])/(10**5)
 df_plot["Psat_Pred (atm)"] = np.exp(df_plot["ln_Psat_Pred (Pa)"])/(10**5)
 
 g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
 g.map_dataframe(sns.scatterplot, x="Psat_Actual (atm)", y="Psat_Pred (atm)", alpha=0.6)
-#g.map_dataframe(lambda data, **kws: plt.axline((0, 0), slope=1, color='.5', linestyle='--'))
 def annotate(data, **kws):
     plt.axline((0, 0), slope=1, color='.5', linestyle='--')
     rmse = r2_score(data['Psat_Actual (atm)'], data['Psat_Pred (atm)'])
@@ -306,17 +292,11 @@ def annotate(data, **kws):
             transform=ax.transAxes)
 g.map_dataframe(annotate)
     
-# Add Legend, range of show
-#plt.title(best_name)
-plt.xlabel("Actual $P_{sat}$")
-plt.ylabel("Predict $P_{sat}$")
-#plt.xlim(x_min, x_max)
-#plt.ylim(y_min, y_max)
 plt.figure(figsize=(300,300))
-#gc.xlabels("Actual log($P_{sat}$) [Pa]")
-#plt.ylabel("Predict log($P_{sat}$) [Pa]")
-#gc.set_xlabels("Actual log($P_{sat}$) [Pa]")
-#gc.set_ylabels("Predict log($P_{sat}$) [Pa]")
+g.set_xlabels("Actual $P_{sat}$")
+g.set_ylabels("Predict $P_{sat}$")
+g.fig.subplots_adjust(top=0.9)
+g.fig.suptitle('$P^{Sat}$ Prediction from XGB Model, Functional Group')
 plt.show()
 #%%
 g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
@@ -327,19 +307,26 @@ plt.xlim(-5, 10)
 plt.ylim(-5, 10)
 plt.figure(figsize=(300,300))
 plt.show()
-#%%
+#%% A
 x_min = min(min(df_plot["A"]), min(df_plot["A_Pred"]))-10
 x_max = max(max(df_plot["A"]), max(df_plot["A_Pred"]))+10
 y_min = x_min; y_max = x_max
 
-# =============================================================================
-# sns.scatterplot(df_plot, x="A", y="A_Pred", alpha=0.6)
-# plt.axline((20, 20), slope=1, color='.5', linestyle='--')
-# =============================================================================
+# A - All
+sns.scatterplot(df_plot, x="A", y="A_Pred", alpha=0.6)
+plt.axline((0, 0), slope=1, color='.5', linestyle='--')
 
+plt.title("A Prediction from XGB Model, All Substance")
+plt.xlabel("Actual A")
+plt.ylabel("Calculated A")
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+plt.figure(figsize=(300,300))
+plt.show()
+
+# A - Functional Group
 g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
 g.map_dataframe(sns.scatterplot, x="A", y="A_Pred", alpha=0.6)
-#g.map_dataframe(lambda data, **kws: plt.axline((20, 20), slope=1, color='.5', linestyle='--'))
 def annotate(data, **kws):
     plt.axline((0, 0), slope=1, color='.5', linestyle='--')
     rmse = r2_score(data['A'], data['A_Pred'])
@@ -347,25 +334,37 @@ def annotate(data, **kws):
     ax.text(.05, .8, 'mse={:.4f}'.format(rmse),
             transform=ax.transAxes)
 g.map_dataframe(annotate)
+
 text = "A"
-#plt.title(text)
-plt.xlabel(f"Actual {text}")
-plt.ylabel(f"Predict {text}")
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+plt.figure(figsize=(300,300))
+g.set_xlabels(f"Actual {text}")
+g.set_ylabels(f"Calculated {text}")
+g.fig.subplots_adjust(top=0.9)
+g.fig.suptitle(f'{text} Prediction from XGB Model, Functional Group')
+plt.show()
+#%% B
+x_min = min(min(df_plot["B"]), min(df_plot["B_Pred"]))-10000
+x_max = max(max(df_plot["B"]), max(df_plot["B_Pred"]))+10000
+#x_min = -10000;
+#x_max = 40000
+y_min = x_min; y_max = x_max
+
+
+# B - All
+sns.scatterplot(df_plot, x="B", y="B_Pred", alpha=0.6)
+plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+
+plt.title("B Prediction from XGB Model, All Substance")
+plt.xlabel("Actual B")
+plt.ylabel("Calculated B")
 plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
 plt.figure(figsize=(300,300))
 plt.show()
-#%%
-x_min = min(min(df_plot["B"]), min(df_plot["B_Pred"]))
-x_max = max(max(df_plot["B"]), max(df_plot["B_Pred"]))+1000
-x_min = -10000;
-#x_max = 40000
-y_min = x_min; y_max = x_max
 
-# =============================================================================
-# sns.scatterplot(df_plot, x="B", y="B_Pred", alpha=0.6)
-# plt.axline((0, 0), slope=1, color='.5', linestyle='--')
-# =============================================================================
+# B - Functional Group
 
 g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
 g.map_dataframe(sns.scatterplot, x="B", y="B_Pred", alpha=0.6)
@@ -379,28 +378,38 @@ def annotate(data, **kws):
 g.map_dataframe(annotate)
 
 text = "B"
-#plt.title(text)
-plt.xlabel(f"Actual {text}")
-plt.ylabel(f"Predict {text}")
 plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
 plt.figure(figsize=(300,300))
+g.set_xlabels(f"Actual {text}")
+g.set_ylabels(f"Calculated {text}")
+g.fig.subplots_adjust(top=0.9)
+g.fig.suptitle(f'{text} Prediction from XGB Model, Functional Group')
 plt.show()
 
-#%%
+#%% C
 x_min = min(min(df_plot["C"]), min(df_plot["C_Pred"]))-100
 x_max = max(max(df_plot["C"]), max(df_plot["C_Pred"]))+100
 #x_min = -10000; x_max = 40000
 y_min = x_min; y_max = x_max
 
-# =============================================================================
-# sns.scatterplot(df_plot, x="C", y="C_Pred", alpha=0.6)
-# plt.axline((-50, -50), slope=1, color='.5', linestyle='--')
-# =============================================================================
+# C - All
+sns.scatterplot(df_plot, x="C", y="C_Pred", alpha=0.6)
+plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+
+plt.title("C Prediction from XGB Model, All Substance")
+plt.xlabel("Actual C")
+plt.ylabel("Calculated C")
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+plt.figure(figsize=(300,300))
+plt.show()
+
+# C - Functional Group
 
 g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
 g.map_dataframe(sns.scatterplot, x="C", y="C_Pred", alpha=0.6)
-#g.map_dataframe(lambda data, **kws: plt.axline((20, 20), slope=1, color='.5', linestyle='--'))
+#g.map_dataframe(lambda data, **kws: plt.axline((0, 0), slope=1, color='.5', linestyle='--'))
 def annotate(data, **kws):
     plt.axline((0, 0), slope=1, color='.5', linestyle='--')
     rmse = r2_score(data['C'], data['C_Pred'])
@@ -408,13 +417,15 @@ def annotate(data, **kws):
     ax.text(.05, .8, 'mse={:.4f}'.format(rmse),
             transform=ax.transAxes)
 g.map_dataframe(annotate)
+
 text = "C"
-#plt.title(text)
-plt.xlabel(f"Actual {text}")
-plt.ylabel(f"Predict {text}")
 plt.xlim(x_min, x_max)
 plt.ylim(y_min, y_max)
 plt.figure(figsize=(300,300))
+g.set_xlabels(f"Actual {text}")
+g.set_ylabels(f"Calculated {text}")
+g.fig.subplots_adjust(top=0.9)
+g.fig.suptitle(f'{text} Prediction from XGB Model, Functional Group')
 plt.show()
 #%% MAPE ABC
 mean_absolute_error(final3["A"], final3["A_Pred"])
@@ -428,3 +439,6 @@ mean_absolute_percentage_error(final3["C"], final3["C_Pred"])
 r2_score(final3["A"], final3["A_Pred"])
 r2_score(final3["B"], final3["B_Pred"])
 r2_score(final3["C"], final3["C_Pred"])
+
+#%% Export Section
+final3.to_csv("csv_05-2 Train ABC Calculated.csv")

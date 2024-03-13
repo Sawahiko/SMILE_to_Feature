@@ -278,7 +278,7 @@ def generate_points(row, amount_point):
         return np.linspace(start, end, 1)
 df1["T"] = df1.apply(lambda x : generate_points(x, 5), axis=1)
 df1 = df1.explode('T')
-df1['T'] = df1['T'].astype('float32')
+df1['T'] = df1['T'].astype('float64')
 df1 = df1.reset_index(drop=True)
 
 def Psat_cal(T,A,B,C):
@@ -350,8 +350,11 @@ df_5VP_export2 = df_5VP_na.copy()
 # =============================================================================
 df_VP_final_export = pd.merge(df_5VP_export1, df_VP_export, on="SMILES")
 #%% Export Section
-df_VP_export.to_csv("csv_01-1 Psat_[X]_ABCTminTmaxC1-12.csv")
-df_VP_outliner_export.to_csv("csv_01-2 Psat_Outliner.csv")
-df_5VP_export1.to_csv("csv_01-3 Psat_5VP_all_SMILES.csv")
-df_5VP_export2.to_csv("csv_01-4 Psat_5VP_nan_SMILES.csv")
-df_VP_final_export.to_csv("csv-01-0 Psat-1800.csv")
+# =============================================================================
+# df_VP_export.to_csv("csv_01-1 Psat_[X]_ABCTminTmaxC1-12.csv")
+# df_VP_outliner_export.to_csv("csv_01-2 Psat_Outliner.csv")
+# df_5VP_export1.to_csv("csv_01-3 Psat_5VP_all_SMILES.csv")
+# df_5VP_export2.to_csv("csv_01-4 Psat_5VP_nan_SMILES.csv")
+# df_VP_final_export.to_csv("csv-01-0 Psat-1800.csv")
+# 
+# =============================================================================
