@@ -9,9 +9,6 @@ from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error,
 final3 = pd.read_csv("csv_05-2 Train ABC Calculated.csv")
 
 
-final4 = final3[["SMILES","A_Pred", "B_Pred", "C_Pred",
-                 "A", "B", "C", "T",
-                 "ln_Psat_Actual (Pa)", "ln_Psat_Pred (Pa)"]]
 def cb(x):
     x1 = x.strip('][').split(', ')
     x2 = [float(i) for i in x1]
@@ -19,7 +16,7 @@ def cb(x):
 
 final4 = final3[["SMILES","A_Pred", "B_Pred", "C_Pred",
                  "A", "B", "C", "T",
-                 "ln_Psat_Actual (Pa)", "ln_Psat_Pred (Pa)"]]
+                 "ln_Psat_Actual (Pa)", "ln_Psat_Pred (Pa)", "Func. Group"]]
     
 final4["ln_Psat_Actual (Pa)"] = final4["ln_Psat_Actual (Pa)"].apply(lambda x: cb(x))
 final4["ln_Psat_Pred (Pa)"] = final4["ln_Psat_Pred (Pa)"].apply(lambda x: cb(x))
@@ -135,7 +132,7 @@ for i in range(len(final4)):
     #print(i)
     temp = final4.iloc[i]
     rmse_predict = temp["RMSE"]
-    count, p = do_plot(rmse_predict, False, count, thereshold=thereshold_input, is_second_cond=False)
+    count, p = do_plot(rmse_predict, True, count, thereshold=thereshold_input, is_second_cond=False)
     list_pic_not_pass.append(p)
 
 list_pic_pass = []    
@@ -143,7 +140,7 @@ for i in range(len(final4)):
     #print(i)
     temp = final4.iloc[i]
     rmse_predict = temp["RMSE"]
-    count,p = do_plot(rmse_predict, False, count, thereshold=thereshold_input, is_second_cond=True)
+    count,p = do_plot(rmse_predict, True, count, thereshold=thereshold_input, is_second_cond=True)
     list_pic_pass.append(p)
     
 #%%
@@ -167,9 +164,20 @@ final6 = final5.explode(["ln_Psat_Actual (Pa)_Cal", "ln_Psat_Pred (Pa)_Cal",
 print(len(final4_pass))
 print(len(final4_notpass ))
 sns.scatterplot(final6, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)", alpha=0.6)
+plt.xlim(-20, 25)
+plt.ylim(-20, 25)
 plt.show()
 sns.scatterplot(final6, x="ln_Psat_Actual (Pa)_Cal", y="ln_Psat_Pred (Pa)_Cal", alpha=0.6)
 plt.xlim(-20, 25)
 plt.ylim(-20, 25)
 plt.show()
 
+#%%
+f41= final4_pass.groupby("Func. Group")["RMSE2"].agg(lambda x: sum(x==True))
+f41
+f42 = final4_notpass.groupby("Func. Group")["RMSE2"].agg(lambda x: sum(x==False))
+f42
+f43 = pd.concat([f41, f42 ], axis=1)
+f43.columns=["Pass", "Not Pass"]
+#f43["Pass"] = f43["Pass"].astype(int)
+print(f43)

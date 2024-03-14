@@ -14,7 +14,7 @@ def cb(x):
 
 final4 = final3[["SMILES","A_Pred", "B_Pred", "C_Pred",
                  "A", "B", "C", "T",
-                 "ln_Psat_Actual (Pa)", "ln_Psat_Pred (Pa)"]]
+                 "ln_Psat_Actual (Pa)", "ln_Psat_Pred (Pa)", "Func. Group"]]
     
 final4["ln_Psat_Actual (Pa)"] = final4["ln_Psat_Actual (Pa)"].apply(lambda x: cb(x))
 final4["ln_Psat_Pred (Pa)"] = final4["ln_Psat_Pred (Pa)"].apply(lambda x: cb(x))
@@ -171,3 +171,12 @@ plt.xlim(-20, 25)
 plt.ylim(-20, 25)
 plt.show()
 
+#%%
+f41= final4_pass.groupby("Func. Group")["RMSE2"].agg(lambda x: sum(x==True))
+f41
+f42 = final4_notpass.groupby("Func. Group")["RMSE2"].agg(lambda x: sum(x==False))
+f42
+f43 = pd.concat([f41, f42 ], axis=1)
+f43.columns=["Pass", "Not Pass"]
+#f43["Pass"] = f43["Pass"].astype(int)
+print(f43)
