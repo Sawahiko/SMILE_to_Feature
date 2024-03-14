@@ -69,86 +69,114 @@ result
 
 result_temp = df3.groupby('SMILES', sort=False)[['T', 'ln_Psat_Pred (Pa)', 'ln_Psat_Actual (Pa)']].agg("count")
 #%%
-x = result["T"].apply(lambda num: [1/num1 for num1 in num])
-y = result["ln_Psat_Actual (Pa)"]
-#y_flat = y.explode()
-xy_table = pd.DataFrame({
-    "x" : x,
-    "y" : y})
+from scipy.optimize import minimize
 
-result2 = result.join(xy_table)
+def sse_all(x, name_psat):
+    sub = x
+    def sse(v, T, logP):
+        a,b,c=v
+        return np.sum((logP-(a-b/(T+c)))**2)
+    #print(sub)
+    
+    t_input = [np.array(i) for i in sub["T"]]
+    logP_input = [np.array(i) for i in sub[name_psat]]
+    result_minimize= minimize(sse, (20,2000,-10),args=(t_input, logP_input))
+    #print(result_minimize.x)
+    return result_minimize.x
+result["ABC"] = result.apply(lambda x : sse_all(x, "ln_Psat_Pred (Pa)"), axis=1)
+
 #%%
-from scipy.optimize import curve_fit
-def objective(X, a, b, c):
-    x,y = X
-    # Linearized Equation : y + C * y * x1 = A + B * x1
-    # return a +(b*x) - (c*y*x)
+# =============================================================================
+# x = result["T"].apply(lambda num: [1/num1 for num1 in num])
+# y = result["ln_Psat_Pred (Pa)"]
+# #y_flat = y.explode()
+# xy_table = pd.DataFrame({
+#     "x" : x,
+#     "y" : y})
+# 
+# result2 = result.join(xy_table)
+# 
+# from scipy.optimize import curve_fit
+# def objective(X, a, b, c):
+#     x,y = X
+#     # Linearized Equation : y + C * y * x1 = A + B * x1
+#     # return a +(b*x) - (c*y*x)
+# 
+#     # Linearized Equation : logP = A + (AC-B) (1/T) +  (-C) (logP /T)
+#     a0 = a
+#     a1 = a*c - b
+#     a2 = -c
+#     x1 = x
+#     x2 = y*x
+#     return a0 + a1*x1 + a2*x2
+# 
+# def getABC(row):
+#     #print(row.x)
+#     x1 = row.x
+#     y1 = row.y
+#     #print(row.SMILES)
+#     popt, _ = curve_fit(objective, (x1,y1), y1, method="dogbox")
+#     a,b,c = popt
+#     row.a = a
+#     row.b = b
+#     row.c = c
+#     return [row.a, row.b, row.c]
+# #z = func((x,y), a, b, c) * 1
+# result2["ABC"] = result2.apply(getABC, axis=1)
+# =============================================================================
+result[['A_Pred', 'B_Pred', 'C_Pred']] = pd.DataFrame(result['ABC'].tolist())
 
-    # Linearized Equation : logP = A + (AC-B) (1/T) +  (-C) (logP /T)
-    a0 = a
-    a1 = a*c - b
-    a2 = -c
-    x1 = x
-    x2 = y*x
-    return a0 + a1*x1 + a2*x2
+#%%
+# =============================================================================
+# x_test = result["T"].apply(lambda num: [1/num1 for num1 in num])
+# y_test = result["ln_Psat_Actual (Pa)"]
+# xy_test_table = pd.DataFrame({
+#     "x_test" : x_test,
+#     "y_test" : y_test})
+# result2 = result2.join(xy_test_table)
+# def getABC2(row):
+#     #print(row.x)
+#     x1 = row.x_test
+#     y1 = row.y_test
+#     #print(row.SMILES)
+#     popt, _ = curve_fit(objective, (x1,y1), y1, method="dogbox")
+#     a,b,c = popt
+#     row.a = a
+#     row.b = b
+#     row.c = c
+#     return [row.a, row.b, row.c]
+# =============================================================================
+#%%
+result["ABC_test"] = result.apply(lambda x : sse_all(x, "ln_Psat_Actual (Pa)"), axis=1)
+result[['A_test', 'B_test', 'C_test']] = pd.DataFrame(result['ABC_test'].tolist())
+result
 
-def getABC(row):
-    #print(row.x)
-    x1 = row.x
-    y1 = row.y
-    #print(row.SMILES)
-    popt, _ = curve_fit(objective, (x1,y1), y1, method="lm")
-    a,b,c = popt
-    row.a = a
-    row.b = b
-    row.c = c
-    return [row.a, row.b, row.c]
-#z = func((x,y), a, b, c) * 1
-result2["ABC"] = result2.apply(getABC, axis=1)
-result2[['A_Pred', 'B_Pred', 'C_Pred']] = pd.DataFrame(result2['ABC'].tolist())
-
-
-x_test = result["T"].apply(lambda num: [1/num1 for num1 in num])
-y_test = result["ln_Psat_Actual (Pa)"]
-xy_test_table = pd.DataFrame({
-    "x_test" : x_test,
-    "y_test" : y_test})
-result2 = result2.join(xy_test_table)
-def getABC2(row):
-    #print(row.x)
-    x1 = row.x_test
-    y1 = row.y_test
-    #print(row.SMILES)
-    popt, _ = curve_fit(objective, (x1,y1), y1, method="lm")
-    a,b,c = popt
-    row.a = a
-    row.b = b
-    row.c = c
-    return [row.a, row.b, row.c]
-result2["ABC_test"] = result2.apply(getABC2, axis=1)
-result2[['A_test', 'B_test', 'C_test']] = pd.DataFrame(result2['ABC_test'].tolist())
-result2
-
-result3 = result2[["SMILES", "A_Pred", "B_Pred", "C_Pred", "A_test", "B_test", "C_test"]]
+#%%
+result3 = result[["SMILES", "A_Pred", "B_Pred", "C_Pred", "A_test", "B_test", "C_test"]]
 result3
 #%%
 #df_initial = pd.read_csv(r"C:/Users\Kan\Documents/GitHub\SMILE_to_Feature\Second Semester\[Use] Main File\RDKit_CHON_New_Data_Psat_Not_Outliers.csv")
 df_initial = df.copy()
 df_for_lookup = df_initial.copy()
 
-final = result3.set_index('SMILES').join(df_for_lookup.set_index("SMILES"), on="SMILES"
-                                         , validate="one_to_one")
-#final = result3.merge(df_for_lookup, on="SMILES", how='inner')
+# =============================================================================
+# final = result3.set_index('SMILES').join(df_for_lookup.set_index('SMILES'), on="SMILES", validate="one_to_one",
+#                      lsuffix='_caller', rsuffix='_other')
+# =============================================================================
+final = result3.merge(df_for_lookup, on="SMILES", how='inner')
+final = final.iloc[:, [0,1,2,3,4,5,6, 15,16,17,24,25]]
 #final = pd.concat([result3, df_for_lookup], axis=1, join='inner')
 
 #final = result3.join(df_for_lookup, on="SMILES")
-final = pd.concat([result3, df_for_lookup[["A", "B", "C", "Atom2", "Func. Group"]]], axis=1, join="inner")
+#final = pd.concat([result3, df_for_lookup[["A", "B", "C", "Atom2", "Func. Group"]]], axis=1, join="inner")
 #print(final.describe())
 final2 = pd.concat([final, result["T"]], axis=1, join="inner")
 final2
 #%%
 rmse_func = lambda x,y : mean_squared_error(x,y, squared=False)
-final3 = final2.merge(result[["SMILES", "ln_Psat_Pred (Pa)", "ln_Psat_Actual (Pa)"]], on="SMILES")
+final3 = final2.merge(result[["SMILES", "ln_Psat_Pred (Pa)", "ln_Psat_Actual (Pa)"]],
+                      on="SMILES",
+                      how='inner')
 def cb2(row):
     #print(row["Test Actual"])
     return  rmse_func(row["ln_Psat_Actual (Pa)"], row["ln_Psat_Pred (Pa)"])
@@ -455,4 +483,4 @@ r2_score(final3["B"], final3["B_Pred"])
 r2_score(final3["C"], final3["C_Pred"])
 
 #%% Export Section
-#final3.to_csv("csv_05-1 Test ABC Calculated.csv")
+final3.to_csv("csv_05-1 Test ABC Calculated.csv")
