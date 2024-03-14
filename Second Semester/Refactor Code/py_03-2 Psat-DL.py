@@ -70,8 +70,8 @@ class PSAT_DL(nn.Module):
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') #Check GPU
 N_Output = 1
 N_Layer = 2
-N_Hidden = 256
-dropout_rate = 0.3
+N_Hidden = 1000
+dropout_rate = 0.2
 learning_rate = 0.0001
 
 #Create Model
@@ -82,7 +82,7 @@ optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay = 0.00
 criterion = nn.MSELoss()
 training_log = {"train_loss": [], "val_loss": [], "N_Hidden": [], "N_Layer": []}
 
-for epoch in range(1000):  # loop over the dataset multiple times
+for epoch in range(200):  # loop over the dataset multiple times
     model.train()
     train_loss = 0.0
     for i, data in enumerate(train_loader):

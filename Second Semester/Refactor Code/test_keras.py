@@ -72,7 +72,7 @@ tuner = kt.Hyperband(
     factor=3,
     max_epochs=100, #Max epoch to train for each model
     directory='my_directory', 
-    project_name='test_f2'
+    project_name='test_f'
 )
 
 # Early stopping for efficiency 
@@ -80,21 +80,23 @@ stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 
 tuner.search(x_train, y_train,
              epochs=100, #Trial
-             validation_split=0.2, 
+             validation_split=0.1, 
              callbacks=[stop_early])
 
 # Build model best hyperparameter
 best_hp = tuner.get_best_hyperparameters()[0]
 model = tuner.hypermodel.build(best_hp)
-history = model.fit(x_train, y_train, epochs=100, validation_split=0.2, callbacks=[stop_early])
+history = model.fit(x_train, y_train, epochs=100, validation_split=0.2)
 
 loss = pd.DataFrame(history.history)
 
 y_pred_inv = scaler_y.inverse_transform(model.predict(x_test))
 y_test_inv = scaler_y.inverse_transform(np.array([y_test]).reshape(-1, 1))
 
-plt.plot(y_test_inv ,y_test_inv, 'k--')
-plt.scatter(y_test_inv, y_pred_inv, alpha=0.3)
+# =============================================================================
+# plt.plot(y_test_inv ,y_test_inv, 'k--')
+# plt.scatter(y_test_inv, y_pred_inv, alpha=0.3)
+# =============================================================================
 
 plt.plot(y_test_inv ,y_test_inv, 'k--')
 plt.scatter(y_test_inv, y_pred_inv, alpha=0.3)
