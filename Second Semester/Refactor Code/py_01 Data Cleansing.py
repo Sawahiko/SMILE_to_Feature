@@ -37,8 +37,32 @@ def remove_outliers_boxplot(Excel_path, Excel_sheetname, columns, IQR_factor=1.5
             plt.title(name_title)
             plt.boxplot(df[column])
             plt.show()
-        
 
+    return df.reset_index(drop=True)
+
+def remove_outliers_boxplot_csv(CSV_path, columns, IQR_factor=1.5, show_result=False):
+    df = pd.read_csv(CSV_path)
+
+    for column in columns:
+        
+        plt.title(column)
+        plt.boxplot(df[column])
+        plt.show()
+        
+        Q1 = df[column].quantile(0.25)
+        Q3 = df[column].quantile(0.75)
+        IQR = Q3 - Q1
+
+        lower_bound = Q1 - (IQR_factor * IQR)
+        upper_bound = Q3 + (IQR_factor * IQR)
+        
+        df = df[(df[column] > lower_bound) & (df[column] < upper_bound)]
+        if show_result:
+            name_title = "Extracted "+column 
+            plt.title(name_title)
+            plt.boxplot(df[column])
+            plt.show()
+        
     return df.reset_index(drop=True)
 
 def remove_outliers_z(Excel_path, Excel_sheetname, columns, z_thereshold, show_result=False):
@@ -49,7 +73,6 @@ def remove_outliers_z(Excel_path, Excel_sheetname, columns, z_thereshold, show_r
         plt.title(column)
         plt.boxplot(df[column])
         plt.show()
-        
         
 # =============================================================================
 #         upper_limit = df_org['cgpa'].mean() + 3*df_org['cgpa'].std()
@@ -104,6 +127,37 @@ def remove_outliers_z(Excel_path, Excel_sheetname, columns, z_thereshold, show_r
 # =============================================================================
 
 df_original = pd.read_excel("../[Use] Data Preparation/Psat_AllData_1.xlsx", sheet_name="All")
+
+#%% MinMax TMinMax Outlier
+# =============================================================================
+# df_original_remove_ABCMinMax_1 = remove_outliers_boxplot("../[Use] Data Preparation/Psat_AllData_1.xlsx",
+#                                                          "All", ["A", "B", "C", "Tmin", "Tmax"], 1.5, True)
+# 
+# def extract_unique_atoms_from_smiles(smiles_list):
+#     atoms_list = []
+#     for smiles in smiles_list:
+#         mol = Chem.MolFromSmiles(smiles)
+#         if mol is not None:
+#             unique_atoms = set()  # Use a set to store unique atoms
+#             for atom in mol.GetAtoms():
+#                 unique_atoms.add(atom.GetSymbol())
+#             atoms_list.append(list(unique_atoms))  # Convert set to list
+#         else:
+#             atoms_list.append(None)  # Indicate invalid SMILES
+#     return atoms_list
+# 
+# 
+# smiles_1 = df_original_remove_ABCMinMax_1["SMILES"]
+# atoms = extract_unique_atoms_from_smiles(smiles_1)
+# 
+# df_original_remove_ABCMinMax_1["Atom"] = atoms
+# 
+# searchfor = ['C', 'H', 'O', 'N']
+# df_original_remove_ABCMinMax_1["TrueFalse"] = df_original_remove_ABCMinMax_1['Atom'].apply(lambda x: 1 if any(i in x for i in searchfor) else 0)
+# #df_original_remove_ABCMinMax_1['Atom_Pass'] = df_original_remove_ABCMinMax_1['Atom'].str.contains('Eas').any()
+# 
+# df_original_remove_ABCMinMax_1.to_csv("ABC_Outlier.csv")
+# =============================================================================
 #%%
 def get_all_atomic_number(SMILES):
     def composition(molecule):
