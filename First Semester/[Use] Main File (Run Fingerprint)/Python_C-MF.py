@@ -32,7 +32,7 @@ old_df = pd.DataFrame({
 
 MF_bit_s = [2**12]
 MF_radius_s = [3]
-Name_model = "XGB"
+Name_model = "KNN"
 j=0
 
 for MF_radius in MF_radius_s:
@@ -82,30 +82,32 @@ for MF_radius in MF_radius_s:
         print(sel_f[1])
         print(X_data_excel["SMILES"][3421])
         y_data_fp = Y_data.copy()
-        if MF_radius == 2:
-            if MF_bit == 1024:
-                K = 440
-            elif MF_bit == 2048:
-                K = 668
-            elif MF_bit == 4096:
-                K = 893
-        elif MF_radius == 3:
-            if MF_bit == 1024:
-                K = 556
-            elif MF_bit == 2048:
-                K = 824
-            elif MF_bit == 4096:
-                K = 1202
-        elif MF_radius == 4:
-            if MF_bit == 1024:
-                K = 668
-            elif MF_bit == 2048:
-                K = 972
-            elif MF_bit == 4096:
-                K = 1417
-        k_best = SelectKBest(f_regression, k=K) # Select the top 200 features
-        x_new = k_best.fit_transform(x_data_fp, y_data_fp)
-
+# =============================================================================
+#         if MF_radius == 2:
+#             if MF_bit == 1024:
+#                 K = 440
+#             elif MF_bit == 2048:
+#                 K = 668
+#             elif MF_bit == 4096:
+#                 K = 893
+#         elif MF_radius == 3:
+#             if MF_bit == 1024:
+#                 K = 556
+#             elif MF_bit == 2048:
+#                 K = 824
+#             elif MF_bit == 4096:
+#                 K = 1202
+#         elif MF_radius == 4:
+#             if MF_bit == 1024:
+#                 K = 668
+#             elif MF_bit == 2048:
+#                 K = 972
+#             elif MF_bit == 4096:
+#                 K = 1417
+#         k_best = SelectKBest(f_regression, k=K) # Select the top 200 features
+#         x_new = k_best.fit_transform(x_data_fp, y_data_fp)
+# 
+# =============================================================================
 # =============================================================================
 #         scores = k_best.scores_
 # 
@@ -127,7 +129,7 @@ for MF_radius in MF_radius_s:
                                                                         random_state=42)
         # %%
         start_time = time.time()
-        model = XGB(x_train_fp, y_train_fp)
+        model = KNN(x_train_fp, y_train_fp)
         end_time = time.time()
         print("Elasped Time : ", end_time-start_time, "seconds")
         
@@ -149,7 +151,7 @@ for MF_radius in MF_radius_s:
         
         df3 = pd.DataFrame({'Actual': y_test_fp,
                             'Predict': y_pred_test})
-#        Export(df3, "C-MF 2023-11-11/Ridge_Test_Tb_Value.csv")
+        Export(df3, f"Result & Visual/C-MF 2024-03-15/{Name_model}_Test_Tb_Value.csv")
 # %%
         if(j>0):
             old_df = df_combine.copy()
@@ -159,4 +161,4 @@ for MF_radius in MF_radius_s:
         df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 # %%
-#Export(df_combine, "C-MF 2023-11-11/All.csv")
+Export(df_combine, f"Result & Visual/C-MF 2024-03-15/{Name_model}.csv")
