@@ -90,6 +90,12 @@ def XGB(x_train, y_train):
     print(random_search.best_params_)
     
     return best_model
+def XGB_Default(x_train, y_train):
+    # Create a RandomizedSearchCV object
+    xgb = XGBRegressor(random_state=42)
+    xgb.fit(x_train, y_train)
+    
+    return xgb
 
 # =============================================================================
 # def NN(x_train, y_train):
