@@ -42,9 +42,9 @@ for MF_radius in MF_radius_s:
 
         # %% Import Data : 560 datapoint
         # Import Data
-        df = remove_outliers("../Data.xlsx", "New_Data", 2)
+        #df = remove_outliers("../Data.xlsx", "New_Data", 2)
         #df = remove_outliers("../Data.xlsx", "CHO", 2)
-        #df = pd.read_excel("../DataTb.xlsx",sheet_name="AllDataSet")
+        df = pd.read_excel("../Data.xlsx",sheet_name="560point")
         #df = pd.read_excel("../Data.xlsx",sheet_name="Load_AllDataSetC12")
         #df = pd.read_excel("../Data.xlsx",sheet_name="Load_CHO")
         #df = pd.read_excel("../Data.xlsx",sheet_name="New_Data")
@@ -82,7 +82,7 @@ for MF_radius in MF_radius_s:
         x_data_fp = pd.concat(X_data_fp, ignore_index=True)
         sel_f = x_data_fp.sort_values(by=1, ascending=False, inplace=False)
         print(sel_f[1])
-        print(X_data_excel["SMILES"][3421])
+        #print(X_data_excel["SMILES"][3421])
         y_data_fp = Y_data.copy()
 # =============================================================================
 #         if MF_radius == 2:
@@ -164,4 +164,5 @@ for MF_radius in MF_radius_s:
         df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 # %%
-#Export(df_combine, "C-MF 2023-11-11/All.csv")
+#Export(df_combine, "2024-03-15 CHON Fingerprint inspect.csv")
+#Export(df_combine, "2024-03-15 CH Fingerprint inspect.csv")

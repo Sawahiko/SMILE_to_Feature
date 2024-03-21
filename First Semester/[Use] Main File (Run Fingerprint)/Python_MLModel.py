@@ -168,6 +168,12 @@ def DT(x_train, y_train):
     
     return best_model
 
+def DT_Default(x_train, y_train):
+    
+    # Create a RandomizedSearchCV object
+    dt = DecisionTreeRegressor(random_state=42).fit(x_train, y_train)
+    
+    return dt
 # =============================================================================
 # def DT(x_train, y_train):
 #     model = DecisionTreeRegressor()

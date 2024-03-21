@@ -129,6 +129,29 @@ for i in MF_model_list:
     df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 #%% Prepare Export 3 - FP Insepction
-Export(df_combine, f"Result & Visual/CH 2024-03-15/{Name_model}.csv")
+#Export(df_combine, f"Result & Visual/CH 2024-03-15/{Name_model}.csv")
+df_combine["Model"]="DT"
+
+#%% Visualization
+v_min = 0.6
+v_max = 0.8
 
 
+
+import seaborn as sns
+df_v = df_combine.copy()
+df2_v = df_v.copy()#.drop(columns={"DataType", "MAE", "RMSE", "R2"})
+column_names = ["Model", "nBits","Radius", "R2"]
+df3_v = df2_v.reindex(columns=column_names)
+df4_v = df3_v[df3_v.Model == "DT"]
+df4_v=df4_v.reset_index()
+df5_v = df4_v[df4_v["index"]%3==2]
+df5_v.shape
+
+new_df = df5_v.pivot_table(index="nBits", columns="Radius", values="R2")
+new_df.sort_index(level=1, ascending=True, inplace=True)
+g = sns.heatmap(new_df,  annot=True, fmt=".3f", cmap=sns.color_palette("light:brown_r", as_cmap=True))
+           #vmin=v_min ,vmax=v_max)
+g.invert_yaxis()
+g.get_xaxis().set_visible(True)
+g.set_title("DT")
