@@ -33,12 +33,12 @@ old_df = pd.DataFrame({
     })
 
 import itertools
-MF_bit_s = [2**9, 2**10, 2**11, 2**12] ; MF_radius_s = [2,3,4,5]
-#MF_bit_s = [2**12] ; MF_radius_s = [3]
+#MF_bit_s = [2**9, 2**10, 2**11, 2**12] ; MF_radius_s = [2,3,4,5]
+MF_bit_s = [2**12] ; MF_radius_s = [3]
 
 #Name_model = ["XGB"] ; model_func = [XGB]
-Name_model = ["DT"] ; model_func = [DT_Default]  ## TEMPORARY ##
-#Name_model = ["Ridge", "KNN", "RF", "XGB"] ; model_func = [Ridge_M, KNN, RF, XGB]
+#Name_model = ["DT"] ; model_func = [DT_Default]  ## TEMPORARY ##
+Name_model = ["Ridge", "KNN", "RF", "XGB"] ; model_func = [Ridge_M, KNN, RF, XGB]
 
 MF_list = list(itertools.product(MF_bit_s, MF_radius_s ))
 model_list = list(zip(Name_model, model_func))

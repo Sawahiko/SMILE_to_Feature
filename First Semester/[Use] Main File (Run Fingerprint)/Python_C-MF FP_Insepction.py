@@ -33,7 +33,7 @@ old_df = pd.DataFrame({
     })
 
 import itertools
-MF_bit_s = [2**9, 2**10, 2**11, 2**12] ; MF_radius_s = [2,3,4,5]
+MF_bit_s = [2**10, 2**11, 2**12] ; MF_radius_s = [2,3,4,5]
 #MF_bit_s = [2**12] ; MF_radius_s = [3]
 
 #Name_model = ["XGB"] ; model_func = [XGB]
