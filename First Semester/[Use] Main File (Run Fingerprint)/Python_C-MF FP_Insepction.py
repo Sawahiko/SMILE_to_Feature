@@ -36,8 +36,8 @@ import itertools
 MF_bit_s = [2**10, 2**11, 2**12] ; MF_radius_s = [2,3,4,5]
 #MF_bit_s = [2**12] ; MF_radius_s = [3]
 
-#Name_model = ["XGB"] ; model_func = [XGB]
-Name_model = ["DT"] ; model_func = [DT_Default]  ## TEMPORARY ##
+Name_model = ["XGB"] ; model_func = [XGB]
+#Name_model = ["DT"] ; model_func = [DT_Default]  ## TEMPORARY ##
 #Name_model = ["Ridge", "KNN", "RF", "XGB"] ; model_func = [Ridge_M, KNN, RF, XGB]
 
 MF_list = list(itertools.product(MF_bit_s, MF_radius_s ))
@@ -119,7 +119,7 @@ for i in MF_model_list:
     df3_r = pd.DataFrame({'SMIELS':test["SMILES"],  'Atom2':test["Atom2"],
                           'Func. Group':test["Func. Group"],
                           'Actual': y_test_fp, 'Predict': y_pred_test})
-    #Export(df3_r, f"Result & Visual/CH 2024-03-15/{Name_model}_Test_Tb_Value.csv")
+    Export(df3_r, f"Result & Visual/CH 2024-03-22/{Name_model}_Test_Tb_Value.csv")
     #%% Prepare Export 2 - FP Insepction
     if(j>0):
         old_df = df_combine.copy()
@@ -129,13 +129,12 @@ for i in MF_model_list:
     df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 #%% Prepare Export 3 - FP Insepction
-#Export(df_combine, f"Result & Visual/CH 2024-03-15/{Name_model}.csv")
-df_combine["Model"]="DT"
+#Export(df_combine, f"Result & Visual/CH 2024-03-22/{Name_model}.csv")
+df_combine["Model"]="XGB"
 
 #%% Visualization
 v_min = 0.6
 v_max = 0.8
-
 
 
 import seaborn as sns
@@ -143,7 +142,7 @@ df_v = df_combine.copy()
 df2_v = df_v.copy()#.drop(columns={"DataType", "MAE", "RMSE", "R2"})
 column_names = ["Model", "nBits","Radius", "R2"]
 df3_v = df2_v.reindex(columns=column_names)
-df4_v = df3_v[df3_v.Model == "DT"]
+df4_v = df3_v[df3_v.Model == "XGB"]
 df4_v=df4_v.reset_index()
 df5_v = df4_v[df4_v["index"]%3==2]
 df5_v.shape
@@ -154,4 +153,4 @@ g = sns.heatmap(new_df,  annot=True, fmt=".3f", cmap=sns.color_palette("light:br
            #vmin=v_min ,vmax=v_max)
 g.invert_yaxis()
 g.get_xaxis().set_visible(True)
-g.set_title("DT")
+g.set_title("XGB")
