@@ -119,7 +119,7 @@ for i in MF_model_list:
     df3_r = pd.DataFrame({'SMIELS':test["SMILES"],  'Atom2':test["Atom2"],
                           'Func. Group':test["Func. Group"],
                           'Actual': y_test_fp, 'Predict': y_pred_test})
-    #Export(df3_r, f"Result & Visual/CH 2024-03-22/{Name_model}_Test_Tb_Value.csv")
+    Export(df3_r, f"Result & Visual/CH 2024-03-22/{model_name}_Test_Tb_Value.csv")
     #%% Prepare Export 2 - FP Insepction
     if(j>0):
         old_df = df_combine.copy()
@@ -129,6 +129,6 @@ for i in MF_model_list:
     df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 #%% Prepare Export 3 - FP Insepction
-Export(df_combine, f"Result & Visual/CH 2024-03-22/{Name_model}_2.csv")
+Export(df_combine, f"Result & Visual/CH 2024-03-22/{Name_model}.csv")
 
 
