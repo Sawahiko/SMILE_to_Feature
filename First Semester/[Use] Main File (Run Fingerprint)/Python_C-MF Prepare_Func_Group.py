@@ -20,12 +20,12 @@ from rdkit import DataStructs
 # Our module
 from Python_Scoring_Export import Scoring, Export
 from Python_MLModel import RF, Ridge_M, XGB, NN, CB, DT, SVR_M, KNN
-from Python_RemoveO import remove_outliers
+from Python_RemoveO import remove_outliers_boxplot
 
 start_time = time.time()
 # %% Import Data : 560 datapoint
 # Import Data
-df_original = remove_outliers("../Data.xlsx", "New_Data", 2)
+df_original = remove_outliers_boxplot("../Data.xlsx", "New_Data", ["Tb"])
 #df_original = pd.read_excel("../Data.xlsx",sheet_name="560point")
 
 # %% Get Atom Num in Molecule [1,6,7,8] 

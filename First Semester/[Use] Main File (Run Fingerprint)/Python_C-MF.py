@@ -34,7 +34,7 @@ old_df = pd.DataFrame({
 
 import itertools
 #MF_bit_s = [2**9, 2**10, 2**11, 2**12] ; MF_radius_s = [2,3,4,5]
-MF_bit_s = [2**11] ; MF_radius_s = [2]
+MF_bit_s = [2**12] ; MF_radius_s = [2]
 
 #Name_model = ["XGB"] ; model_func = [XGB]
 #Name_model = ["DT"] ; model_func = [DT_Default]  ## TEMPORARY ##
@@ -111,7 +111,7 @@ for i in MF_model_list:
     # Score Table 
     df2_r = pd.DataFrame({'Radius': [f"r= {MF_radius}", f"r= {MF_radius}", f"r= {MF_radius}"], 
                         'nBits': [f"n= {MF_bit}", f"n= {MF_bit}", f"n= {MF_bit}"],
-                        'Model': [Name_model, Name_model, Name_model]
+                        'Model': [model_name, model_name, model_name]
                                   })
     df_r = pd.concat([Score_table, df2_r], axis=1)
     
@@ -119,7 +119,7 @@ for i in MF_model_list:
     df3_r = pd.DataFrame({'SMIELS':test["SMILES"],  'Atom2':test["Atom2"],
                           'Func. Group':test["Func. Group"],
                           'Actual': y_test_fp, 'Predict': y_pred_test})
-    Export(df3_r, f"Result & Visual/CH 2024-03-22/{model_name}_Test_Tb_Value.csv")
+    Export(df3_r, f"Result & Visual/CHON 2024-03-23/{model_name}_Test_Tb_ValueP2.csv")
     #%% Prepare Export 2 - FP Insepction
     if(j>0):
         old_df = df_combine.copy()
@@ -129,6 +129,6 @@ for i in MF_model_list:
     df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 #%% Prepare Export 3 - FP Insepction
-Export(df_combine, f"Result & Visual/CH 2024-03-22/{Name_model}.csv")
+Export(df_combine, f"Result & Visual/CHON 2024-03-23/{Name_model}_2.csv")
 
 
