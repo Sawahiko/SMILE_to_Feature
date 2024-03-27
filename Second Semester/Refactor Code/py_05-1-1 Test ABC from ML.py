@@ -7,13 +7,13 @@ from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error,
 
 #%% Import data
 df = pd.read_csv("csv-01-0 Psat-1800.csv")
-df2_train = pd.read_csv("csv_02-1 df_train.csv").iloc[:,1:]
+df2_test = pd.read_csv("csv_02-2 df_test.csv").iloc[:,1:]
 rrr2 = pd.read_csv("csv_04-1 test_eval_ln(Psat).csv")
-result_train = pd.read_csv("csv_04-3 train_pred_ln(Psat).csv")
+result_test = pd.read_csv("csv_04-2 test_pred_ln(Psat).csv")
 
 
 #%%
-temp_Psat_actual_file = df2_train.copy()
+temp_Psat_actual_file = df2_test.copy()
 temp_Psat_actual_file
 
 best_name = rrr2[rrr2["RMSE.1"]==min(rrr2["RMSE.1"])]["Method"].iloc[0]
@@ -25,6 +25,14 @@ column_headers = data.columns
 data = data.applymap(str)
 data.round(3) 
 cell_text = data.to_numpy()
+# =============================================================================
+# cell_text = []
+# for row in data:
+#     try:
+#         cell_text.append([f'{x/1000:1.1f}' for x in row])
+#     except:
+#         cell_text.append(row)
+# =============================================================================
 fig, ax = plt.subplots()
 
 # hide axes
@@ -38,7 +46,7 @@ fig.tight_layout()
 
 plt.show()
 #%%
-prediction_file = result_train[result_train["Method"]==best_name].iloc[:,[2,3]].reset_index(drop=True)
+prediction_file = result_test[result_test["Method"]==best_name].iloc[:,[2,3]].reset_index(drop=True)
 prediction_file
 
 df3 = pd.concat([temp_Psat_actual_file, prediction_file], axis = 1)
@@ -270,7 +278,7 @@ df_plot
 
 #%% ln(Psat)
 # All
-x_min = -20;  x_max = 25
+x_min = -10;  x_max = 20
 y_min, y_max = x_min, x_max
 
 sns.scatterplot(df_plot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)", alpha=0.6)
@@ -285,8 +293,25 @@ plt.figure(figsize=(300,300))
 plt.show()
 
 # functional Group
-x_min = -20;  x_max = 25
+x_min = -10;  x_max = 20
 y_min, y_max = x_min, x_max
+
+g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
+g.map_dataframe(sns.scatterplot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)", alpha=0.6)
+
+def annotate(data, **kws):
+    plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+g.map_dataframe(annotate)
+
+# Add Legend, range of show
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+plt.figure(figsize=(300,300))
+g.set_xlabels("Actual ln($P_{sat}$)")
+g.set_ylabels("Predict ln($P_{sat}$)")
+g.fig.subplots_adjust(top=0.9)
+g.fig.suptitle('ln($P^{Sat}$) Prediction from XGB Model, Functional Group')
+plt.show()
 
 g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
 g.map_dataframe(sns.scatterplot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)", alpha=0.6)
@@ -332,6 +357,7 @@ g.set_ylabels("Predict $P_{sat}$")
 g.fig.subplots_adjust(top=0.9)
 g.fig.suptitle('$P^{Sat}$ Prediction from XGB Model, Functional Group')
 plt.show()
+
 #%%
 g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
 g.map_dataframe(sns.scatterplot, x="Psat_Actual (atm)", y="Psat_Pred (atm)", alpha=0.6)
@@ -344,6 +370,7 @@ plt.show()
 #%% A
 x_min = min(min(df_plot["A"]), min(df_plot["A_Pred"]))-10
 x_max = max(max(df_plot["A"]), max(df_plot["A_Pred"]))+10
+x_min = 0; x_max = 100
 y_min = x_min; y_max = x_max
 
 # A - All
@@ -381,8 +408,7 @@ plt.show()
 #%% B
 x_min = min(min(df_plot["B"]), min(df_plot["B_Pred"]))-10000
 x_max = max(max(df_plot["B"]), max(df_plot["B_Pred"]))+10000
-#x_min = -10000;
-#x_max = 40000
+x_min = -10000; x_max = 130000
 y_min = x_min; y_max = x_max
 
 
@@ -424,7 +450,7 @@ plt.show()
 #%% C
 x_min = min(min(df_plot["C"]), min(df_plot["C_Pred"]))-100
 x_max = max(max(df_plot["C"]), max(df_plot["C_Pred"]))+100
-#x_min = -10000; x_max = 40000
+x_min = -1000; x_max = 14000
 y_min = x_min; y_max = x_max
 
 # C - All
@@ -475,6 +501,4 @@ r2_score(final3["B"], final3["B_Pred"])
 r2_score(final3["C"], final3["C_Pred"])
 
 #%% Export Section
-final3.to_csv("csv_05-2 Train ABC Calculated.csv")
-
-
+#final3.to_csv("csv_05-1 Test ABC Calculated.csv")

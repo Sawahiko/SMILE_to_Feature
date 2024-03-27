@@ -52,25 +52,36 @@ SMILES_T_table_test_ex = pd.concat([SMILES_T_table_test] * len(dfs_test)).reset_
 # Merged
 result_test = pd.concat([prediction_table_test, SMILES_T_table_test_ex], axis=1)
 #%% Visualization-ln(Psat) train
+sns.set(font_scale=1.1)
+sns.set_style("white")
 
 test_prediction_bestpar_visual = result_train.copy()
 test_prediction_bestpar_visual[test_prediction_bestpar_visual["ln_Psat_Actual (Pa)"]<-20]
 print(f'min = {min(test_prediction_bestpar_visual["ln_Psat_Actual (Pa)"])}  max = {max(test_prediction_bestpar_visual["ln_Psat_Actual (Pa)"])}')
 
 # Specified Range for plot
-x_min = -20;  x_max = 25
+x_min = -10;  x_max = 20
 y_min, y_max = x_min, x_max
 
 # Plot each method
 g = sns.FacetGrid(test_prediction_bestpar_visual, col="Method", col_wrap=2, hue="Method")
 g.map_dataframe(sns.scatterplot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)", alpha=0.6)
 # Insert Perfect Line
-g.map_dataframe(lambda data, **kws: plt.axline((0, 0), slope=1, color='.5', linestyle='--'))
-
+def annotate(data, **kws):
+    plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+    ax = plt.gca()
+    count = data["Method"].unique()[0]
+    ax.text(.65, 0.05, 'Model = {}'.format(count),
+            transform=ax.transAxes)
+g.map_dataframe(annotate)
+g.set_titles(col_template="")
+g.fig.subplots_adjust(top=0.9)
+g.fig.suptitle("$P_{sat}$ Model Prediction")
 # Add Legend, range of show
 #g.add_legend()
-#plt.xlim(x_min, x_max)
-#plt.ylim(y_min, y_max)
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+g.set(xticks=range(x_min,x_max+5,5))
 
 
 #%% Visualization-ln(Psat) test
@@ -80,41 +91,59 @@ test_prediction_bestpar_visual[test_prediction_bestpar_visual["ln_Psat_Actual (P
 print(f'min = {min(test_prediction_bestpar_visual["ln_Psat_Actual (Pa)"])}  max = {max(test_prediction_bestpar_visual["ln_Psat_Actual (Pa)"])}')
 
 # Specified Range for plot
-x_min = -20;  x_max = 25
+x_min = -10;  x_max = 20
 y_min, y_max = x_min, x_max
 
 # Plot each method
 g = sns.FacetGrid(test_prediction_bestpar_visual, col="Method", col_wrap=2, hue="Method")
 g.map_dataframe(sns.scatterplot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)", alpha=0.6)
 # Insert Perfect Line
-g.map_dataframe(lambda data, **kws: plt.axline((0, 0), slope=1, color='.5', linestyle='--'))
-
+def annotate(data, **kws):
+    plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+    ax = plt.gca()
+    count = data["Method"].unique()[0]
+    ax.text(.65, 0.05, 'Model = {}'.format(count),
+            transform=ax.transAxes)
+g.map_dataframe(annotate)
+g.set_titles(col_template="")
 # Add Legend, range of show
 #g.add_legend()
-#plt.xlim(x_min, x_max)
-#plt.ylim(y_min, y_max)
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
 
+g.fig.subplots_adjust(top=0.9)
+g.fig.suptitle("$P_{sat}$ Model Prediction")
+g.set(xticks=range(x_min,x_max+5,5))
 #%% Visualization- Psat train
+
 
 test_prediction_bestpar_visual = result_train.copy()
 test_prediction_bestpar_visual[test_prediction_bestpar_visual["Psat_Actual (atm)"]<-20]
 print(f'min = {min(test_prediction_bestpar_visual["Psat_Actual (atm)"])}  max = {max(test_prediction_bestpar_visual["Psat_Actual (atm)"])}')
 
 # Specified Range for plot
-x_min = -20;  x_max = 25
+x_min = -5;  x_max = 75
 y_min, y_max = x_min, x_max
 
 # Plot each method
 g = sns.FacetGrid(test_prediction_bestpar_visual, col="Method", col_wrap=2, hue="Method")
 g.map_dataframe(sns.scatterplot, x="Psat_Actual (atm)", y="Psat_Pred (atm)", alpha=0.6)
 # Insert Perfect Line
-g.map_dataframe(lambda data, **kws: plt.axline((0, 0), slope=1, color='.5', linestyle='--'))
-
+def annotate(data, **kws):
+    plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+    ax = plt.gca()
+    count = data["Method"].unique()[0]
+    ax.text(.05, 0.75, 'Model = {}'.format(count),
+            transform=ax.transAxes)
+g.map_dataframe(annotate)
+g.set_titles(col_template="")
 # Add Legend, range of show
 #g.add_legend()
 #plt.xlim(x_min, x_max)
 #plt.ylim(y_min, y_max)
-
+g.fig.subplots_adjust(top=0.9)
+g.fig.suptitle("$P_{sat}$ Model Prediction")
+g.set(xticks=range(0,60+20,20))
 #%% Visualization- Psat test
 
 test_prediction_bestpar_visual = result_test.copy()
@@ -122,20 +151,28 @@ test_prediction_bestpar_visual[test_prediction_bestpar_visual["Psat_Actual (atm)
 print(f'min = {min(test_prediction_bestpar_visual["Psat_Actual (atm)"])}  max = {max(test_prediction_bestpar_visual["Psat_Actual (atm)"])}')
 
 # Specified Range for plot
-x_min = -20;  x_max = 25
+x_min = -5;  x_max = 75
 y_min, y_max = x_min, x_max
 
 # Plot each method
 g = sns.FacetGrid(test_prediction_bestpar_visual, col="Method", col_wrap=2, hue="Method")
 g.map_dataframe(sns.scatterplot, x="Psat_Actual (atm)", y="Psat_Pred (atm)", alpha=0.6)
 # Insert Perfect Line
-g.map_dataframe(lambda data, **kws: plt.axline((0, 0), slope=1, color='.5', linestyle='--'))
-
+def annotate(data, **kws):
+    plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+    ax = plt.gca()
+    count = data["Method"].unique()[0]
+    ax.text(.05, 0.75, 'Model = {}'.format(count),
+            transform=ax.transAxes)
+g.map_dataframe(annotate)
+g.set_titles(col_template="")
 # Add Legend, range of show
 #g.add_legend()
-#plt.xlim(x_min, x_max)
-#plt.ylim(y_min, y_max)
-
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+g.fig.subplots_adjust(top=0.9)
+g.fig.suptitle("$P_{sat}$ Model Prediction")
+g.set(xticks=range(0,60+20,20))
 #%% Evaluation
 
 temp_train = result_train.groupby(['Method']).agg({'ln_Psat_Pred (Pa)': lambda x: x.tolist(),
