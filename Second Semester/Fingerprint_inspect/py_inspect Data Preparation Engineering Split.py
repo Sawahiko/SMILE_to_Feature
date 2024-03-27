@@ -242,7 +242,13 @@ plt.show(g)
 
 #temp_export.to_csv("XGB Default Prediction Fingerprint_result.csv")
 
-temp_inport = temp_export.groupby(['r-Bits set up', 'RMSE', 'MAE', 'R2', 'MF_radius','MF_Bits']).agg(list)
+#temp_inport = temp_export.groupby(['r-Bits set up', 'RMSE', 'MAE', 'R2', 'MF_radius','MF_Bits']).agg(list)
+#temp_import = temp_inport.reset_index()
+
+#%% Visualization from temp_import
+
+#%%
+
 # =============================================================================
 # import requests
 # url = 'https://notify-api.line.me/api/notify'

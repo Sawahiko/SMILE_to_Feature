@@ -278,6 +278,8 @@ df_plot["ln_Psat_Pred (Pa)"] = df_plot["ln_Psat_Pred (Pa)"].astype(float)
 df_plot
 
 #%% ln(Psat)
+sns.set(font_scale=1.1)
+sns.set_style("white")
 # All
 x_min = -10;  x_max = 20
 y_min, y_max = x_min, x_max
@@ -302,7 +304,12 @@ g.map_dataframe(sns.scatterplot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)",
 
 def annotate(data, **kws):
     plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+    ax = plt.gca()
+    count = data["Func. Group"].unique()[0]
+    #print(count)
+    ax.text(.3, 0.05, 'Group = {}'.format(count), transform=ax.transAxes)
 g.map_dataframe(annotate)
+g.set_titles(col_template="")
 
 # Add Legend, range of show
 plt.xlim(x_min, x_max)
@@ -338,7 +345,6 @@ g.set_ylabels("Predict ln($P_{sat}$)")
 g.fig.subplots_adjust(top=0.9)
 g.fig.suptitle('ln($P^{Sat}$) Prediction from XGB Model, Functional Group')
 plt.show()
-
 #%% Psat - functional Group
 df_plot["Psat_Actual (atm)"] = np.exp(df_plot["ln_Psat_Actual (Pa)"])/(10**5)
 df_plot["Psat_Pred (atm)"] = np.exp(df_plot["ln_Psat_Pred (Pa)"])/(10**5)
@@ -502,4 +508,4 @@ r2_score(final3["B"], final3["B_Pred"])
 r2_score(final3["C"], final3["C_Pred"])
 
 #%% Export Section
-#final3.to_csv("csv_05-1 Test ABC Calculated.csv")
+#final3.to_csv("csv_05-2 Train ABC Calculated.csv")

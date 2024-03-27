@@ -277,6 +277,8 @@ df_plot["ln_Psat_Pred (Pa)"] = df_plot["ln_Psat_Pred (Pa)"].astype(float)
 df_plot
 
 #%% ln(Psat)
+sns.set(font_scale=1.1)
+sns.set_style("white")
 # All
 x_min = -10;  x_max = 20
 y_min, y_max = x_min, x_max
@@ -301,7 +303,12 @@ g.map_dataframe(sns.scatterplot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)",
 
 def annotate(data, **kws):
     plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+    ax = plt.gca()
+    count = data["Func. Group"].unique()[0]
+    #print(count)
+    ax.text(.3, 0.05, 'Group = {}'.format(count), transform=ax.transAxes)
 g.map_dataframe(annotate)
+g.set_titles(col_template="")
 
 # Add Legend, range of show
 plt.xlim(x_min, x_max)
@@ -350,7 +357,8 @@ def annotate(data, **kws):
     ax.text(.05, .8, 'mse={:.4f}'.format(rmse),
             transform=ax.transAxes)
 g.map_dataframe(annotate)
-    
+
+
 plt.figure(figsize=(300,300))
 g.set_xlabels("Actual $P_{sat}$")
 g.set_ylabels("Predict $P_{sat}$")
