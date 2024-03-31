@@ -120,7 +120,7 @@ def generate_FP(MF_bit, MF_radius, SMILES_data, T_data):
 #%% Set up Fingerprint
 # Parameter for Generate Morgan Fingerprint
 all_MF_radius = [2,3,4]
-all_MF_bit = [256, 1024, 2048, 2**13]
+all_MF_bit = [256, 1024, 2048, 2**12]
 
 MF_loop = list(itertools.product(all_MF_radius, all_MF_bit))
 
@@ -211,6 +211,9 @@ temp["R2"]  = temp.apply(lambda x: r2_score(x["Actual"], x["Predict"]), axis=1)
 
 temp["MF_radius"] = temp.apply(lambda x: x["r-Bits set up"][0], axis=1)
 temp["MF_Bits"] = temp.apply(lambda x: x["r-Bits set up"][1], axis=1)
+
+#%%
+temp_export = temp.explode(["Predict", "Actual"])
 #%% Visualization
 
 import seaborn as sns
@@ -219,23 +222,32 @@ import matplotlib.pyplot as plt
 #temp2 = temp[temp["MF_Bits"]!= 8192]
 temp2 = temp.copy()
 df_log_sns = temp2.pivot_table(index="MF_Bits", columns="MF_radius", values="RMSE")
-g = sns.heatmap(df_log_sns, annot=True, fmt=".4f", cmap=sns.color_palette("light:g", as_cmap=True))
+g = sns.heatmap(df_log_sns, annot=True, fmt=".4f", cmap=sns.color_palette("light:brown_r", as_cmap=True))
 g.invert_yaxis()
 plt.title("Fingerprint Heatmap with RMSE")
 plt.show(g)
 #%%
 df_log_sns = temp2.pivot_table(index="MF_Bits", columns="MF_radius", values="MAE")
-g = sns.heatmap(df_log_sns, annot=True, fmt=".4f", cmap=sns.color_palette("light:g", as_cmap=True))
+g = sns.heatmap(df_log_sns, annot=True, fmt=".4f", cmap=sns.color_palette("light:brown_r", as_cmap=True))
 g.invert_yaxis()
 plt.title("Fingerprint Heatmap with MAE")
 plt.show(g)
 #%%
 df_log_sns = temp2.pivot_table(index="MF_Bits", columns="MF_radius", values="R2")
-g = sns.heatmap(df_log_sns, annot=True, fmt=".4f", cmap=sns.color_palette("light:g_r", as_cmap=True))
+g = sns.heatmap(df_log_sns, annot=True, fmt=".4f", cmap=sns.color_palette("ch:s=-.2,r=.6", as_cmap=True))
 g.invert_yaxis()
 plt.title("Fingerprint Heatmap with R2")
 plt.show(g)
 #%% Export Section
+
+#temp_export.to_csv("XGB Default Prediction Fingerprint_result.csv")
+
+#temp_inport = temp_export.groupby(['r-Bits set up', 'RMSE', 'MAE', 'R2', 'MF_radius','MF_Bits']).agg(list)
+#temp_import = temp_inport.reset_index()
+
+#%% Visualization from temp_import
+
+#%%
 
 # =============================================================================
 # import requests

@@ -97,7 +97,7 @@ def do_plot(rmse, is_plot, count, thereshold=1, is_second_cond=False):
             plt.text(200, 19, abc, figure=fig)
             plt.text(200, 18, p_abc, figure=fig)
 
-            plt.grid(figure=fig)
+            #plt.grid(figure=fig)
 
             #filename = f'2024-02-13 image/figure {i+1}.png'
             #filenames.append(filename)

@@ -277,8 +277,10 @@ df_plot["ln_Psat_Pred (Pa)"] = df_plot["ln_Psat_Pred (Pa)"].astype(float)
 df_plot
 
 #%% ln(Psat)
+sns.set(font_scale=1.1)
+sns.set_style("white")
 # All
-x_min = -20;  x_max = 25
+x_min = -10;  x_max = 20
 y_min, y_max = x_min, x_max
 
 sns.scatterplot(df_plot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)", alpha=0.6)
@@ -293,8 +295,30 @@ plt.figure(figsize=(300,300))
 plt.show()
 
 # functional Group
-x_min = -20;  x_max = 25
+x_min = -10;  x_max = 20
 y_min, y_max = x_min, x_max
+
+g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
+g.map_dataframe(sns.scatterplot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)", alpha=0.6)
+
+def annotate(data, **kws):
+    plt.axline((0, 0), slope=1, color='.5', linestyle='--')
+    ax = plt.gca()
+    count = data["Func. Group"].unique()[0]
+    #print(count)
+    ax.text(.3, 0.05, 'Group = {}'.format(count), transform=ax.transAxes)
+g.map_dataframe(annotate)
+g.set_titles(col_template="")
+
+# Add Legend, range of show
+plt.xlim(x_min, x_max)
+plt.ylim(y_min, y_max)
+plt.figure(figsize=(300,300))
+g.set_xlabels("Actual ln($P_{sat}$)")
+g.set_ylabels("Predict ln($P_{sat}$)")
+g.fig.subplots_adjust(top=0.9)
+g.fig.suptitle('ln($P^{Sat}$) Prediction from XGB Model, Functional Group')
+plt.show()
 
 g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
 g.map_dataframe(sns.scatterplot, x="ln_Psat_Actual (Pa)", y="ln_Psat_Pred (Pa)", alpha=0.6)
@@ -333,13 +357,15 @@ def annotate(data, **kws):
     ax.text(.05, .8, 'mse={:.4f}'.format(rmse),
             transform=ax.transAxes)
 g.map_dataframe(annotate)
-    
+
+
 plt.figure(figsize=(300,300))
 g.set_xlabels("Actual $P_{sat}$")
 g.set_ylabels("Predict $P_{sat}$")
 g.fig.subplots_adjust(top=0.9)
 g.fig.suptitle('$P^{Sat}$ Prediction from XGB Model, Functional Group')
 plt.show()
+
 #%%
 g = sns.FacetGrid(df_plot, col="Func. Group", col_wrap=4, hue="Func. Group")
 g.map_dataframe(sns.scatterplot, x="Psat_Actual (atm)", y="Psat_Pred (atm)", alpha=0.6)
@@ -352,6 +378,7 @@ plt.show()
 #%% A
 x_min = min(min(df_plot["A"]), min(df_plot["A_Pred"]))-10
 x_max = max(max(df_plot["A"]), max(df_plot["A_Pred"]))+10
+x_min = 0; x_max = 100
 y_min = x_min; y_max = x_max
 
 # A - All
@@ -389,8 +416,7 @@ plt.show()
 #%% B
 x_min = min(min(df_plot["B"]), min(df_plot["B_Pred"]))-10000
 x_max = max(max(df_plot["B"]), max(df_plot["B_Pred"]))+10000
-#x_min = -10000;
-#x_max = 40000
+x_min = -10000; x_max = 130000
 y_min = x_min; y_max = x_max
 
 
@@ -432,7 +458,7 @@ plt.show()
 #%% C
 x_min = min(min(df_plot["C"]), min(df_plot["C_Pred"]))-100
 x_max = max(max(df_plot["C"]), max(df_plot["C_Pred"]))+100
-#x_min = -10000; x_max = 40000
+x_min = -1000; x_max = 14000
 y_min = x_min; y_max = x_max
 
 # C - All
