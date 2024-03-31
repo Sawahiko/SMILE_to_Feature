@@ -261,16 +261,20 @@ df_com1 = pd.DataFrame({
 df_com1["lnPsat_Act"] = df_com1["A_act"]-(df_com1["B_act"]/(df_com1["T"]+df_com1["C_act"]))
 df_com1["lnPsat_Cal"] = df_com1["A_pred"]-(df_com1["B_pred"]/(df_com1["T"]+df_com1["C_pred"]))
 
+#%%
+df_com0 = pd.read_csv("C:/Users/oomsin/Downloads/Train_Act_Pred_Cal.csv")
+df_com1 = pd.read_csv("C:/Users/oomsin/Downloads/Test_Act_Pred_Cal.csv")
+
 #%% Metrics Test
 mae_test = mean_absolute_error(df_com1["A_act"], df_com1["A_pred"]), mean_absolute_error(df_com1["B_act"], df_com1["B_pred"]), mean_absolute_error(df_com1["C_act"], df_com1["C_pred"]), mean_absolute_error(df_com1["lnPsat_Act"], df_com1["lnPsat_Cal"])
 mape_test = mean_absolute_percentage_error(df_com1["A_act"], df_com1["A_pred"]), mean_absolute_percentage_error(df_com1["B_act"], df_com1["B_pred"]), mean_absolute_percentage_error(df_com1["C_act"], df_com1["C_pred"]), mean_absolute_percentage_error(df_com1["lnPsat_Act"], df_com1["lnPsat_Cal"])
 mse_test = mean_squared_error(df_com1["A_act"], df_com1["A_pred"]), mean_squared_error(df_com1["B_act"], df_com1["B_pred"]), mean_squared_error(df_com1["C_act"], df_com1["C_pred"]), mean_squared_error(df_com1["lnPsat_Act"], df_com1["lnPsat_Cal"])
 R2_test = r2_score(df_com1["A_act"], df_com1["A_pred"]),r2_score(df_com1["B_act"], df_com1["B_pred"]),r2_score(df_com1["C_act"], df_com1["C_pred"]), r2_score(df_com1["lnPsat_Act"], df_com1["lnPsat_Cal"])
 
-print("MAE","\nA = ",mae_test[0],"\nB = ",mae_test[1],"\nC = ",mae_test[2],"\nLogVP = ", mae_test[3])
-print("MAPE","\nA = ",mape_test[0],"\nB = ",mape_test[1],"\nC = ",mape_test[2],"\nLogVP = ", mape_test[3])
-print("RMSE","\nA = ",np.sqrt(mse_test[0]),"\nB = ",np.sqrt(mse_test[1]),"\nC = ",np.sqrt(mse_test[2]),"\nLogVP = ", np.sqrt(mse_test[3]))
-print("R2","\nA = ",R2_test[0],"\nB = ",R2_test[1],"\nC = ",R2_test[2],"\nLogVP = ", R2_test[3])
+print("MAE","\n",mae_test[0],"\n",mae_test[1],"\n",mae_test[2],"\n", mae_test[3])
+print("MAPE","\n",mape_test[0],"\n",mape_test[1],"\n",mape_test[2],"\n", mape_test[3])
+print("RMSE","\n",np.sqrt(mse_test[0]),"\nB = ",np.sqrt(mse_test[1]),"\n",np.sqrt(mse_test[2]),"\n", np.sqrt(mse_test[3]))
+print("R2","\n",R2_test[0],"\n",R2_test[1],"\n",R2_test[2],"\n", R2_test[3])
 
 #%% Visualization
 
@@ -283,7 +287,7 @@ y = x
 
 # PyPlot
 plt.plot([x_min, x_max], [y_min, y_max], color="black", alpha=0.5, linestyle="--")
-plt.scatter(df_com1["A_act"], df_com1["A_pred"], alpha=0.5, color='black')
+plt.scatter(df_com1["A_act"], df_com1["A_pred"], alpha=0.5)
 plt.xlabel("Actual")
 plt.ylabel("Predictions")
 plt.title("A")
@@ -300,7 +304,7 @@ y = x
 
 # PyPlot
 plt.plot([x_min, x_max], [y_min, y_max], color="black", alpha=0.5, linestyle="--")
-plt.scatter(df_com1["B_act"], df_com1["B_pred"], alpha=0.5, color='black')
+plt.scatter(df_com1["B_act"], df_com1["B_pred"], alpha=0.5)
 plt.xlabel("Actual")
 plt.ylabel("Predictions")
 plt.title("B")
@@ -317,7 +321,7 @@ y = x
 
 # PyPlot
 plt.plot([x_min, x_max], [y_min, y_max], color="black", alpha=0.5, linestyle="--")
-plt.scatter(df_com1["C_act"], df_com1["C_pred"], alpha=0.5, color='black')
+plt.scatter(df_com1["C_act"], df_com1["C_pred"], alpha=0.5)
 plt.xlabel("Actual")
 plt.ylabel("Predictions")
 plt.title("C")
@@ -333,13 +337,17 @@ x = np.linspace(x_min, x_max, 100)
 y = x
 
 # PyPlot
-plt.plot([x_min, x_max], [y_min, y_max], color="black", alpha=0.5, linestyle="--")
-plt.scatter(df_com1["lnPsat_Act"], df_com1["lnPsat_Cal"], alpha=0.5, color='black')
+plt.plot([-10, 20], [-10, 20], color="black", alpha=0.5, linestyle="--")
+plt.scatter(df_com1["lnPsat_Act"], df_com1["lnPsat_Cal"], alpha=0.5)
 plt.xlabel("Actual")
 plt.ylabel("Calculation")
 plt.title("lnVP")
-plt.xlim(x_min, x_max)
-plt.ylim(y_min, y_max)
+# =============================================================================
+# plt.xlim(x_min, x_max)
+# plt.ylim(y_min, y_max)
+# =============================================================================
+plt.xlim(-10, 20)
+plt.ylim(-10, 20)
 
 #%%
 df_com1["Vapor_Pressure_Act"] = np.exp(df_com1['lnPsat_Act'])/10**5
@@ -354,14 +362,20 @@ x = np.linspace(x_min, x_max, 100)
 y = x
 
 # PyPlot
-plt.plot([x_min, x_max], [y_min, y_max], color="black", alpha=0.5, linestyle="--")
-plt.scatter(df_com1["Vapor_Pressure_Act"], df_com1["Vapor_Pressure_Cal"], alpha=0.5, color='black')
+plt.plot([-5, 75], [-5, 75], color="black", alpha=0.5, linestyle="--")
+plt.scatter(df_com1["Vapor_Pressure_Act"], df_com1["Vapor_Pressure_Cal"], alpha=0.5)
 plt.xlabel("Vapor Pressure (atm) Actual")
 plt.ylabel("Vapor Pressure (atm) Cal")
 plt.title("Vapor Pressure (atm)")
-plt.xlim(x_min, x_max)
-plt.ylim(y_min, y_max)
+# =============================================================================
+# plt.xlim(x_min, x_max)
+# plt.ylim(y_min, y_max)
+# =============================================================================
+plt.xlim(-5, 75)
+plt.ylim(-5, 75)
 
 #%%
-df_com0.to_csv("Train_Act_Pred_Cal.csv")
-df_com1.to_csv("Test_Act_Pred_Cal.csv")
+# =============================================================================
+# df_com0.to_csv("Train_Act_Pred_Cal.csv")
+# df_com1.to_csv("Test_Act_Pred_Cal.csv")
+# =============================================================================
