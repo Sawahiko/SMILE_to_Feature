@@ -67,7 +67,7 @@ print(df2_train.sort_values(by="Vapor_Presssure"))
 
 # Fingerprint
 # Parameter for Generate Morgan Fingerprint
-MF_radius = 3;   MF_bit = 2048
+MF_radius = 4;   MF_bit = 4096
 
 # Generate Fingerprint from SMILE
 X_data_use = X_data.copy()
