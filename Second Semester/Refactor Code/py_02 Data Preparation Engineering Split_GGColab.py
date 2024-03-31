@@ -35,12 +35,11 @@ df1 = train.copy()
     ## Function to generate equally distributed points
 def generate_points(row, amount_point):
     start = row["Tmin"]; end = row["Tmax"];
-    temp = amount_point
-    if end-start == 0:
-        amount_point = 1
+    range_temp = end-start
+    if range_temp>0:
+        return np.linspace(start, end, amount_point)
     else:
-        amount_point = temp
-    return np.linspace(start, end, amount_point)
+        return np.linspace(start, end, 1)
 df1["T"] = df1.apply(lambda x : generate_points(x, 5), axis=1)
 
 df1  = df1.explode('T')
@@ -68,7 +67,7 @@ print(df2_train.sort_values(by="Vapor_Presssure"))
 
 # Fingerprint
 # Parameter for Generate Morgan Fingerprint
-MF_radius = 3;   MF_bit = 2048
+MF_radius = 4;   MF_bit = 4096
 
 # Generate Fingerprint from SMILE
 X_data_use = X_data.copy()
