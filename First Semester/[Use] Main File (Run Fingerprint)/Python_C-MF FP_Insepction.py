@@ -25,7 +25,11 @@ from Python_RemoveO import remove_outliers
 
 df_func = pd.read_csv("Tb_Data_CHON_Func_Group.csv")
 train, test= train_test_split(df_func, test_size=0.2,
-                              random_state=42, stratify=df_func["Atom2"])
+                              random_state=42, stratify=df_func["Func. Group"])
+
+train_out = train.groupby("Func. Group").agg({'SMILES': ['count']})
+test_out = test.groupby("Func. Group").agg({'SMILES': ['count']})
+print(pd.concat([train_out, test_out ], axis=1))
 #%% For Modeling  
 
 old_df = pd.DataFrame({
@@ -119,7 +123,7 @@ for i in MF_model_list:
     df3_r = pd.DataFrame({'SMIELS':test["SMILES"],  'Atom2':test["Atom2"],
                           'Func. Group':test["Func. Group"],
                           'Actual': y_test_fp, 'Predict': y_pred_test})
-    Export(df3_r, f"Result & Visual/CHON 2024-03-23/{model_name}_Test_Tb_Value_2.csv")
+#    Export(df3_r, f"Result & Visual/CHON 2024-03-23/{model_name}_Test_Tb_Value_2.csv")
     #%% Prepare Export 2 - FP Insepction
     if(j>0):
         old_df = df_combine.copy()
@@ -129,7 +133,7 @@ for i in MF_model_list:
     df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 #%% Prepare Export 3 - FP Insepction
-Export(df_combine, f"Result & Visual/CHON 2024-03-23/{Name_model}_2.csv")
+#Export(df_combine, f"Result & Visual/CHON 2024-03-23/{Name_model}_2.csv")
 df_combine["Model"]="XGB"
 
 #%% Visualization
@@ -149,8 +153,8 @@ df5_v.shape
 
 new_df = df5_v.pivot_table(index="nBits", columns="Radius", values="R2")
 new_df.sort_index(level=1, ascending=True, inplace=True)
-g = sns.heatmap(new_df,  annot=True, fmt=".3f", cmap=sns.color_palette("light:brown_r", as_cmap=True))
+g = sns.heatmap(new_df,  annot=True, fmt=".3f", cmap=sns.color_palette("ch:s=-.2,r=.6", as_cmap=True))
            #vmin=v_min ,vmax=v_max)
 g.invert_yaxis()
 g.get_xaxis().set_visible(True)
-g.set_title("XGB")
+g.set_title("Fingerprint Heatmap with R2")
