@@ -172,8 +172,8 @@ scaler_y = load("file_02-2 scaler_y.joblib")
 
 # Specified model need to run
 #names_bestpar = ["DT", "RF", "XGB", "KNN"]
-names_bestpar = ["RF"]
-models_bestpar = [RF]
+names_bestpar = ["DT"]
+models_bestpar = [DT]
 
 # Run Training Model
 all_result_model_bestpar = []
@@ -181,7 +181,21 @@ all_time_fitting_bestpar = []
 for iteration in range(len(names_bestpar)) :
     get_model = models_bestpar[iteration]
     time_start = datetime.now()
-    result_model = get_model(x_train, y_train)
+    #result_model = get_model(x_train, y_train) # For GridSearch
+    def get_model2(x_train, y_train):
+# =============================================================================
+#         model = RandomForestRegressor(random_state=42,
+#                                    max_depth = None, max_features = None, n_estimators = 200)
+# =============================================================================
+# =============================================================================
+#         model = KNeighborsRegressor(
+#                                    algorithm= 'ball_tree', n_neighbors=20, weights='distance')
+# =============================================================================
+        model = DecisionTreeRegressor(random_state=42,
+                                      max_depth = None, min_samples_leaf = 1, min_samples_split = 2)
+        model.fit(x_train, y_train)
+        return model
+    result_model = get_model2(x_train, y_train) # Get Parameter but no results
     time_end = datetime.now()
     duration = (time_end - time_start).total_seconds()
     print(result_model)
@@ -251,6 +265,8 @@ test_predict_table = test_prediction_bestpar_original.explode(["Test Predict", "
 # RF: {'max_depth': None, 'max_features': None, 'n_estimators': 200}
 # RF: {'max_depth': None, 'max_features': None, 'n_estimators': 200}
 # RF: {'max_depth': None, 'max_features': None, 'n_estimators': 200}
+# RF: {'max_depth': None, 'max_features': None, 'n_estimators': 200}
+# KNN : algorithm= 'ball_tree', n_neighbors=20, weights='distance')
 #%% Export
 
 # Export Model
@@ -261,8 +277,8 @@ for i in range(len(names_bestpar)):
     dump(all_result_model_bestpar[i], path_model)
     
 # Export Prediction Table
-train_predict_table.to_csv("csv_03-1-1 Predict Table - train RF.csv")
-test_predict_table.to_csv("csv_03-1-2 Predict Table - test RF.csv")
+train_predict_table.to_csv("csv_03-1-1 Predict Table - train DT.csv")
+test_predict_table.to_csv("csv_03-1-2 Predict Table - test DT.csv")
 
 # Export Evaluation
 #%%
@@ -272,5 +288,5 @@ token = '3CfMWfczpal9Zye6bD72a8Ud6FWOODnBHQZHIWM1YU4'
 headers = {'content-type':'application/x-www-form-urlencoded','Authorization':'Bearer '+token}
 
 msg = f'Train RF Done'
-r = requests.post(url, headers=headers, data = {'message':msg})
-print (r.text)
+#r = requests.post(url, headers=headers, data = {'message':msg})
+#print (r.text)
