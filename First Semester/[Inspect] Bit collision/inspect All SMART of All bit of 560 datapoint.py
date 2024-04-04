@@ -82,7 +82,7 @@ def get_All_SMART_1_mol(mol, radius,nBits):
     
 # %% Import Data : 560 datapoint
 #Import Data
-df = pd.read_excel("DataSMILE.xlsx",sheet_name="All_SMILE")
+df = pd.read_excel("../Data.xlsx",sheet_name="560point")
 # %%  # Interactive
 name1 = "CCC#C"
 m1 = Chem.MolFromSmiles(name1)
@@ -115,7 +115,7 @@ X_data_ML = pd.concat([Dataframe, Dataframe_fp], axis=1, join='inner')
 
 
 # %%
-test = X_data_ML["molecule"].apply(lambda x: get_All_SMART_1_mol(x, nBits))
+test = X_data_ML["molecule"].apply(lambda x: get_All_SMART_1_mol(x, 3, nBits))
 
 # %%
 count = set()
@@ -156,7 +156,7 @@ data = {
         "no. Bit":idx_all,
         "Number Structure":count_str
     }    
-pd.DataFrame(data).to_csv("Bit collision/Check_SMART_in_bit_3mol.csv")
+#pd.DataFrame(data).to_csv("Bit collision/Check_SMART_in_bit_3mol.csv")
 
 # %%
 from collections import OrderedDict
