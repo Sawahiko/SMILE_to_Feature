@@ -95,6 +95,7 @@ for i in MF_model_list:
     
     x_test_fp = pd.concat(X_data_fp)
     y_test_fp = Y_data.copy()
+    
     #%% Select ML Algorithm
     start_time = time.time()
     model = model_func(x_train_fp, y_train_fp)
@@ -106,6 +107,7 @@ for i in MF_model_list:
     y_data_fp = pd.concat([y_train_fp, y_test_fp], ignore_index=True)
     Score_table = Scoring(model , x_train_fp, x_test_fp, x_data_fp, y_train_fp, y_test_fp, y_data_fp)
     y_pred_test = model.predict(x_test_fp)
+    y_pred_train = model.predict(x_train_fp)
 
     #%% Prepare Export for each MF_FP
     # Score Table 
@@ -116,10 +118,16 @@ for i in MF_model_list:
     df_r = pd.concat([Score_table, df2_r], axis=1)
     
     # Prediction Table 
-    df3_r = pd.DataFrame({'SMIELS':test["SMILES"],  'Atom2':test["Atom2"],
-                          'Func. Group':test["Func. Group"],
-                          'Actual': y_test_fp, 'Predict': y_pred_test})
-    Export(df3_r, f"Result & Visual/CHON 2024-03-23/{model_name}_Test_Tb_ValueP2.csv")
+    df3_r = pd.DataFrame({'SMIELS':train["SMILES"],  'Atom2':train["Atom2"],
+                          'Func. Group': train["Func. Group"],
+                          'Actual' : y_train_fp, 'Predict': y_pred_train})
+# =============================================================================
+#     df3_r = pd.DataFrame({'SMIELS':test["SMILES"],  'Atom2':test["Atom2"],
+#                           'Func. Group': test["Func. Group"],
+#                           'Actual': y_test_fp, 'Predict': y_pred_test})
+# =============================================================================
+#    Export(df3_r, f"Result & Visual/CHON 2024-03-23/{model_name}_Test_Tb_Value_3.csv")
+    Export(df3_r, f"Result & Visual/CHON 2024-03-23/{model_name}_Train_Tb_Value.csv")
     #%% Prepare Export 2 - FP Insepction
     if(j>0):
         old_df = df_combine.copy()
@@ -129,6 +137,7 @@ for i in MF_model_list:
     df_combine = pd.concat([old_df, new_df], ignore_index=True)
         
 #%% Prepare Export 3 - FP Insepction
-Export(df_combine, f"Result & Visual/CHON 2024-03-23/{Name_model}_2.csv")
+#Export(df_combine, f"Result & Visual/CHON 2024-03-23/{Name_model}_3.csv")
+Export(df_combine, f"Result & Visual/CHON 2024-03-23/{Name_model}_Train.csv")
 
 
